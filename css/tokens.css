@@ -1,0 +1,67 @@
+/* Hallmark · custom theme · SMASK corporate
+ * vibe: "quiet luxury, ivory & gold, gem accents"
+ * paper: oklch(98.5% 0.006 85)  ·  accent(gold): oklch(64% 0.10 78)
+ * axes: light paper / high-contrast-serif display / warm(gold) accent
+ */
+:root {
+  /* ---- Color ---- */
+  --color-paper:      oklch(98.6% 0.006 85);   /* ivory white */
+  --color-paper-2:    oklch(96.8% 0.010 84);   /* faint warm panel */
+  --color-paper-3:    oklch(94.2% 0.014 83);   /* deeper panel / hover */
+  --color-ink:        oklch(24% 0.010 60);     /* warm near-black text */
+  --color-ink-soft:   oklch(42% 0.012 62);     /* secondary text */
+  --color-ink-mute:   oklch(58% 0.010 65);     /* captions / meta */
+
+  --color-gold:       oklch(64% 0.105 78);     /* accent gold (text-safe) */
+  --color-gold-deep:  oklch(55% 0.095 74);     /* pressed / strong */
+  --color-gold-line:  oklch(80% 0.090 86);     /* hairlines, threads */
+  --color-gold-glow:  oklch(88% 0.070 90);     /* light wash */
+
+  --color-sapphire:   oklch(46% 0.150 258);    /* blue gem accent */
+  --color-ruby:       oklch(51% 0.190 20);     /* red gem accent */
+
+  --color-focus:      oklch(46% 0.150 258);
+
+  /* ---- Type ---- */
+  --font-display: "Cormorant Garamond", "Shippori Mincho", serif;
+  --font-jp:      "Shippori Mincho", "Cormorant Garamond", serif;
+  --font-body:    "Noto Sans JP", system-ui, sans-serif;
+
+  --text-hero:     clamp(2.6rem, 6.2vw, 5rem);
+  --text-display:  clamp(2.1rem, 4.4vw, 3.5rem);
+  --text-display-s:clamp(1.7rem, 3.2vw, 2.5rem);
+  --text-xl:       clamp(1.3rem, 2.2vw, 1.75rem);
+  --text-lg:       1.25rem;
+  --text-md:       1.0625rem;
+  --text-sm:       0.9375rem;
+  --text-xs:       0.8125rem;
+  --text-eyebrow:  0.78rem;
+
+  /* ---- Space (4pt scale) ---- */
+  --space-2xs: 0.25rem;
+  --space-xs:  0.5rem;
+  --space-sm:  0.75rem;
+  --space-md:  1.25rem;
+  --space-lg:  2rem;
+  --space-xl:  3.25rem;
+  --space-2xl: 5rem;
+  --space-3xl: 8rem;
+
+  /* ---- Lines / radius ---- */
+  --rule-hair: 1px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+
+  /* ---- Motion ---- */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in:     cubic-bezier(0.55, 0, 0.68, 0.28);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-expo:   cubic-bezier(0.19, 1, 0.22, 1);  /* signature ease-out-expo (12-office feel) */
+  --dur-fast: 220ms;
+  --dur-mid:  520ms;
+  --dur-slow: 900ms;
+  --dur-reveal:    1100ms;
+  --dur-reveal-lg: 1400ms;
+
+  --wrap: 1180px;
+}
