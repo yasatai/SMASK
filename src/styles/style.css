@@ -336,10 +336,10 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
   background-color: var(--color-paper);
   background-image:
     linear-gradient(90deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 86%, transparent) 34%, transparent 60%),
-    image-set(url("../assets/hero.jpg") 1x);
+    image-set(url("/assets/hero.jpg") 1x);
   background-image:
     linear-gradient(90deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 86%, transparent) 34%, transparent 60%),
-    url("../assets/hero.jpg");
+    url("/assets/hero.jpg");
   background-repeat: no-repeat, no-repeat;
   background-size: cover, cover;
   background-position: center, right center;
@@ -433,9 +433,9 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
     color-mix(in oklch, var(--color-paper-2) 62%, transparent) 100%);
 }
 .panel.is-revealed .panel-bg { opacity: 1; transform: scale(1); }
-#about   .panel-bg { background-image: url("../assets/about.jpg"); }
-#business .panel-bg { background-image: url("../assets/business.jpg"); }
-#approach .panel-bg { background-image: url("../assets/approach.jpg"); }
+#about   .panel-bg { background-image: url("/assets/about.jpg"); }
+#business .panel-bg { background-image: url("/assets/business.jpg"); }
+#approach .panel-bg { background-image: url("/assets/approach.jpg"); }
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid;
   grid-template-columns: repeat(4, 1fr); pointer-events: none;
@@ -717,7 +717,7 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
   .sub-br { display: none; }
   .hero { background-image:
       linear-gradient(180deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 70%, transparent) 45%, color-mix(in oklch, var(--color-paper) 30%, transparent) 100%),
-      url("../assets/hero.jpg");
+      url("/assets/hero.jpg");
     background-position: center, center bottom;
   }
 }
