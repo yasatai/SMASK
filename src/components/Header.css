@@ -1,30 +1,26 @@
-/* Header.css — ヘッダー（左上ブランド）＋左下固定ナビ＋現在地マーカー */
-/* ============ Header ============ */
-.site-header {
-  position: fixed; inset: 0 0 auto 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 1.05rem clamp(1.25rem, 4vw, 3rem);
-  background: color-mix(in oklch, var(--color-paper) 82%, transparent);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: var(--rule-hair) solid transparent;
-  transition: border-color var(--dur-mid) var(--ease-out),
-              background var(--dur-mid) var(--ease-out),
-              padding var(--dur-mid) var(--ease-out);
+/* Header.css — 左上の会社ロゴ＋左端サイドメニュー（ヘッダーバーは持たない） */
+
+/* ============ 会社ロゴ（左上・固定） ============ */
+.site-logo {
+  position: fixed;
+  top: clamp(1rem, 2.2vh, 1.5rem);
+  left: clamp(1.25rem, 4vw, 3rem);
+  z-index: 120; display: block; line-height: 0;
 }
-.site-header.is-scrolled {
-  padding-block: .75rem;
-  border-bottom-color: color-mix(in oklch, var(--color-gold-line) 55%, transparent);
-  background: color-mix(in oklch, var(--color-paper) 92%, transparent);
+.site-logo img {
+  width: clamp(92px, 8.6vw, 118px); height: auto;
+  /* 素材が白地JPGのため、乗算合成で紙色になじませる */
+  mix-blend-mode: multiply;
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
-.brand {
-  font-family: var(--font-display);
-  font-size: 1.5rem; font-weight: 600;
-  letter-spacing: 0.34em;
-  padding-left: 0.34em; /* balance tracking */
-  color: var(--color-ink);
+.site-logo:hover img,
+.site-logo:focus-visible img { opacity: .68; }
+
+/* 暗色セクション（フッター）上では反転して視認性を確保 */
+.is-fp-dark .site-logo img {
+  mix-blend-mode: screen;
+  filter: invert(1) hue-rotate(180deg);
 }
-.brand:hover { color: var(--color-gold-deep); }
 
 .nav { display: flex; align-items: center; gap: clamp(1rem, 2.4vw, 2.4rem); }
 .nav > li { position: relative; }
@@ -83,10 +79,11 @@
 }
 .submenu .jp { font-size: var(--text-sm); color: var(--color-ink); letter-spacing: .04em; }
 
-/* hamburger */
+/* hamburger（ヘッダーバーが無いため単体で固定配置） */
 .nav-toggle {
-  display: none; flex-direction: column; gap: 5px; justify-content: center;
+  display: none; flex-direction: column; gap: 5px; justify-content: center; align-items: center;
   width: 42px; height: 42px; background: none; border: 0; cursor: pointer; padding: 0;
+  position: fixed; top: .8rem; right: .9rem; z-index: 130;
 }
 .nav-toggle span { height: 1.5px; width: 24px; background: var(--color-ink); transition: transform var(--dur-fast) var(--ease-out), opacity var(--dur-fast); }
 .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
@@ -115,45 +112,78 @@
   .has-menu .submenu.is-open { max-height: 20rem; }
 }
 
-/* ============ 左下固定ナビ（12-office式）＋現在地マーカー ============ */
-.nav-marker { display: none; }
+/* ============ 左端サイドメニュー（12-office式：縦書き＋縦バー） ============ */
+/* 英語サブラベル（全幅共通の基本形） */
+.nl-en {
+  font-family: var(--font-display);
+  font-size: .66rem; font-weight: 600;
+  letter-spacing: .17em; text-transform: uppercase;
+  color: var(--color-ink-mute);
+  transition: color var(--dur-fast) var(--ease-out);
+}
 
 @media (min-width: 761px) {
   .nav {
     position: fixed;
-    left: clamp(1.25rem, 4vw, 3rem);
-    bottom: 2rem;
+    left: 0; bottom: 0;
     z-index: 110;
     flex-direction: column;
     align-items: flex-start;
-    gap: .52rem;
+    gap: .46rem;
+    padding: 0 1rem 1rem clamp(1.4rem, 2.6vw, 2.1rem);
     line-height: 1;
   }
   .nav > li { line-height: 1; }
-  .nav-link { font-size: .82rem; letter-spacing: .1em; padding: 0; line-height: 1.2; }
-  /* 現在地マーカー：金の短い線が項目間をスライドして移動 */
-  .nav-marker {
-    display: block;
-    position: absolute; left: -1.35rem; top: 0;
-    width: .9rem; height: 1px;
-    background: var(--color-gold);
-    transition: transform 560ms var(--ease-expo), opacity 300ms var(--ease-out), background 300ms var(--ease-out);
-    opacity: 0;
+  .nav-link {
+    flex-direction: column; align-items: flex-start; gap: .26rem;
+    padding: 0;
   }
-  .nav.has-marker .nav-marker { opacity: 1; }
+  .nav-link::after { display: none; }  /* 下線ホバーは縦書きでは使わない */
+  .nav-link .caret { display: none; }  /* サブメニューはホバーで開く */
 
-  /* 事業内容サブメニュー：メニューが下端にあるため上へ開く */
+  /* 日本語ラベル：縦書き（12-officeの menuNavButton__label 相当） */
+  .nl-jp {
+    position: relative;
+    writing-mode: vertical-rl;
+    /* 縦書きのため文字サイズ＝メニューの高さ。画面が高いほど大きくする */
+    font-size: clamp(.82rem, 1.68vh, .92rem);
+    letter-spacing: .07em; line-height: 1;
+    white-space: nowrap;
+  }
+  /* 現在地・ホバーで縦のバーが立ち上がる（12-officeの label::before 相当） */
+  .nl-jp::before {
+    content: ""; position: absolute; top: -.1rem; left: -.66rem;
+    width: 2px; height: calc(100% + .2rem);
+    background: var(--color-gold);
+    /* %移動と合成すると transition が走らないため、純粋な scaleY で伸ばす */
+    transform: scaleY(0); transform-origin: center;
+    transition: transform 450ms var(--ease-expo), background 300ms var(--ease-out);
+  }
+  .nav li.is-here .nl-jp::before,
+  .nav-link:hover .nl-jp::before,
+  .nav-link:focus-visible .nl-jp::before { transform: scaleY(1); }
+  .nav li.is-here .nav-link { color: var(--color-ink); }
+  .nav li.is-here .nl-en { color: var(--color-gold-deep); }
+
+  /* 事業内容サブメニュー：右横に開く */
   .has-menu .submenu {
-    top: auto; bottom: calc(100% + .7rem); left: 0;
+    top: auto; bottom: 0; left: calc(100% + 1.1rem);
     transform: translateY(6px);
   }
   .has-menu:hover .submenu,
   .has-menu:focus-within .submenu,
   .has-menu .submenu.is-open { transform: translateY(0); }
+
+  /* メニュー帯のぶん、トップのコンテンツを右へ逃がす（12-officeと同じ住み分け） */
+  .hero { padding-left: 4.6rem; }
+  .panel { padding-left: 6.3rem; }
 }
 
 /* ============ 暗色セクション（フッター）でのナビ反転 ============ */
-.is-fp-dark .nav-link { color: color-mix(in oklch, var(--color-paper) 75%, transparent); }
+.is-fp-dark .nav-link { color: color-mix(in oklch, var(--color-paper) 78%, transparent); }
 .is-fp-dark .nav-link:hover,
 .is-fp-dark .nav-link:focus-visible { color: var(--color-paper); }
-.is-fp-dark .nav-marker { background: var(--color-gold-line); }
+.is-fp-dark .nl-en { color: color-mix(in oklch, var(--color-paper) 48%, transparent); }
+.is-fp-dark .nav li.is-here .nav-link { color: var(--color-paper); }
+.is-fp-dark .nav li.is-here .nl-en { color: var(--color-gold-line); }
+.is-fp-dark .nl-jp::before { background: var(--color-gold-line); }

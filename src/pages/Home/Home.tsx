@@ -63,19 +63,7 @@ export default function Home() {
       for (let k = 0; k < 4; k++) curtain.appendChild(document.createElement("span"));
       document.body.appendChild(curtain);
 
-      /* ドットナビ */
-      const dots = document.createElement("nav");
-      dots.className = "fp-nav";
-      dots.setAttribute("aria-label", "セクション");
-      sections.forEach((_, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.setAttribute("aria-label", "セクション " + (i + 1));
-        b.addEventListener("click", () => goTo(i));
-        dots.appendChild(b);
-      });
-      document.body.appendChild(dots);
-      const dotBtns = Array.from(dots.querySelectorAll("button"));
+      /* 現在地の表示は左端サイドメニューの金バーが担うため、ドットナビは持たない */
 
       let current = 0;
       let animating = false;
@@ -93,8 +81,7 @@ export default function Home() {
             if (w) w.scrollTop = 0;
           }
         });
-        dotBtns.forEach((b, idx) => b.classList.toggle("is-active", idx === i));
-        /* 暗色フッター上ではナビ・ドットの色を反転 */
+        /* 暗色フッター上ではロゴ・サイドメニューの色を反転 */
         document.documentElement.classList.toggle(
           "is-fp-dark", footer !== null && sections[i] === footer
         );
@@ -191,7 +178,6 @@ export default function Home() {
         window.removeEventListener("smask:goto", onGoto);
         if (hint) { hint.removeEventListener("click", onHint); hint.style.cursor = ""; }
         curtain.remove();
-        dots.remove();
         document.documentElement.classList.remove("is-fullpage", "is-fp-dark");
         sections.forEach(s =>
           s.classList.remove("fp-section", "is-active", "is-revealed")

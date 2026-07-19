@@ -56,20 +56,6 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 }
 .fp-curtain.is-opening::before { animation: seamSweep 900ms var(--ease-out) forwards; }
 
-/* section dots */
-.fp-nav {
-  position: fixed; right: clamp(1.2rem, 2.4vw, 2.2rem); top: 50%; transform: translateY(-50%);
-  z-index: 95; display: flex; flex-direction: column; gap: 1.1rem;
-}
-.fp-nav button {
-  width: 9px; height: 9px; border-radius: 50%; padding: 0; cursor: pointer;
-  border: 1px solid var(--color-gold); background: transparent;
-  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
-}
-.fp-nav button:hover { transform: scale(1.3); }
-.fp-nav button.is-active { background: var(--color-gold); transform: scale(1.3); }
-.site-footer.is-active ~ .fp-nav button { border-color: var(--color-gold-line); }
-
 /* ============ Opening animation (homepage) ============ */
 .intro {
   position: fixed; inset: 0; z-index: 400;
@@ -447,19 +433,15 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 }
 
 @media (min-width: 761px) {
-  /* Heroコピーを「ヘッダー〜左下メニュー」の帯の中で上下中央に配置
-     （上5rem＝ヘッダー分、下14.6rem＝左下メニュー分を確保して中央寄せ） */
-  .hero { align-items: center; padding-top: 5rem; padding-bottom: 14.6rem; }
+  /* メニューは左端の縦帯になったため、Heroコピーは素直に上下中央へ
+     （横方向の逃しは Header.css 側の .hero padding-left が担う） */
+  .hero { align-items: center; padding-top: 5rem; padding-bottom: 5rem; }
   .is-fullpage .hero { justify-content: center; }
   .hero-inner { padding-top: 0; padding-bottom: 0; }
 }
 
 /* SCROLL表示は左下メニューと入れ替えで右下へ */
 .hero-scroll { left: auto; right: clamp(1.25rem, 4vw, 3rem); }
-
-/* ============ 暗色セクション（フッター）でのドットナビ反転 ============ */
-.is-fp-dark .fp-nav button { border-color: color-mix(in oklch, var(--color-paper) 55%, transparent); }
-.is-fp-dark .fp-nav button.is-active { background: var(--color-gold-line); border-color: var(--color-gold-line); }
 
 /* ============ Reduced motion（トップ固有） ============ */
 @media (prefers-reduced-motion: reduce) {
