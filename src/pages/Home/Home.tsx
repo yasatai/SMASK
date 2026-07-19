@@ -278,6 +278,8 @@ export default function Home() {
         {/* OUR BUSINESS */}
         <section className="panel panel--tint" id="business">
           <div className="panel-bg" aria-hidden="true"></div>
+          {/* カードホバーで背景の対応領域だけ色が冴えるレイヤー（CSSの :has(:hover) 駆動） */}
+          <div className="panel-bg-vivid" aria-hidden="true"></div>
           <div className="curtain" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
           <div className="wrap">
             <div className="sec-head reveal-item">

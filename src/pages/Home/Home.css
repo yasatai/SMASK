@@ -243,6 +243,31 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 #about   .panel-bg { background-image: url("/assets/about.jpg"); }
 #business .panel-bg { background-image: url("/assets/business.jpg"); }
 #approach .panel-bg { background-image: url("/assets/approach.jpg"); }
+
+/* ---- 事業カードホバー：背景の対応領域だけ色が冴える ----
+ * 背景と同じ画像を「膜なし＋彩度アップ」で重ね、円形マスクで対象領域だけ見せる。
+ * ハイライト中心は @property 登録済みのカスタムプロパティで、
+ * カード間を移ると位置もなめらかにスライドする。
+ * 画像内の配置はカード順とクロス対応（貴金属=右上 / ジュエリー=中央下 / Web=左）。 */
+@property --biz-x { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --biz-y { syntax: "<percentage>"; inherits: false; initial-value: 55%; }
+
+#business .panel-bg-vivid {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: url("/assets/business.jpg");
+  background-size: cover; background-position: center;
+  filter: saturate(1.45) contrast(1.07);
+  opacity: 0;
+  -webkit-mask-image: radial-gradient(ellipse 33% 46% at var(--biz-x) var(--biz-y), #000 0 50%, transparent 78%);
+  mask-image: radial-gradient(ellipse 33% 46% at var(--biz-x) var(--biz-y), #000 0 50%, transparent 78%);
+  transition:
+    opacity 650ms var(--ease-expo),
+    --biz-x 650ms var(--ease-expo),
+    --biz-y 650ms var(--ease-expo);
+}
+#business:has(.biz-card[data-gem="gold"]:hover)     .panel-bg-vivid { opacity: 1; --biz-x: 82%; --biz-y: 38%; }
+#business:has(.biz-card[data-gem="ruby"]:hover)     .panel-bg-vivid { opacity: 1; --biz-x: 58%; --biz-y: 78%; }
+#business:has(.biz-card[data-gem="sapphire"]:hover) .panel-bg-vivid { opacity: 1; --biz-x: 18%; --biz-y: 55%; }
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid;
   grid-template-columns: repeat(4, 1fr); pointer-events: none;
