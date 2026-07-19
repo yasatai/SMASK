@@ -48,14 +48,6 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 .fp-curtain.is-closing span:nth-child(3), .fp-curtain.is-opening span:nth-child(3) { transition-delay: 140ms; }
 .fp-curtain.is-closing span:nth-child(4), .fp-curtain.is-opening span:nth-child(4) { transition-delay: 210ms; }
 
-/* gold seam flash as the curtain opens */
-.fp-curtain::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; z-index: 2;
-  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
-  transform: scaleX(0); opacity: 0;
-}
-.fp-curtain.is-opening::before { animation: seamSweep 900ms var(--ease-out) forwards; }
-
 /* ============ Opening animation (homepage) ============ */
 .intro {
   position: fixed; inset: 0; z-index: 400;
@@ -286,20 +278,6 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 .curtain span:nth-child(4){ transition-delay: 330ms; }
 .panel.is-revealed .curtain span { transform: translateY(-102%); }
 .panel.is-revealed .curtain span:nth-child(even) { transform: translateY(102%); }
-
-/* gold seam of light sweeps across as the curtain parts */
-.curtain::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; z-index: 6;
-  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
-  transform: scaleX(0); transform-origin: center; opacity: 0;
-}
-.panel.is-revealed .curtain::before { animation: seamSweep 1000ms var(--ease-out) forwards; }
-@keyframes seamSweep {
-  0%   { transform: scaleX(0); opacity: 0; }
-  35%  { opacity: 1; }
-  65%  { transform: scaleX(1); opacity: .9; }
-  100% { transform: scaleX(1); opacity: 0; }
-}
 
 /* ---- inner content choreography (ease-out-expo, slow & graceful) ---- */
 .reveal-item {
