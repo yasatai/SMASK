@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { prefersReduced } from "../motion";
+import "./LoadCurtain.css";
 
 /** 下層ページの入場カーテン（元 main.js openStage のサブページ分岐を移植） */
 export default function LoadCurtain() {

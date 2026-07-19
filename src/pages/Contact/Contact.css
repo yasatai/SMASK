@@ -1,0 +1,16 @@
+/* Contact.css — お問い合わせフォーム */
+.form { max-width: 38rem; margin-inline: auto; display: grid; gap: 1.4rem; }
+.field { display: grid; gap: .5rem; }
+.field label { font-size: var(--text-sm); letter-spacing: .05em; color: var(--color-ink); }
+.field label .req { color: var(--color-ruby); font-size: .75rem; margin-left: .4rem; }
+.field input, .field textarea, .field select {
+  font-family: inherit; font-size: var(--text-md); color: var(--color-ink);
+  padding: .9rem 1rem; background: var(--color-paper);
+  border: var(--rule-hair) solid color-mix(in oklch, var(--color-ink) 22%, transparent);
+  border-radius: var(--radius-sm); transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.field textarea { min-height: 9rem; resize: vertical; }
+.field input:focus, .field textarea:focus, .field select:focus {
+  outline: none; border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-gold) 22%, transparent);
+}

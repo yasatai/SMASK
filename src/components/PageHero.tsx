@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import "./PageHero.css";
 
 type Props = {
   crumb: ReactNode;   // 例: <>ホーム ／ 事業内容 ／ 貴金属買取</>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
-import SplitLn from "../components/SplitLn";
-import { prefersReduced } from "../motion";
+import SplitLn from "../../components/SplitLn";
+import { prefersReduced } from "../../motion";
+import "./Home.css";
 
 /**
  * トップページ。
@@ -93,6 +94,12 @@ export default function Home() {
           }
         });
         dotBtns.forEach((b, idx) => b.classList.toggle("is-active", idx === i));
+        /* 暗色フッター上ではナビ・ドットの色を反転 */
+        document.documentElement.classList.toggle(
+          "is-fp-dark", footer !== null && sections[i] === footer
+        );
+        /* 左下メニューのマーカーへ現在地を通知 */
+        window.dispatchEvent(new CustomEvent("smask:section", { detail: i }));
       };
 
       const reveal = (i: number) => {
@@ -158,6 +165,10 @@ export default function Home() {
       };
       window.addEventListener("keydown", onKey);
 
+      /* 左下メニューからのセクション遷移を受け付ける */
+      const onGoto = (e: Event) => goTo((e as CustomEvent<number>).detail);
+      window.addEventListener("smask:goto", onGoto);
+
       /* SCROLL 表示クリックで次へ */
       const hint = hero.querySelector<HTMLElement>(".hero-scroll");
       const onHint = () => goTo(1);
@@ -177,10 +188,11 @@ export default function Home() {
         window.removeEventListener("wheel", onWheel);
         window.removeEventListener("keydown", onKey);
         window.removeEventListener("resize", onResize);
+        window.removeEventListener("smask:goto", onGoto);
         if (hint) { hint.removeEventListener("click", onHint); hint.style.cursor = ""; }
         curtain.remove();
         dots.remove();
-        document.documentElement.classList.remove("is-fullpage");
+        document.documentElement.classList.remove("is-fullpage", "is-fp-dark");
         sections.forEach(s =>
           s.classList.remove("fp-section", "is-active", "is-revealed")
         );

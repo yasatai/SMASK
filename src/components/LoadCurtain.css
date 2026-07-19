@@ -1,0 +1,19 @@
+/* LoadCurtain.css — 下層ページの入場カーテン */
+.load-curtain {
+  position: fixed; inset: 0; z-index: 300; display: grid;
+  grid-template-columns: repeat(4, 1fr); pointer-events: none;
+}
+.load-curtain span {
+  background: linear-gradient(180deg, var(--color-paper-2), var(--color-paper));
+  border-right: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 40%, transparent);
+  transform: translateY(0);
+  transition: transform 1050ms var(--ease-in-out);
+}
+.load-curtain span:last-child { border-right: 0; }
+.load-curtain.is-open span { transform: translateY(-101%); }
+.load-curtain.is-open span:nth-child(even) { transform: translateY(101%); }
+.load-curtain.is-done { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .load-curtain { display: none !important; }
+}

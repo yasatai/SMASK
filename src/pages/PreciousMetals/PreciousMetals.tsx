@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./PreciousMetals.css";
 
 export default function PreciousMetals() {
   useEffect(() => { document.title = "貴金属買取 ｜ SMASK"; }, []);

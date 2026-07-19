@@ -19,26 +19,50 @@ npm run preview  # ビルド結果の確認
 
 ## 構成
 
+CSSは「1ファイル = 1つの担当範囲」に分割し、**ページはフォルダ単位（.tsx と .css を同居）**にしている。
+
 ```
 src/
-  main.tsx            エントリ（tokens.css / style.css を読み込み）
-  App.tsx             ルーティング + ページ遷移カーテン + 慣性スクロール
-  motion.ts           prefers-reduced-motion 判定（共有）
+  main.tsx              エントリ。共通CSS（tokens → base）を App より先に読み込む
+  App.tsx / App.css     ルーティング + 慣性スクロール ／ ページ遷移カーテン
+  motion.ts             prefers-reduced-motion 判定（共有）
   styles/
-    tokens.css        デザイントークン（元ファイルをそのまま移植）
-    style.css         全スタイル（元ファイルをそのまま移植・画像パスのみ調整）
-    company.css       会社概要の表（元 company.html の <style> を移植）
+    tokens.css          デザイントークン（色・フォント・余白・イージング）
+    base.css            リセット / 共通タイポ / .wrap / .eyebrow / .btn / focus / reduced-motion
   components/
-    Header.tsx        共通ヘッダー（プルダウン / モバイルドロワー）
-    Footer.tsx        共通フッター
-    LoadCurtain.tsx   下層ページの入場カーテン
-    PageHero.tsx      下層ページのページヘッダー
-    SplitLn.tsx       見出しの1文字ずつ時間差リビール
+    Header.tsx + Header.css          ヘッダー・左下固定ナビ・現在地マーカー
+    Footer.tsx + Footer.css          共通フッター
+    LoadCurtain.tsx + LoadCurtain.css 下層ページの入場カーテン
+    PageHero.tsx + PageHero.css       下層ページ共通の見出し／本文組み（page-hero / prose）
+    SplitLn.tsx                       見出しの文字分割（スタイルは Home.css 側）
   pages/
-    Home.tsx          トップ（オープニング / フルページ・セクション遷移）
-    PreciousMetals.tsx / Jewelry.tsx / WebContent.tsx
-    Column.tsx / Company.tsx / Contact.tsx
+    Home/Home.tsx + Home.css                     トップ専用（オープニング/フルページ/Hero/各セクション）
+    PreciousMetals/PreciousMetals.tsx + .css     貴金属買取
+    Jewelry/Jewelry.tsx + .css                   ジュエリー制作
+    WebContent/WebContent.tsx + .css             Webコンテンツ制作
+    Column/Column.tsx + Column.css               コラム一覧
+    Company/Company.tsx + Company.css            会社概要（情報テーブル）
+    Contact/Contact.tsx + Contact.css            お問い合わせ（フォーム）
 ```
+
+### CSSの読み込み順（重要）
+
+`main.tsx` で `tokens.css → base.css` を **App より先に** import している。
+これにより「共通 → コンポーネント → ページ」の順に適用され、ページ側の指定が後勝ちになる。
+共通CSSの import をこの位置から動かすと、上書き関係が崩れるので注意。
+
+### どこに書くか
+
+| 追加したいもの | 書く場所 |
+|---|---|
+| 色・フォント・余白の定義値 | `styles/tokens.css` |
+| 全ページ共通（ボタン等） | `styles/base.css` |
+| ヘッダー / フッター等の共通部品 | `components/<名前>.css` |
+| 下層ページ共通の本文組み | `components/PageHero.css` |
+| 特定ページだけの装飾 | `pages/<ページ>/<ページ>.css` |
+
+※ 事業3ページ（貴金属買取・ジュエリー制作・Webコンテンツ制作）は現状すべて共通スタイルで成立しているため、
+CSSファイルは用意してあるが中身は空（固有指定を足す場所として確保）。
 
 ## 元サイトとの挙動対応
 

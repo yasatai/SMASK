@@ -1,0 +1,22 @@
+/* App.css — ページ遷移時のカーテン演出（App.tsx が生成） */
+.leave-curtain {
+  position: fixed; inset: 0; z-index: 500;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.leave-curtain span {
+  background: linear-gradient(180deg, color-mix(in oklch, var(--color-paper) 94%, var(--color-gold-glow)), var(--color-paper));
+  border-right: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 40%, transparent);
+  transform: translateY(-102%);
+  transition: transform 720ms var(--ease-expo);
+}
+.leave-curtain span:last-child { border-right: 0; }
+.leave-curtain span:nth-child(even) { transform: translateY(102%); }
+.leave-curtain span:nth-child(1){ transition-delay: 0ms; }
+.leave-curtain span:nth-child(2){ transition-delay: 60ms; }
+.leave-curtain span:nth-child(3){ transition-delay: 120ms; }
+.leave-curtain span:nth-child(4){ transition-delay: 180ms; }
+.leave-curtain.is-closing span { transform: translateY(0); }
+
+@media (prefers-reduced-motion: reduce) {
+  .leave-curtain { display: none !important; }
+}

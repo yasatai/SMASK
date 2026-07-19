@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
-import "../styles/company.css";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./Company.css";
 
 export default function Company() {
   useEffect(() => { document.title = "会社概要 ｜ SMASK"; }, []);

@@ -1,0 +1,5 @@
+/* WebContent.css — Webコンテンツ制作 ページ専用
+ * 現状は共通スタイルのみで成立しているため固有指定なし。
+ * 共通の見出し・本文組みは components/PageHero.css、ボタンは styles/base.css を参照。
+ * このページだけの装飾を足す場合はここに記述する。
+ */

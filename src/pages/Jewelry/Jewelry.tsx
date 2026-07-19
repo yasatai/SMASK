@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./Jewelry.css";
 
 export default function Jewelry() {
   useEffect(() => { document.title = "ジュエリー制作 ｜ SMASK"; }, []);

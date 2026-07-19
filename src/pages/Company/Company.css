@@ -1,4 +1,4 @@
-/* 会社概要ページの情報テーブル（元 company.html の <style> をそのまま移植） */
+/* Company.css — 会社概要の情報テーブル */
 .info-table { max-width: 46rem; margin-inline: auto; width: min(100% - 2.5rem, 46rem); }
 .info-table dl { display: grid; grid-template-columns: 12rem 1fr; }
 .info-table dt, .info-table dd {

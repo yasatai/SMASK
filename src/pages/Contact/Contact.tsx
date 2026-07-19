@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./Contact.css";
 
 export default function Contact() {
   useEffect(() => { document.title = "お問い合わせ ｜ SMASK"; }, []);

@@ -2,14 +2,15 @@ import { useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import PreciousMetals from "./pages/PreciousMetals";
-import Jewelry from "./pages/Jewelry";
-import WebContent from "./pages/WebContent";
-import Column from "./pages/Column";
-import Company from "./pages/Company";
-import Contact from "./pages/Contact";
+import Home from "./pages/Home/Home";
+import PreciousMetals from "./pages/PreciousMetals/PreciousMetals";
+import Jewelry from "./pages/Jewelry/Jewelry";
+import WebContent from "./pages/WebContent/WebContent";
+import Column from "./pages/Column/Column";
+import Company from "./pages/Company/Company";
+import Contact from "./pages/Contact/Contact";
 import { prefersReduced } from "./motion";
+import "./App.css";
 
 const ROUTES = new Set([
   "/",

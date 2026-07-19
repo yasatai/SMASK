@@ -1,0 +1,17 @@
+/* PageHero.css — 下層ページ共通のページヘッダーと本文組み（page-hero / page-body / prose） */
+.page-hero {
+  min-height: 46svh; display: flex; flex-direction: column; justify-content: center;
+  padding: 9rem clamp(1.25rem,4vw,3rem) 4rem; position: relative;
+  background: var(--color-paper-2);
+  border-bottom: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 50%, transparent);
+}
+.page-hero .eyebrow { margin-bottom: 1.1rem; }
+.page-hero h1 { font-family: var(--font-jp); font-size: var(--text-display); letter-spacing: .08em; }
+.page-hero .crumb { font-size: var(--text-xs); letter-spacing: .1em; color: var(--color-ink-mute); margin-bottom: 1.4rem; }
+.page-hero .crumb a:hover { color: var(--color-gold-deep); }
+.page-body { padding-block: var(--space-3xl); }
+.prose { max-width: 46rem; margin-inline: auto; }
+.prose h2 { font-family: var(--font-jp); font-size: var(--text-display-s); letter-spacing: .06em; margin-top: var(--space-2xl); margin-bottom: 1.2rem; }
+.prose h2:first-child { margin-top: 0; }
+.prose p { color: var(--color-ink-soft); line-height: 2.1; margin-bottom: 1.3rem; }
+.prose .lead { font-size: var(--text-lg); color: var(--color-ink); font-family: var(--font-jp); line-height: 1.95; margin-bottom: 2rem; }

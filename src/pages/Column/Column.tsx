@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./Column.css";
 
 export default function Column() {
   useEffect(() => { document.title = "コラム ｜ SMASK"; }, []);

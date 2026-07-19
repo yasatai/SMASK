@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import LoadCurtain from "../components/LoadCurtain";
-import PageHero from "../components/PageHero";
+import LoadCurtain from "../../components/LoadCurtain";
+import PageHero from "../../components/PageHero";
+import "./WebContent.css";
 
 export default function WebContent() {
   useEffect(() => { document.title = "Webコンテンツ制作 ｜ SMASK"; }, []);

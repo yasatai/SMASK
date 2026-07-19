@@ -1,0 +1,13 @@
+/* Column.css — コラム一覧 */
+.col-list { max-width: 48rem; margin-inline: auto; display: grid; gap: 0; }
+.col-item {
+  display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: baseline;
+  padding: 1.8rem 0; border-bottom: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 45%, transparent);
+  transition: padding-left var(--dur-mid) var(--ease-out);
+}
+.col-item:first-child { border-top: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 45%, transparent); }
+.col-item:hover { padding-left: .6rem; }
+.col-item time { font-family: var(--font-display); font-size: var(--text-sm); letter-spacing: .1em; color: var(--color-ink-mute); white-space: nowrap; }
+.col-item .tag { font-size: var(--text-xs); letter-spacing: .1em; color: var(--color-gold-deep); }
+.col-item h3 { font-family: var(--font-jp); font-size: var(--text-lg); letter-spacing: .03em; margin-top: .3rem; transition: color var(--dur-fast) var(--ease-out); }
+.col-item:hover h3 { color: var(--color-gold-deep); }

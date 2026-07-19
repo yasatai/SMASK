@@ -1,0 +1,11 @@
+/* Footer.css — 共通フッター */
+.site-footer {
+  background: var(--color-ink); color: color-mix(in oklch, var(--color-paper) 88%, transparent);
+  padding-block: var(--space-2xl) var(--space-xl); text-align: center;
+}
+.site-footer .brand { color: var(--color-paper); font-size: 2rem; display: inline-block; margin-bottom: 1.6rem; }
+.footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem 2rem; margin-bottom: 2.2rem; }
+.footer-nav a { font-size: var(--text-sm); letter-spacing: .08em; color: color-mix(in oklch, var(--color-paper) 75%, transparent); transition: color var(--dur-fast) var(--ease-out); }
+.footer-nav a:hover, .footer-nav a:focus-visible { color: var(--color-gold-line); }
+.footer-rule { width: min(100%, 42rem); margin: 0 auto 1.8rem; opacity: .4; }
+.footer-copy { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: .2em; color: color-mix(in oklch, var(--color-paper) 55%, transparent); }
