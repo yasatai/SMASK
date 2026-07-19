@@ -176,14 +176,14 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
   width: 100%; max-width: none;
   padding: 8rem clamp(1.25rem, 4vw, 3rem) 4rem;
 }
-.hero-copy { max-width: 42rem; margin-left: 0; margin-right: auto; }
+.hero-copy { max-width: 42rem; margin-left: auto; margin-right: auto; text-align: center; }
 .hero .eyebrow { margin-bottom: 1.6rem; }
 .hero h1 {
   font-family: var(--font-jp);
   font-size: clamp(1.9rem, 11vw, 5.3rem);
   font-weight: 500; line-height: 1.32; letter-spacing: 0.05em;
   color: var(--color-ink);
-  display: flex; flex-direction: column;
+  display: flex; flex-direction: column; align-items: center;
 }
 .hero h1 .hl { white-space: nowrap; overflow-wrap: normal; overflow: hidden; padding: .08em 0; }
 .hero h1 .ln { display: inline-block; transform: translateY(120%); transition: transform var(--dur-reveal-lg) var(--ease-expo); }
