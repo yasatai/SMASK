@@ -17,3 +17,5 @@
 .footer-nav a:hover, .footer-nav a:focus-visible { color: var(--color-gold-line); }
 .footer-rule { width: min(100%, 42rem); margin: 0 auto 1.8rem; opacity: .4; }
 .footer-copy { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: .2em; color: color-mix(in oklch, var(--color-paper) 55%, transparent); }
+/* 社名は和文書体で。欧文と同じ .2em では字間が空きすぎるため少し詰める */
+.footer-copy-name { font-family: var(--font-jp); letter-spacing: .08em; }

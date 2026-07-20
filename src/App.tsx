@@ -22,13 +22,10 @@ const ROUTES = new Set([
   "/contact",
 ]);
 
-/** 慣性スムーススクロールを使わないページ（OS標準の素直なスクロールにする） */
-const NO_SMOOTH_SCROLL = new Set([
-  "/business-precious-metals",
-  "/business-jewelry",
-  "/business-web",
-  "/column",
-]);
+/** 慣性スムーススクロールを使うページ。
+ *  下層ページはすべて素直なOS標準スクロールにしたため、対象はトップのみ。
+ *  （トップはフルページ遷移が別途ホイールを持つので、実質ここでは何もしない） */
+const SMOOTH_SCROLL_ONLY = "/";
 
 export default function App() {
   const navigate = useNavigate();
@@ -70,10 +67,10 @@ export default function App() {
   }, [navigate]);
 
   /* ---- 慣性スムーススクロール（元 main.js を移植・lerp 0.085）
-     NO_SMOOTH_SCROLL のページは素直なOS標準スクロールにするため対象外 ---- */
+     下層ページは読みやすさを優先して対象外。トップのみ ---- */
   useEffect(() => {
     if (prefersReduced || "ontouchstart" in window) return;
-    if (NO_SMOOTH_SCROLL.has(pathname)) return;
+    if (pathname !== SMOOTH_SCROLL_ONLY) return;
     let target = 0;
     let current = 0;
     let raf: number | null = null;

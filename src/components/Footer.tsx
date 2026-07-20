@@ -14,7 +14,10 @@ export default function Footer() {
         <a href="/contact">お問い合わせ</a>
       </nav>
       <hr className="rule-gold footer-rule" />
-      <p className="footer-copy">© 2026 SMASK. ALL RIGHTS RESERVED.</p>
+      {/* 著作権表記は登記上の社名。年はサイト公開年 */}
+      <p className="footer-copy">
+        © 2026 <span className="footer-copy-name">株式会社スマスク</span> All Rights Reserved.
+      </p>
     </footer>
   );
 }
