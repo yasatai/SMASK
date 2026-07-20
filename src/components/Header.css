@@ -147,33 +147,35 @@
     font-size: clamp(.82rem, 1.68vh, .92rem);
     letter-spacing: .07em; line-height: 1; white-space: nowrap;
   }
-  /* 現在地・ホバーで縦バーが立ち上がる */
+  /* 現在地・ホバーで縦の金バーが立ち上がる */
   .nav--side .nl-jp::before {
     content: ""; position: absolute; top: -.1rem; left: -.66rem;
     width: 2px; height: calc(100% + .2rem);
-    background: #fff;
+    background: var(--color-gold);
     transform: scaleY(0); transform-origin: center;
     transition: transform 450ms var(--ease-expo), background 300ms var(--ease-out);
   }
   .nav--side li.is-here .nl-jp::before,
   .nav--side .nav-link:hover .nl-jp::before,
   .nav--side .nav-link:focus-visible .nl-jp::before { transform: scaleY(1); }
-  /* 背景に応じて自動反転（mix-blend-mode: difference）。文字＋薄い白グロウ。 */
-  .nav--side { mix-blend-mode: difference; }
-  .nav--side .nav-link, .nav--side .nl-jp, .nav--side .nl-en,
-  .nav--side .nav-link:hover, .nav--side .nav-link:focus-visible,
-  .nav--side li.is-here .nav-link, .nav--side li.is-here .nl-en,
-  .nav--side .nav-link[aria-current="page"] { color: #fff; }
-  .nav--side .nl-jp, .nav--side .nl-en { text-shadow: 0 0 4px rgba(255, 255, 255, .45); }
+  .nav--side li.is-here .nav-link { color: var(--color-ink); }
+  .nav--side li.is-here .nl-en { color: var(--color-gold-deep); }
   /* グループ分け：上4つ＝目次／下3つ＝別ページ入口 */
   .nav--side li:not(.nav-page) + li.nav-page { margin-top: 1.05rem; position: relative; }
   .nav--side li:not(.nav-page) + li.nav-page::before {
     content: ""; position: absolute; top: -.66rem; left: 0;
-    width: 1.05rem; height: 1px; background: rgba(255, 255, 255, .5);
+    width: 1.05rem; height: 1px;
+    background: color-mix(in oklch, var(--color-ink) 26%, transparent);
   }
   .nav--side li.nav-page .nl-jp { font-size: clamp(.74rem, 1.5vh, .84rem); }
   .nav--side li.nav-page .nl-en { font-size: .6rem; }
-  .nav--side li.nav-page:not(.is-here) .nav-link:not(:hover):not(:focus-visible) { opacity: .68; }
+  html:not(.is-fp-dark) .nav--side li.nav-page:not(.is-here) .nav-link:not(:hover):not(:focus-visible) {
+    color: color-mix(in oklch, var(--color-ink) 52%, transparent);
+  }
+  /* 暗色フッター上では区切り線を紙色ベースに */
+  .is-fp-dark .nav--side li:not(.nav-page) + li.nav-page::before {
+    background: color-mix(in oklch, var(--color-paper) 30%, transparent);
+  }
 
   /* ホームのコンテンツは縦サイドナビぶん右へ逃がす */
   .hero { padding-left: 4.6rem; }
@@ -246,5 +248,13 @@
   .nav-top .pv-head { padding-top: clamp(6.2rem, calc(4.6rem + 5vh), 7.6rem); }
 }
 
-/* 暗色セクションのナビ反転は mix-blend-mode: difference が自動で担うため、
-   is-fp-dark によるナビ色切替は廃止（ロゴ側の is-fp-dark 反転は Header 別所で継続）。 */
+/* ============ 暗色セクション（フッター）でのナビ反転（ホーム縦サイドナビのみ） ============
+   ホームはセクションが離散的で背景が確定しているため、暗いのはフッターだけ。
+   その時だけ is-fp-dark でナビを紙色へ反転する（下層は上部ヘッダーなので対象外）。 */
+.is-fp-dark .nav--side .nav-link { color: color-mix(in oklch, var(--color-paper) 78%, transparent); }
+.is-fp-dark .nav--side .nav-link:hover,
+.is-fp-dark .nav--side .nav-link:focus-visible { color: var(--color-paper); }
+.is-fp-dark .nav--side .nl-en { color: color-mix(in oklch, var(--color-paper) 48%, transparent); }
+.is-fp-dark .nav--side li.is-here .nav-link { color: var(--color-paper); }
+.is-fp-dark .nav--side li.is-here .nl-en { color: var(--color-gold-line); }
+.is-fp-dark .nav--side .nl-jp::before { background: var(--color-gold-line); }
