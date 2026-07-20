@@ -1,5 +1,216 @@
-/* WebContent.css — Webコンテンツ制作 ページ専用
- * 現状は共通スタイルのみで成立しているため固有指定なし。
- * 共通の見出し・本文組みは components/PageHero.css、ボタンは styles/base.css を参照。
- * このページだけの装飾を足す場合はここに記述する。
+/* WebContent.css — Webコンテンツ制作ページ専用
+ * テスト公開版のデザインを再現。
+ * 赤のアクセントと淡いピンク帯はこのページ内スコープで定義し、他ページには影響させない。
+ * スクロール連動の演出は付けない（素直に読める状態にする）。
  */
+.wc-page {
+  --wc-accent: oklch(55% 0.205 32);       /* 見出し左の縦線・アイコン・ボタンの赤 */
+  --wc-accent-d: oklch(49% 0.205 31);
+  --wc-tint:   oklch(97.4% 0.004 60);     /* セクション帯（ごく淡いグレー） */
+  --wc-pink:   oklch(96.5% 0.016 25);     /* お悩みカードの淡いピンク */
+  --wc-pink-b: oklch(92% 0.030 25);       /* 同・枠線 */
+  --wc-ic-bg:  oklch(95% 0.022 28);       /* アイコン下地 */
+  --wc-line:   oklch(90% 0.004 60);       /* カード枠・区切り線 */
+  --wc-mute:   oklch(60% 0.006 65);       /* 英字ラベル */
+  background: var(--color-paper);
+}
+
+.wc-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
+.wc-sec { padding-block: clamp(3.4rem, 6.5vw, 5.6rem); }
+.wc-sec--tint { background: var(--wc-tint); }
+
+.wc-page .wc-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .68rem; font-weight: 500;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--wc-mute);
+}
+.wc-h2 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.55rem, 3.2vw, 2.15rem); letter-spacing: .04em; line-height: 1.45;
+  color: var(--color-ink); margin-top: .7rem;
+}
+/* セクション見出しの左に立つ赤い縦線 */
+.wc-head { position: relative; padding-left: 1.2rem; }
+.wc-head::before {
+  content: ""; position: absolute; left: 0; top: .15rem;
+  width: 3px; height: 2.4rem; background: var(--wc-accent);
+}
+
+.wc-page p {
+  font-size: .88rem; line-height: 2.15; color: var(--color-ink-soft);
+  letter-spacing: .05em;
+}
+.wc-page .wc-strong { color: var(--color-ink); }
+
+/* ============ Hero ============ */
+.wc-hero {
+  text-align: center;
+  padding: clamp(4.6rem, 11vh, 7rem) 1.5rem clamp(3.4rem, 8vh, 5rem);
+  background: var(--color-paper);
+}
+.wc-hero h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(2rem, 4.8vw, 3rem); letter-spacing: .08em;
+  color: var(--color-ink); margin-top: .9rem;
+}
+.wc-hero p {
+  margin-top: 1.3rem; font-size: .92rem; letter-spacing: .06em;
+  color: var(--color-ink-soft);
+}
+.wc-hero-mark {
+  display: block; width: 1px; height: 3.4rem;
+  margin: clamp(2.6rem, 6vh, 4.2rem) auto 0;
+  background: var(--wc-line);
+}
+
+/* ============ APPROACH ============ */
+.wc-sec .wc-head + p { margin-top: 2rem; }
+.wc-sec p + p { margin-top: 1.4rem; }
+
+/* ============ CONCERNS ============ */
+.wc-concerns { margin-top: 2.4rem; display: grid; gap: 1.1rem; }
+.wc-concern-row { display: grid; gap: 1.1rem; }
+.wc-concern-row--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* 2枚の行は中央寄せ（画像どおり両端に余白を作る） */
+.wc-concern-row--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 66%); margin-inline: auto;
+}
+.wc-concern {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--wc-pink); border: 1px solid var(--wc-pink-b); border-radius: 8px;
+  padding: 1.5rem 1.4rem;
+}
+.wc-concern p { font-size: .85rem; line-height: 1.85; color: var(--color-ink); letter-spacing: .03em; }
+.wc-concern-ic { flex: none; color: var(--wc-accent); display: grid; place-items: center; }
+.wc-ic { width: 1.25rem; height: 1.25rem; display: block; }
+.wc-concern-note { margin-top: 2.4rem; }
+
+/* ============ SERVICES ============ */
+.wc-service-grid {
+  margin-top: 2.4rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+}
+.wc-service {
+  background: #fff; border: 1px solid var(--wc-line); border-radius: 8px;
+  padding: 1.9rem 1.7rem 2.2rem;
+}
+.wc-service-ic {
+  display: grid; place-items: center;
+  width: 2.9rem; height: 2.9rem; border-radius: 8px;
+  background: var(--wc-ic-bg); color: var(--wc-accent);
+}
+.wc-service-rule {
+  display: block; width: 1.7rem; height: 2px; margin: 1.6rem 0 1.1rem;
+  background: var(--wc-accent);
+}
+.wc-service h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1rem;
+  letter-spacing: .04em; color: var(--color-ink);
+}
+.wc-service p { margin-top: 1rem; font-size: .82rem; line-height: 2.05; }
+
+/* ============ STRENGTHS ============ */
+.wc-strengths-lead { margin-top: 1.6rem; max-width: 52rem; }
+.wc-strength-grid {
+  margin-top: clamp(2.4rem, 5vw, 3.4rem);
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.wc-strength {
+  display: grid; grid-template-columns: auto 1fr; gap: 1.4rem; align-items: start;
+  padding: 2rem clamp(1.4rem, 3vw, 2.6rem);
+}
+/* 2×2 の区切り線 */
+.wc-strength:nth-child(odd)  { border-right: 1px solid var(--wc-line); }
+.wc-strength:nth-child(-n+2) { border-bottom: 1px solid var(--wc-line); }
+.wc-strength-num {
+  font-family: var(--font-display); font-weight: 600; line-height: 1;
+  font-size: clamp(2.4rem, 4vw, 3.1rem);
+  color: oklch(88% 0.035 25);
+}
+.wc-strength h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: .98rem;
+  letter-spacing: .04em; color: var(--color-ink);
+}
+.wc-strength p { margin-top: .8rem; font-size: .82rem; line-height: 2.05; }
+
+/* ============ PROCESS ============ */
+.wc-process {
+  position: relative; list-style: none; padding: 0;
+  margin-top: 2.4rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 3.2rem 1.4rem;
+}
+.wc-process li {
+  position: relative;
+  background: #fff; border: 1px solid var(--wc-line); border-radius: 8px;
+  padding: 1.6rem 1.5rem 1.8rem;
+}
+/* 横方向のつなぎ矢印（各行の1・2番目の右側） */
+.wc-process li:not(:nth-child(3n))::after {
+  content: ""; position: absolute; top: 50%; right: -1.4rem;
+  width: 1.4rem; height: 1px; background: var(--wc-accent); opacity: .55;
+}
+.wc-process li:not(:nth-child(3n))::before {
+  content: ""; position: absolute; top: 50%; right: -1.4rem;
+  width: 5px; height: 5px; margin-top: -2px;
+  border-top: 1px solid var(--wc-accent); border-right: 1px solid var(--wc-accent);
+  transform: rotate(45deg); opacity: .55;
+}
+.wc-process-num {
+  display: block;
+  font-family: var(--font-display); font-weight: 600; font-size: 1.1rem;
+  letter-spacing: .06em; color: var(--wc-accent);
+}
+.wc-process h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: .95rem;
+  letter-spacing: .04em; color: var(--color-ink); margin-top: 1rem;
+}
+.wc-process p { margin-top: .8rem; font-size: .8rem; line-height: 2; }
+
+/* ============ CONTACT ============ */
+.wc-contact { text-align: center; }
+.wc-contact .wc-h2 { font-size: clamp(1.5rem, 3.2vw, 2.1rem); }
+.wc-tick {
+  display: block; width: 1px; height: 3.2rem; margin: 0 auto;
+  background: var(--wc-line);
+}
+.wc-contact .wc-eyebrow { margin-top: 2.4rem; }
+.wc-contact-lead { margin-top: 1.1rem; }
+.wc-btn {
+  display: inline-flex; align-items: center; gap: .7rem;
+  margin: 2.2rem 0 2.6rem;
+  padding: 1.05rem 2.4rem; border-radius: 3px;
+  background: var(--wc-accent); color: var(--color-paper);
+  font-size: .9rem; letter-spacing: .06em;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.wc-btn svg { width: 1.05rem; height: 1.05rem; }
+.wc-btn:hover, .wc-btn:focus-visible { background: var(--wc-accent-d); }
+.wc-btn:active { transform: translateY(1px); }
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
+@media (min-width: 761px) {
+  .wc-page .wc-wrap { padding-left: 6.3rem; }
+  .wc-page .wc-hero { padding-left: 7.5rem; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 900px) {
+  .wc-concern-row--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wc-concern-row--2 { width: 100%; }
+  .wc-service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wc-process { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 2列時は3の倍数ではなく偶数番目の右に矢印が出ないようにする */
+  .wc-process li:not(:nth-child(3n))::after,
+  .wc-process li:not(:nth-child(3n))::before { display: none; }
+}
+@media (max-width: 620px) {
+  .wc-concern-row--3, .wc-concern-row--2,
+  .wc-service-grid, .wc-process { grid-template-columns: 1fr; }
+  .wc-strength-grid { grid-template-columns: 1fr; }
+  .wc-strength:nth-child(odd) { border-right: 0; }
+  .wc-strength:nth-child(3) { border-bottom: 1px solid var(--wc-line); }
+  .wc-strength { padding-inline: 0; }
+}

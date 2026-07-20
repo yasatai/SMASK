@@ -26,6 +26,7 @@ const ROUTES = new Set([
 const NO_SMOOTH_SCROLL = new Set([
   "/business-precious-metals",
   "/business-jewelry",
+  "/business-web",
 ]);
 
 export default function App() {
