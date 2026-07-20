@@ -1,5 +1,388 @@
-/* PreciousMetals.css — 貴金属買取 ページ専用
- * 現状は共通スタイルのみで成立しているため固有指定なし。
- * 共通の見出し・本文組みは components/PageHero.css、ボタンは styles/base.css を参照。
- * このページだけの装飾を足す場合はここに記述する。
+/* PreciousMetals.css — 貴金属買取ページ専用
+ * テスト公開版（test-smask.com）のデザインを再現。
+ * 赤アクセント・淡いピンク帯はこのページ内スコープで定義し、他ページには影響させない。
  */
+.pm-page {
+  --pm-accent:  oklch(55% 0.175 35);      /* 見出しラベル・アイコン・ボタンの赤 */
+  --pm-accent-d: oklch(49% 0.175 34);
+  --pm-tint:    oklch(97.6% 0.012 30);    /* セクション帯の淡いピンク */
+  --pm-circle:  oklch(94% 0.028 30);      /* アイコン円の背景 */
+  --pm-line:    oklch(91% 0.006 60);      /* カード枠・区切り線 */
+  --pm-up:      oklch(72% 0.10 165);      /* ローソク足（陽線） */
+  --pm-down:    oklch(72% 0.12 25);       /* ローソク足（陰線） */
+  background: var(--color-paper);
+}
+
+.pm-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
+.pm-sec { padding-block: clamp(3.5rem, 7vw, 6rem); }
+.pm-sec--tint { background: var(--pm-tint); }
+
+.pm-page .pm-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .74rem; font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--pm-accent);
+}
+.pm-h2 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.6rem, 3.2vw, 2.15rem); letter-spacing: .04em;
+  color: var(--color-ink); margin-top: .7rem;
+}
+
+/* ============ Hero ============ */
+.pm-hero {
+  position: relative; overflow: hidden;
+  display: grid; place-items: center;
+  min-height: clamp(360px, 52vh, 460px);
+  padding: 7rem 1.5rem 3.4rem;
+  border-bottom: 1px solid var(--pm-line);
+  background: var(--color-paper);
+}
+.pm-chart {
+  position: absolute; left: 0; right: 0; top: 0;
+  width: 100%; height: calc(100% - 2.6rem);
+  opacity: .55; pointer-events: none;
+}
+.pm-guideline {
+  position: absolute; left: 0; right: 0; top: 52%;
+  border-top: 1px dotted oklch(80% 0.06 190);
+  pointer-events: none;
+}
+.pm-hero-copy { position: relative; z-index: 2; text-align: center; }
+.pm-hero-copy h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(2.1rem, 5.2vw, 3.5rem); letter-spacing: .08em;
+  color: var(--color-ink); margin-top: .5rem;
+}
+.pm-hero-copy p {
+  margin-top: 1.1rem; font-size: .92rem; line-height: 2.1;
+  color: var(--color-ink-soft); letter-spacing: .04em;
+}
+.pm-months {
+  position: absolute; left: 0; right: 0; bottom: .9rem;
+  display: flex; justify-content: space-between;
+  padding-inline: clamp(1rem, 4vw, 3.2rem);
+  font-size: .72rem; color: var(--color-ink-mute); letter-spacing: .04em;
+}
+
+/* ============ TODAY'S PRICE ============ */
+.pm-price-grid {
+  margin-top: 2.6rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+}
+.pm-price-card {
+  background: var(--color-paper);
+  border: 1px solid var(--pm-line); border-radius: 8px;
+  padding: 1.5rem 1.6rem 1.3rem;
+  display: flex; flex-direction: column;
+}
+.pm-price-card h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.3rem;
+  letter-spacing: .06em; margin-top: .35rem; color: var(--color-ink);
+}
+.pm-price-rule {
+  display: block; width: 2.1rem; height: 1px;
+  background: var(--color-ink-mute); opacity: .5; margin: 1.1rem 0 1.2rem;
+}
+.pm-price-card dl { margin: 0; display: grid; gap: .75rem; }
+.pm-price-card dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.pm-price-card dt { font-size: .8rem; color: var(--color-ink-soft); letter-spacing: .03em; }
+.pm-price-card dd { margin: 0; font-size: 1.05rem; color: var(--color-ink); }
+.pm-price-diff {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  margin-top: .95rem; padding-top: .9rem;
+  border-top: 1px solid var(--pm-line);
+  font-size: .8rem; color: var(--color-ink-soft); letter-spacing: .03em;
+}
+.pm-price-diff span:last-child { font-size: 1.05rem; color: var(--color-ink); }
+.pm-more {
+  align-self: flex-end; margin-top: 1.5rem;
+  font-size: .82rem; color: var(--pm-accent); letter-spacing: .04em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.pm-more:hover, .pm-more:focus-visible { opacity: .65; }
+.pm-note { margin-top: 1.2rem; font-size: .78rem; color: var(--color-ink-mute); letter-spacing: .03em; }
+
+.pm-market { margin-top: clamp(3rem, 6vw, 4.6rem); }
+.pm-market h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.15rem;
+  letter-spacing: .05em; color: var(--color-ink); margin-bottom: 1.5rem;
+}
+.pm-market p {
+  font-size: .92rem; line-height: 2.1; color: var(--color-ink-soft);
+  letter-spacing: .03em; margin-bottom: 1.1rem; max-width: 62rem;
+}
+.pm-market p:last-child { margin-bottom: 0; }
+
+/* ============ OVERVIEW ============ */
+.pm-overview {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: center;
+}
+.pm-overview-text p {
+  font-size: .92rem; line-height: 2.1; color: var(--color-ink-soft);
+  letter-spacing: .03em; margin-top: 1.3rem;
+}
+.pm-overview-text p:first-of-type { margin-top: 1.8rem; }
+.pm-overview-photo {
+  aspect-ratio: 16 / 11; border-radius: 10px;
+  background-color: oklch(95% 0.02 80);   /* 画像未設置でも崩れない下地 */
+  background-size: cover; background-position: center;
+  box-shadow: 0 18px 44px -34px color-mix(in oklch, var(--color-ink) 60%, transparent);
+}
+
+/* ============ 共通：アイコン円 ============ */
+.pm-circle {
+  flex: none; display: grid; place-items: center;
+  width: 3.1rem; height: 3.1rem; border-radius: 50%;
+  background: var(--pm-circle); color: var(--pm-accent);
+}
+.pm-ic { width: 1.35rem; height: 1.35rem; display: block; }
+
+/* ============ FOR WHOM ============ */
+.pm-who-grid {
+  margin-top: 2.6rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+}
+.pm-who-card {
+  display: flex; align-items: center; gap: 1.2rem;
+  background: var(--color-paper);
+  border: 1px solid var(--pm-line); border-radius: 8px;
+  padding: 1.8rem 1.6rem; min-height: 8.4rem;
+}
+.pm-who-card p {
+  font-size: .88rem; line-height: 1.9; color: var(--color-ink-soft); letter-spacing: .03em;
+}
+
+/* ============ ITEMS ============ */
+.pm-items-grid {
+  margin-top: 2.6rem;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+}
+.pm-item-card {
+  background: var(--color-paper);
+  border: 1px solid var(--pm-line); border-radius: 8px;
+  padding: 2.2rem 1.5rem 2.6rem; text-align: center;
+}
+.pm-item-card .pm-circle { margin: 0 auto 1.2rem; }
+.pm-item-card h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.02rem;
+  letter-spacing: .05em; color: var(--color-ink);
+}
+.pm-item-card p {
+  margin-top: .6rem; font-size: .78rem; line-height: 1.8;
+  color: var(--color-ink-soft); letter-spacing: .02em;
+}
+
+/* ============ OUR APPROACH ============ */
+.pm-approach-grid {
+  margin-top: 2.8rem;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 3.4rem) clamp(2rem, 5vw, 4rem);
+}
+.pm-approach-item { display: grid; grid-template-columns: auto 1fr; gap: 1.3rem; align-items: start; }
+.pm-approach-num {
+  font-family: var(--font-display); font-weight: 600; line-height: 1;
+  font-size: clamp(2.4rem, 4vw, 3.1rem);
+  color: var(--pm-circle);
+}
+.pm-approach-body h3 {
+  display: flex; align-items: center; gap: .7rem;
+  font-size: .95rem; font-weight: 500; letter-spacing: .05em; color: var(--color-ink);
+}
+.pm-dash { display: block; width: 1.1rem; height: 1px; background: var(--color-ink-mute); flex: none; }
+.pm-approach-body p {
+  margin-top: .8rem; font-size: .85rem; line-height: 2;
+  color: var(--color-ink-soft); letter-spacing: .03em;
+}
+
+/* ============ FLOW（横並び：左から右へ進む） ============ */
+.pm-flow {
+  position: relative;
+  margin-top: 3rem; list-style: none; padding: 0;
+  display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.2rem;
+}
+/* 番号どうしをつなぐ横のレール（左端から右端の番号中心まで） */
+.pm-flow-track {
+  position: absolute; top: 1.05rem; height: 1px;
+  left: calc(10% - 0.1px); right: calc(10% - 0.1px);
+  background: var(--pm-line);
+  transform: scaleX(0); transform-origin: left;
+}
+.pm-flow li { position: relative; text-align: center; }
+.pm-flow-num {
+  position: relative; z-index: 1;
+  display: grid; place-items: center; margin: 0 auto;
+  width: 2.1rem; height: 2.1rem; border-radius: 50%;
+  background: var(--color-paper-3); color: var(--color-ink-mute);
+  font-family: var(--font-display); font-size: .74rem; font-weight: 600; letter-spacing: .04em;
+}
+.pm-flow h3 {
+  font-size: .92rem; font-weight: 500; letter-spacing: .04em; color: var(--color-ink);
+  margin-top: 1rem;
+}
+.pm-flow p {
+  margin-top: .6rem; font-size: .8rem; line-height: 1.95;
+  color: var(--color-ink-soft); letter-spacing: .02em;
+}
+
+/* ============ CONTACT ============ */
+.pm-contact { text-align: center; }
+.pm-contact .pm-h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); }
+.pm-contact-lead {
+  margin-top: 1.5rem; font-size: .9rem; line-height: 2.1;
+  color: var(--color-ink-soft); letter-spacing: .03em;
+}
+.pm-btn {
+  margin-top: 2.2rem;
+  display: inline-flex; align-items: center; gap: .7rem;
+  padding: 1rem 2.2rem; border-radius: 4px;
+  background: var(--pm-accent); color: var(--color-paper);
+  font-size: .9rem; letter-spacing: .06em;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.pm-btn svg { width: 1.05rem; height: 1.05rem; }
+.pm-btn:hover, .pm-btn:focus-visible { background: var(--pm-accent-d); }
+.pm-btn:active { transform: translateY(1px); }
+
+/* =========================================================
+   スクロール連動の演出
+   [data-reveal] が画面に入ると .is-in が付く（useReveal.ts）。
+   トップのようなフルページ遷移は使わず、読む速度を妨げない静かな出方に統一。
+   ========================================================= */
+
+/* --- 基本：下からふわっと --- */
+.pm-page [data-reveal] {
+  opacity: 0; transform: translateY(32px);
+  transition:
+    opacity 1s var(--ease-expo) var(--d, 0ms),
+    transform 1.1s var(--ease-expo) var(--d, 0ms);
+}
+.pm-page [data-reveal].is-in { opacity: 1; transform: none; }
+
+/* 見出しラベルに続いて、直後の大見出しも連動して現れる */
+.pm-page .pm-eyebrow[data-reveal] + .pm-h2 {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 1s var(--ease-expo) .12s, transform 1.1s var(--ease-expo) .12s;
+}
+.pm-page .pm-eyebrow[data-reveal].is-in + .pm-h2 { opacity: 1; transform: none; }
+
+/* --- 案A：Heroのチャートが左から描かれる ---
+   入場カーテンが降りている間（html.is-entering）は始動しない。
+   カーテンの裏で走り切ってしまい「開いた時にはもう終わっている」のを防ぐ。 */
+.pm-chart g { opacity: 0; transform: translateY(14px); transform-origin: center bottom; }
+.pm-guideline { transform: scaleX(0); transform-origin: left; }
+.pm-hero-copy > * { opacity: 0; transform: translateY(12px); }
+
+html:not(.is-entering) .pm-chart g {
+  animation: pmCandle 360ms var(--ease-expo) var(--d, 0ms) forwards;
+}
+html:not(.is-entering) .pm-guideline {
+  animation: pmGuide 1s var(--ease-expo) .1s forwards;
+}
+html:not(.is-entering) .pm-hero-copy > * {
+  animation: pmRise 900ms var(--ease-expo) var(--d, 0ms) forwards;
+}
+@keyframes pmCandle { to { opacity: 1; transform: none; } }
+@keyframes pmGuide  { to { transform: scaleX(1); } }
+@keyframes pmRise   { to { opacity: 1; transform: none; } }
+
+/* --- 案B：前日比の色（数字が確定してから乗る） --- */
+.pm-price-diff span:last-child { color: var(--color-ink-mute); transition: color .5s var(--ease-expo) 1.1s; }
+.pm-price-card.is-in .pm-price-diff .is-up   { color: var(--color-ruby); }
+.pm-price-card.is-in .pm-price-diff .is-down { color: var(--color-sapphire); }
+
+/* --- 案D：アイコン円が拡がり、線が描かれる --- */
+.pm-circle { transform: scale(0); }
+[data-reveal].is-in .pm-circle,
+[data-reveal].is-in.pm-item-card .pm-circle {
+  animation: pmPop 760ms var(--ease-expo) var(--d, 0ms) forwards;
+}
+@keyframes pmPop { 60% { transform: scale(1.08); } to { transform: scale(1); } }
+.pm-ic path, .pm-ic circle, .pm-ic line { stroke-dasharray: 60; stroke-dashoffset: 60; }
+[data-reveal].is-in .pm-ic path,
+[data-reveal].is-in .pm-ic circle,
+[data-reveal].is-in .pm-ic line {
+  animation: pmDraw 900ms var(--ease-expo) calc(var(--d, 0ms) + 180ms) forwards;
+}
+@keyframes pmDraw { to { stroke-dashoffset: 0; } }
+/* 塗りのみのアイコン（銀＝ハート）は線描の対象外 */
+.pm-ic path[fill="currentColor"] { stroke-dasharray: none; stroke-dashoffset: 0; }
+
+/* --- 案E：大きな数字と本文を時間差で --- */
+.pm-approach-item .pm-approach-num { opacity: 0; transform: translateY(26px); transition: opacity 1.3s var(--ease-expo) var(--d, 0ms), transform 1.3s var(--ease-expo) var(--d, 0ms); }
+.pm-approach-item.is-in .pm-approach-num { opacity: 1; transform: none; }
+.pm-approach-item .pm-dash { transform: scaleX(0); transform-origin: left; transition: transform .7s var(--ease-expo) calc(var(--d, 0ms) + 300ms); }
+.pm-approach-item.is-in .pm-dash { transform: scaleX(1); }
+
+/* --- 案F：レールが左から伸び、番号が順に灯る --- */
+.pm-flow.is-in .pm-flow-track { animation: pmTrack 1.9s linear forwards; }
+@keyframes pmTrack { to { transform: scaleX(1); } }
+.pm-flow li > * { opacity: 0; transform: translateY(14px); }
+.pm-flow.is-in li > * {
+  animation: pmRise 900ms var(--ease-expo) calc(var(--d, 0ms) + 140ms) forwards;
+}
+.pm-flow.is-in .pm-flow-num {
+  animation: pmIgnite 700ms var(--ease-expo) var(--d, 0ms) forwards;
+}
+@keyframes pmIgnite {
+  0%   { opacity: 0; transform: scale(.7); background: var(--color-paper-3); color: var(--color-ink-mute); }
+  55%  { opacity: 1; transform: scale(1.1); background: var(--color-gold); color: #fff; }
+  100% { opacity: 1; transform: scale(1); background: var(--color-ink); color: var(--color-paper); }
+}
+
+/* --- 案G：OVERVIEW写真が下から開く --- */
+.pm-overview-photo[data-reveal] {
+  opacity: 1; transform: none;                 /* 基本のふわっとは使わずマスクで見せる */
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 1.4s var(--ease-expo) .1s;
+}
+.pm-overview-photo[data-reveal].is-in { clip-path: inset(0 0 0 0); }
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
+@media (min-width: 761px) {
+  .pm-page .pm-wrap { padding-left: 5rem; }
+  .pm-page .pm-months { padding-left: 7rem; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 900px) {
+  .pm-price-grid, .pm-who-grid, .pm-items-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pm-overview { grid-template-columns: 1fr; }
+  .pm-approach-grid { grid-template-columns: 1fr; }
+  /* FLOW：横5列は窮屈なので縦積みに戻し、レールも縦向きへ */
+  .pm-flow { grid-template-columns: 1fr; gap: 1.8rem; }
+  .pm-flow li { text-align: left; display: grid; grid-template-columns: auto 1fr; gap: .4rem 1.2rem; }
+  .pm-flow-num { grid-row: 1 / span 2; margin: 0; }
+  .pm-flow h3 { margin-top: .3rem; }
+  .pm-flow p { grid-column: 2; margin-top: .4rem; }
+  .pm-flow-track {
+    top: 1.05rem; bottom: 1.05rem; left: 1.05rem; right: auto;
+    width: 1px; height: auto;
+    transform: scaleY(0); transform-origin: top;
+  }
+  .pm-flow.is-in .pm-flow-track { animation-name: pmTrackV; }
+  @keyframes pmTrackV { to { transform: scaleY(1); } }
+}
+@media (max-width: 620px) {
+  .pm-price-grid, .pm-who-grid, .pm-items-grid { grid-template-columns: 1fr; }
+  .pm-months { font-size: .62rem; }
+  .pm-who-card { min-height: 0; }
+}
+
+/* ============ 動きを減らす設定：内容は必ず読める状態に ============ */
+@media (prefers-reduced-motion: reduce) {
+  .pm-page [data-reveal],
+  .pm-page .pm-eyebrow[data-reveal] + .pm-h2,
+  .pm-hero-copy > *,
+  .pm-chart g,
+  .pm-approach-item .pm-approach-num,
+  .pm-flow li > * {
+    opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important;
+  }
+  .pm-circle, .pm-approach-item .pm-dash, .pm-guideline, .pm-flow-track {
+    transform: none !important; animation: none !important;
+  }
+  .pm-ic path, .pm-ic circle, .pm-ic line { stroke-dashoffset: 0 !important; animation: none !important; }
+  .pm-overview-photo[data-reveal] { clip-path: none !important; }
+}

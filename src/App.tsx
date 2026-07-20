@@ -61,9 +61,11 @@ export default function App() {
     return () => document.removeEventListener("click", onClick);
   }, [navigate]);
 
-  /* ---- 慣性スムーススクロール（元 main.js を移植・lerp 0.085） ---- */
+  /* ---- 慣性スムーススクロール（元 main.js を移植・lerp 0.085）
+     貴金属買取ページは素直なOS標準スクロールにするため対象外 ---- */
   useEffect(() => {
     if (prefersReduced || "ontouchstart" in window) return;
+    if (pathname === "/business-precious-metals") return;
     let target = 0;
     let current = 0;
     let raf: number | null = null;
@@ -97,7 +99,7 @@ export default function App() {
       window.removeEventListener("wheel", onWheel);
       if (raf !== null) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [pathname]);
 
   return (
     <>
