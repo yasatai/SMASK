@@ -166,7 +166,9 @@ export default function Header() {
             );
           }
           return (
-            <li key={it.label} className={here || undefined}>
+            /* 別ページ項目（コラム/会社概要/お問い合わせ）。
+               デスクトップでは「このページの目次」（上4つ）と区別して見せる */
+            <li key={it.label} className={"nav-page" + here}>
               <a className="nav-link" href={it.href} aria-current={current(it.href)}>
                 {labelSpans(it)}
               </a>

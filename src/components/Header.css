@@ -164,6 +164,26 @@
   .nav li.is-here .nav-link { color: var(--color-ink); }
   .nav li.is-here .nl-en { color: var(--color-gold-deep); }
 
+  /* ---- グループ分け（12-office式）----
+     上4つ＝このページの目次（スクロールで通る場所）／下3つ＝別ページへの入口。
+     最初の別ページ項目の上に余白＋短い区切り線を入れ、ラベルも少し小さく・色を落とす。
+     「スクロールで飛ばされた」ではなく「別の場所」だと伝えるための見た目。 */
+  .nav li:not(.nav-page) + li.nav-page { margin-top: 1.05rem; position: relative; }
+  .nav li:not(.nav-page) + li.nav-page::before {
+    content: ""; position: absolute; top: -.66rem; left: 0;
+    width: 1.05rem; height: 1px;
+    background: color-mix(in oklch, var(--color-ink) 26%, transparent);
+  }
+  .nav li.nav-page .nl-jp { font-size: clamp(.74rem, 1.5vh, .84rem); }
+  .nav li.nav-page .nl-en { font-size: .6rem; }
+  html:not(.is-fp-dark) .nav li.nav-page:not(.is-here) .nav-link:not(:hover):not(:focus-visible) {
+    color: color-mix(in oklch, var(--color-ink) 52%, transparent);
+  }
+  /* 暗色フッター上では区切り線を紙色ベースに */
+  .is-fp-dark .nav li:not(.nav-page) + li.nav-page::before {
+    background: color-mix(in oklch, var(--color-paper) 30%, transparent);
+  }
+
   /* 事業内容サブメニューはデスクトップでは廃止（クリックでビジネスセクションへ）。
      モバイルのプルダウンのみ残す。キャレット（下向き記号）も不要。 */
   .has-menu .submenu { display: none; }

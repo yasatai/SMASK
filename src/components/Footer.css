@@ -12,6 +12,35 @@
   transition: color var(--dur-fast) var(--ease-out);
 }
 .site-footer .brand:hover { color: var(--color-gold-line); }
+
+/* 巻末インデックス（コラム/会社概要/お問い合わせ）：
+   トップの全画面フッターで「残りの案内」として目立たせる3枚のタイル。
+   フルページの1画面（100vh）に収まるよう高さは控えめに。 */
+.footer-index {
+  display: flex; justify-content: center; gap: 1rem;
+  width: min(100% - 3rem, 46rem); margin: 0 auto 2.4rem;
+}
+.footer-index a {
+  flex: 1; display: flex; flex-direction: column; gap: .38rem;
+  padding: 1.25rem 1rem 1.1rem;
+  border: 1px solid color-mix(in oklch, var(--color-paper) 20%, transparent);
+  transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+}
+.footer-index a:hover, .footer-index a:focus-visible {
+  border-color: var(--color-gold);
+  background: color-mix(in oklch, var(--color-paper) 6%, transparent);
+}
+.fi-en {
+  font-family: var(--font-display); font-size: .66rem; font-weight: 600;
+  letter-spacing: .3em; text-transform: uppercase;
+  color: var(--color-gold-line);
+}
+.fi-jp { font-family: var(--font-jp); font-size: .95rem; letter-spacing: .1em; color: var(--color-paper); }
+@media (max-width: 620px) {
+  .footer-index { flex-direction: column; gap: .6rem; width: min(100% - 3rem, 22rem); }
+  .footer-index a { padding: .95rem 1rem .85rem; }
+}
+
 .footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem 2rem; margin-bottom: 2.2rem; }
 .footer-nav a { font-size: var(--text-sm); letter-spacing: .08em; color: color-mix(in oklch, var(--color-paper) 75%, transparent); transition: color var(--dur-fast) var(--ease-out); }
 .footer-nav a:hover, .footer-nav a:focus-visible { color: var(--color-gold-line); }
