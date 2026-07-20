@@ -22,6 +22,12 @@ const ROUTES = new Set([
   "/contact",
 ]);
 
+/** 慣性スムーススクロールを使わないページ（OS標準の素直なスクロールにする） */
+const NO_SMOOTH_SCROLL = new Set([
+  "/business-precious-metals",
+  "/business-jewelry",
+]);
+
 export default function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -62,10 +68,10 @@ export default function App() {
   }, [navigate]);
 
   /* ---- 慣性スムーススクロール（元 main.js を移植・lerp 0.085）
-     貴金属買取ページは素直なOS標準スクロールにするため対象外 ---- */
+     NO_SMOOTH_SCROLL のページは素直なOS標準スクロールにするため対象外 ---- */
   useEffect(() => {
     if (prefersReduced || "ontouchstart" in window) return;
-    if (pathname === "/business-precious-metals") return;
+    if (NO_SMOOTH_SCROLL.has(pathname)) return;
     let target = 0;
     let current = 0;
     let raf: number | null = null;

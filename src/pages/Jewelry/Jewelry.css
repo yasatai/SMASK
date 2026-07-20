@@ -1,5 +1,255 @@
-/* Jewelry.css — ジュエリー制作 ページ専用
- * 現状は共通スタイルのみで成立しているため固有指定なし。
- * 共通の見出し・本文組みは components/PageHero.css、ボタンは styles/base.css を参照。
- * このページだけの装飾を足す場合はここに記述する。
+/* Jewelry.css — ジュエリー制作ページ専用
+ * テスト公開版のデザインを再現。
+ * オレンジのアクセントと淡いピンク帯はこのページ内スコープで定義し、他ページには影響させない。
  */
+.jw-page {
+  --jw-accent: oklch(58% 0.185 38);       /* 差し色（罫・アイコン・引用の縦線） */
+  --jw-tint:   oklch(97.8% 0.010 30);     /* セクション帯の淡いピンク */
+  --jw-circle: oklch(93.5% 0.030 30);     /* アイコン円の背景 */
+  --jw-line:   oklch(91% 0.005 60);       /* カード枠・区切り線 */
+  --jw-mute:   oklch(62% 0.008 65);       /* 補助テキスト */
+  background: var(--color-paper);
+}
+
+.jw-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
+.jw-narrow { width: min(100% - 2.5rem, 46rem); }
+.jw-sec { padding-block: clamp(3.6rem, 7vw, 6.4rem); }
+.jw-sec--tint { background: var(--jw-tint); }
+.jw-sec--wide { padding-top: 0; }
+
+.jw-page .jw-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .72rem; font-weight: 500;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--jw-mute);
+}
+.jw-h2 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.6rem, 3.4vw, 2.3rem); letter-spacing: .04em; line-height: 1.45;
+  color: var(--color-ink); margin-top: .75rem;
+}
+
+/* 本文：ゆったりした字間で両端揃え（テスト版の組みに合わせる） */
+.jw-page p {
+  font-size: .9rem; line-height: 2.15; color: var(--color-ink-soft);
+  letter-spacing: .06em; text-align: justify;
+}
+.jw-page .jw-strong { color: var(--color-ink); letter-spacing: .03em; }
+
+/* 引用（左に縦線） */
+.jw-quote {
+  margin: 1.8rem 0 0; padding: .3rem 0 .3rem 1.1rem;
+  border-left: 3px solid var(--jw-accent);
+  font-size: .92rem; line-height: 2; color: var(--color-ink);
+  letter-spacing: .04em; font-weight: 500;
+}
+.jw-bg .jw-quote { border-left-color: var(--jw-line); color: var(--color-ink-soft); font-weight: 400; }
+
+/* 写真（未設置でも崩れない下地つき） */
+.jw-photo {
+  background-color: oklch(94% 0.012 70);
+  background-size: cover; background-position: center;
+  width: 100%; aspect-ratio: 1 / 1;
+}
+.jw-photo--tall { aspect-ratio: 4 / 5; }
+
+/* ============ Hero ============ */
+.jw-hero {
+  position: relative; text-align: center;
+  padding: clamp(5rem, 12vh, 8rem) 1.5rem clamp(5rem, 11vh, 7rem);
+  background: var(--color-paper);
+}
+.jw-hero-copy { max-width: 44rem; margin-inline: auto; }
+.jw-hero h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(2rem, 4.6vw, 2.9rem); letter-spacing: .1em;
+  color: var(--color-ink); margin-top: .8rem;
+}
+.jw-hero-en {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.5rem, 3.4vw, 2.15rem); letter-spacing: .02em;
+  color: var(--color-ink); margin-top: 1rem; text-align: center;
+}
+.jw-hero-sub {
+  margin-top: .7rem; font-size: .92rem; letter-spacing: .12em;
+  color: var(--jw-mute); text-align: center;
+}
+.jw-hero-rule {
+  display: block; width: 2.6rem; height: 1px; margin: 1.9rem auto 0;
+  background: var(--color-ink-mute); opacity: .55;
+}
+.jw-hero-lead {
+  margin-top: 1.8rem; max-width: 40rem; margin-inline: auto;
+  font-size: .9rem; letter-spacing: .08em;
+}
+/* Hero下端の縦の差し色 */
+.jw-hero-mark {
+  display: block; width: 2px; height: 3.4rem; margin: clamp(2.6rem, 6vh, 4rem) auto 0;
+  background: var(--jw-accent);
+}
+
+/* ============ Pristine Diamondとは ============ */
+.jw-about {
+  display: grid; grid-template-columns: 1.15fr .85fr;
+  gap: clamp(2rem, 5vw, 4.5rem); align-items: start;
+}
+.jw-about-text p { margin-top: 1.25rem; }
+.jw-about-text p:first-of-type { margin-top: 1.6rem; }
+.jw-about-fig { margin: 0; }
+.jw-about-fig figcaption {
+  margin-top: .9rem; text-align: center;
+  font-size: .68rem; letter-spacing: .16em; color: var(--jw-mute);
+}
+
+/* ============ ラボグロウンダイヤモンド ============ */
+.jw-body { margin-top: 1.6rem; }
+.jw-feature-grid {
+  margin-top: clamp(2.4rem, 5vw, 3.6rem);
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+}
+.jw-feature {
+  background: #fff; border: 1px solid var(--jw-line); border-radius: 8px;
+  padding: 1.8rem 1.6rem 2.2rem;
+}
+.jw-circle {
+  display: grid; place-items: center;
+  width: 3.3rem; height: 3.3rem; border-radius: 8px;
+  background: var(--jw-circle); color: var(--jw-accent);
+}
+.jw-ic { width: 1.4rem; height: 1.4rem; display: block; }
+.jw-feature h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1rem;
+  letter-spacing: .04em; color: var(--color-ink); margin-top: 1.4rem;
+}
+.jw-feature p { margin-top: .9rem; font-size: .82rem; line-height: 2.05; }
+
+/* ============ SMASKのジュエリー製作 ============ */
+.jw-making {
+  margin-top: 2.4rem;
+  display: grid; grid-template-columns: .82fr 1.18fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: start;
+}
+.jw-making-fig { margin: 0; }
+.jw-making-text p { margin-top: 1.35rem; }
+.jw-making-text p:first-of-type { margin-top: 0; color: var(--color-ink); letter-spacing: .03em; }
+.jw-status {
+  display: inline-flex; align-items: center; gap: .55rem;
+  margin-top: .8rem; padding: .8rem 1.4rem;
+  border: 1px solid var(--jw-line); border-radius: 3px;
+  font-size: .82rem; letter-spacing: .06em; color: var(--color-ink-soft);
+}
+.jw-status svg { width: 1rem; height: 1rem; color: var(--jw-accent); flex: none; }
+
+/* ============ 御徒町の製作背景 ============ */
+.jw-band {
+  width: min(100% - 2.5rem, 1400px); margin: 0 auto clamp(2.6rem, 5vw, 4rem);
+  aspect-ratio: 21 / 8; border-radius: 4px;
+  background-color: oklch(38% 0.008 250);
+  background-size: cover; background-position: center;
+}
+.jw-bg {
+  display: grid; grid-template-columns: .8fr 1.2fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: start;
+}
+.jw-bg-head .jw-h2 { font-size: clamp(1.5rem, 3vw, 2rem); }
+.jw-bg-text p { margin-top: 1.35rem; }
+.jw-bg-text p:first-of-type { margin-top: 0; }
+
+/* ============ 受注製作を予定しています / COMING SOON ============ */
+.jw-status-sec, .jw-coming { text-align: center; }
+.jw-status-sec .jw-eyebrow, .jw-coming .jw-eyebrow { text-align: center; }
+.jw-tick {
+  display: block; width: 1px; height: 3.4rem; margin: 0 auto;
+  background: var(--jw-line);
+}
+.jw-status-sec .jw-eyebrow, .jw-coming .jw-eyebrow { margin-top: 2.4rem; }
+.jw-status-sec .jw-h2, .jw-coming .jw-h2 { text-align: center; }
+.jw-panel {
+  margin: 2.4rem 0;
+  border: 1px solid var(--jw-line); border-radius: 4px;
+  padding: clamp(1.8rem, 3.4vw, 2.6rem);
+  text-align: left; background: var(--color-paper);
+}
+.jw-panel p { margin-top: 1.2rem; }
+.jw-panel p:first-child { margin-top: 0; }
+.jw-rule-short {
+  display: block; width: 2.4rem; height: 1px; margin: 1.6rem auto;
+  background: var(--color-ink-mute); opacity: .5;
+}
+.jw-coming p { text-align: center; letter-spacing: .1em; margin-bottom: 2.4rem; }
+
+/* ============ 輝きを、より立体的に ============ */
+.jw-expr {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 4rem); align-items: start;
+}
+.jw-expr-text p { margin-top: 1.3rem; }
+.jw-expr-text p:first-of-type { margin-top: 1.6rem; }
+.jw-note {
+  margin-top: 2.2rem !important; font-size: .7rem !important;
+  letter-spacing: .18em !important; color: var(--jw-mute);
+  text-align: left !important;
+}
+.jw-expr-main { position: relative; margin: 0; }
+.jw-expr-main .jw-photo { aspect-ratio: 4 / 3.2; background-color: oklch(88% 0.02 260); }
+.jw-expr-main figcaption {
+  position: absolute; left: 1rem; bottom: 1rem;
+  padding: .7rem 1.1rem; background: color-mix(in oklch, #fff 82%, transparent);
+  font-size: .66rem; letter-spacing: .14em; color: var(--color-ink-soft);
+}
+.jw-expr-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+.jw-expr-sub .jw-photo { aspect-ratio: 4 / 3; }
+
+/* =========================================================
+   スクロール連動の演出：一旦オフ
+   マークアップ側の data-reveal はそのまま残してあるので、
+   Jewelry.tsx で useReveal() を呼び直し、下のブロックを戻せば再開できる。
+   （オフの間は最初から見えている状態にしておく）
+   ========================================================= */
+/*
+.jw-page [data-reveal] {
+  opacity: 0; transform: translateY(30px);
+  transition:
+    opacity 1s var(--ease-expo) var(--d, 0ms),
+    transform 1.1s var(--ease-expo) var(--d, 0ms);
+}
+.jw-page [data-reveal].is-in { opacity: 1; transform: none; }
+.jw-page .jw-eyebrow[data-reveal] + .jw-h2 {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 1s var(--ease-expo) .12s, transform 1.1s var(--ease-expo) .12s;
+}
+.jw-page .jw-eyebrow[data-reveal].is-in + .jw-h2 { opacity: 1; transform: none; }
+.jw-feature[data-reveal] .jw-circle { transform: scale(.6); opacity: 0; }
+.jw-feature[data-reveal].is-in .jw-circle {
+  animation: jwPop 760ms var(--ease-expo) calc(var(--d, 0ms) + 160ms) forwards;
+}
+@keyframes jwPop {
+  0% { transform: scale(.6); opacity: 0; }
+  60% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+*/
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
+@media (min-width: 761px) {
+  /* サイドメニュー（右端104px）にかからないよう内容を右へ逃がす */
+  .jw-page .jw-wrap { padding-left: 6.3rem; }
+  .jw-page .jw-hero { padding-left: 7.5rem; }
+  .jw-page .jw-band { width: min(100% - 9rem, 1400px); margin-left: 7.5rem; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 900px) {
+  .jw-about, .jw-making, .jw-bg, .jw-expr { grid-template-columns: 1fr; }
+  .jw-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .jw-making-fig { max-width: 26rem; }
+  .jw-band { aspect-ratio: 16 / 9; }
+}
+@media (max-width: 620px) {
+  .jw-feature-grid { grid-template-columns: 1fr; }
+  .jw-page p { text-align: left; letter-spacing: .04em; }
+  .jw-expr-sub { grid-template-columns: 1fr; }
+}
+
+/* 動きを減らす設定への対応は、スクロール演出を戻すときに合わせて復活させる
+   （現在は演出そのものがオフのため不要） */
