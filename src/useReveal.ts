@@ -77,13 +77,17 @@ function observeOnce(
 
 const $ = (sel: string) => Array.from(document.querySelectorAll<HTMLElement>(sel));
 
-/** 画面に入った [data-reveal] に .is-in を付ける（入場カーテンが開いてから始動） */
+/**
+ * 画面に入った要素に .is-in を付ける（入場カーテンが開いてから始動）。
+ * - [data-reveal]         … その要素自体をフェードアップ
+ * - [data-reveal-stagger] … コンテナに .is-in を付け、CSS 側で子を時間差表示（カード列など）
+ */
 export function useReveal(deps: unknown[] = []) {
   useEffect(() => {
     let stop = () => {};
     const cancelWait = whenEntered(() => {
       stop = observeOnce(
-        $("[data-reveal]"),
+        $("[data-reveal], [data-reveal-stagger]"),
         el => el.classList.add("is-in"),
         { threshold: 0.18, rootMargin: "0px 0px -10% 0px" }
       );

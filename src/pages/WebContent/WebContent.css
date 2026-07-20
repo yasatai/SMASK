@@ -218,6 +218,55 @@
 .wc-btn:hover, .wc-btn:focus-visible { background: var(--wc-accent-d); }
 .wc-btn:active { transform: translateY(1px); }
 
+/* =========================================================
+   スクロール連動の演出（Hero以降）：他ページと同じ質感。
+   [data-reveal] が画面に入ると .is-in（useReveal.ts）。入場カーテン後に始動。
+   ========================================================= */
+/* 汎用要素＝下からフェードアップ（本文・リード・ボタンなど） */
+.wc-page [data-reveal] {
+  opacity: 0; transform: translateY(30px);
+  transition:
+    opacity 1s var(--ease-expo) var(--d, 0ms),
+    transform 1.1s var(--ease-expo) var(--d, 0ms);
+}
+/* 見出し（英字ラベル＋日本語見出し）は左からフェードイン。
+   左寄せの読ませ要素なので、本文のフェードアップと混ぜて単調さを避ける。 */
+.wc-page .wc-eyebrow[data-reveal] { transform: translateX(-40px); }
+.wc-page .wc-eyebrow[data-reveal] + .wc-h2 {
+  opacity: 0; transform: translateX(-30px);
+  transition: opacity 1s var(--ease-expo) .12s, transform 1.1s var(--ease-expo) .12s;
+}
+/* 中央寄せの CONTACT は左からだと不自然なのでフェードアップのまま */
+.wc-page .wc-contact .wc-eyebrow[data-reveal] { transform: translateY(30px); }
+.wc-page .wc-contact .wc-eyebrow[data-reveal] + .wc-h2 { transform: translateY(22px); }
+/* 表示状態（none）は最後に置いて確実に勝たせる */
+.wc-page [data-reveal].is-in,
+.wc-page .wc-contact .wc-eyebrow[data-reveal].is-in,
+.wc-page .wc-eyebrow[data-reveal].is-in + .wc-h2,
+.wc-page .wc-contact .wc-eyebrow[data-reveal].is-in + .wc-h2 { opacity: 1; transform: none; }
+
+/* カード列などの時間差表示：コンテナに [data-reveal-stagger] */
+.wc-page [data-reveal-stagger] > * {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .9s var(--ease-expo), transform 1s var(--ease-expo);
+}
+.wc-page [data-reveal-stagger].is-in > * { opacity: 1; transform: none; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(1) { transition-delay: 0s; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(2) { transition-delay: .08s; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(3) { transition-delay: .16s; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(4) { transition-delay: .24s; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(5) { transition-delay: .32s; }
+.wc-page [data-reveal-stagger].is-in > *:nth-child(6) { transition-delay: .40s; }
+
+/* 動きを減らす設定：演出せず即表示（内容は必ず読める） */
+@media (prefers-reduced-motion: reduce) {
+  .wc-page [data-reveal],
+  .wc-page .wc-eyebrow[data-reveal] + .wc-h2,
+  .wc-page [data-reveal-stagger] > * {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+}
+
 /* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
 @media (min-width: 761px) {
   .wc-page .wc-wrap { padding-left: 6.3rem; }

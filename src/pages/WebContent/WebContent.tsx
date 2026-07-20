@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import BizArrival from "../../components/BizArrival";
+import { useReveal } from "../../useReveal";
 import "./WebContent.css";
 
 /* ---- 線画アイコン ---- */
@@ -125,7 +126,7 @@ const PROCESS: [string, string, string][] = [
 
 export default function WebContent() {
   useEffect(() => { document.title = "Webコンテンツ制作 ｜ SMASK"; }, []);
-  /* スクロール連動の演出は付けない（他の下層ページと同じ、素直に読める状態） */
+  useReveal();  // Hero以降のセクション文字・カードをスクロール連動で表示
 
   return (
     <>
@@ -146,13 +147,13 @@ export default function WebContent() {
         <section className="wc-sec">
           <div className="wc-wrap">
             <div className="wc-head">
-              <span className="wc-eyebrow">APPROACH</span>
+              <span className="wc-eyebrow" data-reveal>APPROACH</span>
               <h2 className="wc-h2">Web制作を、見た目だけで終わらせない</h2>
             </div>
-            <p className="wc-strong">
+            <p className="wc-strong" data-reveal>
               Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
             </p>
-            <p>
+            <p data-reveal>
               SMASKでは、見た目の整ったページを制作するだけではなく、事業内容の伝わりやすさ、情報の整理、導線のわかりやすさ、運用のしやすさまで含めて設計します。制作そのものを目的にするのではなく、事業にとって意味のある形で機能することを重視しています。
             </p>
           </div>
@@ -162,12 +163,12 @@ export default function WebContent() {
         <section className="wc-sec wc-sec--tint">
           <div className="wc-wrap">
             <div className="wc-head">
-              <span className="wc-eyebrow">CONCERNS</span>
+              <span className="wc-eyebrow" data-reveal>CONCERNS</span>
               <h2 className="wc-h2">こんなお悩みに対応します</h2>
             </div>
             <div className="wc-concerns">
               {CONCERNS.map((row, ri) => (
-                <div className={`wc-concern-row wc-concern-row--${row.length}`} key={ri}>
+                <div className={`wc-concern-row wc-concern-row--${row.length}`} key={ri} data-reveal-stagger>
                   {row.map(([ic, text]) => (
                     <div className="wc-concern" key={text}>
                       <span className="wc-concern-ic"><Icon d={ic} /></span>
@@ -177,7 +178,7 @@ export default function WebContent() {
                 </div>
               ))}
             </div>
-            <p className="wc-concern-note">
+            <p className="wc-concern-note" data-reveal>
               このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
             </p>
           </div>
@@ -187,10 +188,10 @@ export default function WebContent() {
         <section className="wc-sec">
           <div className="wc-wrap">
             <div className="wc-head">
-              <span className="wc-eyebrow">SERVICES</span>
+              <span className="wc-eyebrow" data-reveal>SERVICES</span>
               <h2 className="wc-h2">SMASKが提供できること</h2>
             </div>
-            <div className="wc-service-grid">
+            <div className="wc-service-grid" data-reveal-stagger>
               {SERVICES.map(([ic, title, body]) => (
                 <article className="wc-service" key={title}>
                   <span className="wc-service-ic"><Icon d={ic} /></span>
@@ -207,13 +208,13 @@ export default function WebContent() {
         <section className="wc-sec wc-sec--tint">
           <div className="wc-wrap">
             <div className="wc-head">
-              <span className="wc-eyebrow">STRENGTHS</span>
+              <span className="wc-eyebrow" data-reveal>STRENGTHS</span>
               <h2 className="wc-h2">SMASKの強み</h2>
             </div>
-            <p className="wc-strengths-lead">
+            <p className="wc-strengths-lead" data-reveal>
               SMASKは、制作そのものを目的とせず、事業にとって本当に必要な形を整えることを重視しています。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
             </p>
-            <div className="wc-strength-grid">
+            <div className="wc-strength-grid" data-reveal-stagger>
               {STRENGTHS.map(([num, title, body]) => (
                 <div className="wc-strength" key={num}>
                   <span className="wc-strength-num" aria-hidden="true">{num}</span>
@@ -231,10 +232,10 @@ export default function WebContent() {
         <section className="wc-sec">
           <div className="wc-wrap">
             <div className="wc-head">
-              <span className="wc-eyebrow">PROCESS</span>
+              <span className="wc-eyebrow" data-reveal>PROCESS</span>
               <h2 className="wc-h2">ご相談から制作までの流れ</h2>
             </div>
-            <ol className="wc-process">
+            <ol className="wc-process" data-reveal-stagger>
               {PROCESS.map(([num, title, body]) => (
                 <li key={num}>
                   <span className="wc-process-num">{num}</span>
@@ -250,10 +251,10 @@ export default function WebContent() {
         <section className="wc-sec wc-contact">
           <div className="wc-wrap">
             <span className="wc-tick" aria-hidden="true"></span>
-            <span className="wc-eyebrow">CONTACT</span>
+            <span className="wc-eyebrow" data-reveal>CONTACT</span>
             <h2 className="wc-h2">まずはお気軽にご相談ください</h2>
-            <p className="wc-contact-lead">ご要望・ご予算に合わせて柔軟にご対応いたします</p>
-            <a className="wc-btn" href="/contact">
+            <p className="wc-contact-lead" data-reveal>ご要望・ご予算に合わせて柔軟にご対応いたします</p>
+            <a className="wc-btn" href="/contact" data-reveal>
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <rect x="3.4" y="5.8" width="17.2" height="12.4" rx="1.6" fill="none" stroke="currentColor" strokeWidth="1.6" />
                 <path d="m4.2 7 7.8 5.6L19.8 7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />

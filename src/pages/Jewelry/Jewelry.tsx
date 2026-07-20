@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import BizArrival from "../../components/BizArrival";
+import { useReveal } from "../../useReveal";
 import "./Jewelry.css";
 
 const BASE = import.meta.env.BASE_URL;
@@ -49,8 +50,7 @@ const FEATURES: [IcKey, string, string][] = [
 
 export default function Jewelry() {
   useEffect(() => { document.title = "ジュエリー制作 ｜ SMASK"; }, []);
-  /* スクロール連動の演出は一旦なし（マークアップの data-reveal は残してあるので、
-     useReveal() を戻すだけで再開できる） */
+  useReveal();  // Hero以降のセクション文字・カードをスクロール連動で表示
 
   return (
     <>

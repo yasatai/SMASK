@@ -281,21 +281,29 @@
    トップのようなフルページ遷移は使わず、読む速度を妨げない静かな出方に統一。
    ========================================================= */
 
-/* --- 基本：下からふわっと --- */
+/* --- 基本：下からふわっと（本文・カードなど） --- */
 .pm-page [data-reveal] {
   opacity: 0; transform: translateY(32px);
   transition:
     opacity 1s var(--ease-expo) var(--d, 0ms),
     transform 1.1s var(--ease-expo) var(--d, 0ms);
 }
-.pm-page [data-reveal].is-in { opacity: 1; transform: none; }
 
-/* 見出しラベルに続いて、直後の大見出しも連動して現れる */
+/* 見出し（英字ラベル＋大見出し）は左からフェードイン。
+   左寄せの読ませ要素なので、本文のフェードアップと混ぜて単調さを避ける。 */
+.pm-page .pm-eyebrow[data-reveal] { transform: translateX(-40px); }
 .pm-page .pm-eyebrow[data-reveal] + .pm-h2 {
-  opacity: 0; transform: translateY(24px);
+  opacity: 0; transform: translateX(-30px);
   transition: opacity 1s var(--ease-expo) .12s, transform 1.1s var(--ease-expo) .12s;
 }
-.pm-page .pm-eyebrow[data-reveal].is-in + .pm-h2 { opacity: 1; transform: none; }
+/* 中央寄せの CONTACT は左からだと不自然なのでフェードアップのまま */
+.pm-page .pm-contact .pm-eyebrow[data-reveal] { transform: translateY(32px); }
+.pm-page .pm-contact .pm-eyebrow[data-reveal] + .pm-h2 { transform: translateY(24px); }
+/* 表示状態（none）は最後に置いて確実に勝たせる */
+.pm-page [data-reveal].is-in,
+.pm-page .pm-contact .pm-eyebrow[data-reveal].is-in,
+.pm-page .pm-eyebrow[data-reveal].is-in + .pm-h2,
+.pm-page .pm-contact .pm-eyebrow[data-reveal].is-in + .pm-h2 { opacity: 1; transform: none; }
 
 /* --- 案A：Heroのチャートが左から描かれる ---
    入場カーテンが降りている間（html.is-entering）は始動しない。
