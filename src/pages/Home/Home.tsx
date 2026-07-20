@@ -126,10 +126,8 @@ export default function Home() {
             if (w) w.scrollTop = 0;
           }
         });
-        /* 暗色フッター上ではロゴ・サイドメニューの色を反転 */
-        document.documentElement.classList.toggle(
-          "is-fp-dark", footer !== null && sections[i] === footer
-        );
+        /* フッターは明色クロージングに変更したため is-fp-dark 反転は不要（常に解除） */
+        document.documentElement.classList.remove("is-fp-dark");
         /* 左下メニューのマーカーへ現在地を通知 */
         window.dispatchEvent(new CustomEvent("smask:section", { detail: i }));
       };

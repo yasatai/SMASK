@@ -1,50 +1,81 @@
-/* Footer.css — 共通フッター */
+/* Footer.css — 全画面クロージング（12-office式：明るいまま巨大ロゴのアニメで締める） */
 .site-footer {
-  background: var(--color-ink); color: color-mix(in oklch, var(--color-paper) 88%, transparent);
-  padding-block: var(--space-2xl) var(--space-xl); text-align: center;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  padding-block: clamp(2rem, 5vh, 3.4rem) var(--space-lg);
+  text-align: center;
+  border-top: 1px solid color-mix(in oklch, var(--color-gold-line) 45%, transparent);
 }
-/* フッターのワードマーク（ヘッダー廃止に伴い、ここで完結して定義） */
-.site-footer .brand {
+
+/* ===== 巨大ワードマーク（後日 SVG ロゴ化して線画ドローに差し替え予定） ===== */
+.footer-stage { margin-bottom: clamp(1.4rem, 3.5vh, 2.4rem); }
+.footer-wordmark {
+  display: inline-flex; align-items: flex-end; gap: .02em;
   font-family: var(--font-display); font-weight: 600;
-  letter-spacing: .34em; padding-left: .34em; /* トラッキング分の視覚補正 */
-  color: var(--color-paper); font-size: 2rem;
-  display: inline-block; margin-bottom: 1.6rem;
+  font-size: clamp(2.8rem, 9vw, 7.5rem); letter-spacing: .06em;
+  line-height: 1; color: var(--color-ink);
+  overflow: hidden; padding-top: .18em;  /* せり上がりをクリップ（上の余白で欠けを防ぐ） */
   transition: color var(--dur-fast) var(--ease-out);
 }
-.site-footer .brand:hover { color: var(--color-gold-line); }
+.footer-wordmark:hover { color: var(--color-gold-deep); }
+.fw-ch { display: inline-block; transform: translateY(115%); opacity: 0; }
+.site-footer.is-revealed .fw-ch {
+  animation: fwRise 1s var(--ease-expo) forwards;
+  animation-delay: calc(var(--i) * 90ms + .3s);
+}
+@keyframes fwRise { to { transform: translateY(0); opacity: 1; } }
 
-/* 巻末インデックス（コラム/会社概要/お問い合わせ）：
-   トップの全画面フッターで「残りの案内」として目立たせる3枚のタイル。
-   フルページの1画面（100vh）に収まるよう高さは控えめに。 */
+.footer-lead {
+  display: block; margin-top: 1rem;
+  font-family: var(--font-jp); font-size: clamp(.85rem, 1.4vw, 1rem);
+  letter-spacing: .14em; color: var(--color-ink-soft);
+  opacity: 0; transform: translateY(12px);
+}
+.site-footer.is-revealed .footer-lead {
+  animation: fwFade 1s var(--ease-out) forwards; animation-delay: .95s;
+}
+@keyframes fwFade { to { opacity: 1; transform: none; } }
+
+/* ===== 巻末インデックス（コラム/会社概要/お問い合わせ）：明るい版 ===== */
 .footer-index {
   display: flex; justify-content: center; gap: 1rem;
-  width: min(100% - 3rem, 46rem); margin: 0 auto 2.4rem;
+  width: min(100% - 3rem, 46rem); margin: 0 auto 2rem;
 }
 .footer-index a {
   flex: 1; display: flex; flex-direction: column; gap: .38rem;
-  padding: 1.25rem 1rem 1.1rem;
-  border: 1px solid color-mix(in oklch, var(--color-paper) 20%, transparent);
+  padding: 1.15rem 1rem 1rem;
+  border: 1px solid color-mix(in oklch, var(--color-ink) 14%, transparent);
   transition: border-color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
 }
 .footer-index a:hover, .footer-index a:focus-visible {
   border-color: var(--color-gold);
-  background: color-mix(in oklch, var(--color-paper) 6%, transparent);
+  background: color-mix(in oklch, var(--color-gold-glow) 40%, transparent);
 }
 .fi-en {
   font-family: var(--font-display); font-size: .66rem; font-weight: 600;
-  letter-spacing: .3em; text-transform: uppercase;
-  color: var(--color-gold-line);
+  letter-spacing: .3em; text-transform: uppercase; color: var(--color-gold-deep);
 }
-.fi-jp { font-family: var(--font-jp); font-size: .95rem; letter-spacing: .1em; color: var(--color-paper); }
+.fi-jp { font-family: var(--font-jp); font-size: .95rem; letter-spacing: .1em; color: var(--color-ink); }
 @media (max-width: 620px) {
   .footer-index { flex-direction: column; gap: .6rem; width: min(100% - 3rem, 22rem); }
-  .footer-index a { padding: .95rem 1rem .85rem; }
+  .footer-index a { padding: .9rem 1rem .8rem; }
 }
 
-.footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.2rem 2rem; margin-bottom: 2.2rem; }
-.footer-nav a { font-size: var(--text-sm); letter-spacing: .08em; color: color-mix(in oklch, var(--color-paper) 75%, transparent); transition: color var(--dur-fast) var(--ease-out); }
-.footer-nav a:hover, .footer-nav a:focus-visible { color: var(--color-gold-line); }
-.footer-rule { width: min(100%, 42rem); margin: 0 auto 1.8rem; opacity: .4; }
-.footer-copy { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: .2em; color: color-mix(in oklch, var(--color-paper) 55%, transparent); }
+.footer-nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem 2rem; margin-bottom: 1.8rem; }
+.footer-nav a {
+  font-size: var(--text-sm); letter-spacing: .08em; color: var(--color-ink-soft);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.footer-nav a:hover, .footer-nav a:focus-visible { color: var(--color-gold-deep); }
+.footer-rule {
+  width: min(100%, 42rem); height: 1px; border: 0; margin: 0 auto 1.6rem;
+  background: color-mix(in oklch, var(--color-ink) 12%, transparent);
+}
+.footer-copy { font-family: var(--font-display); font-size: var(--text-xs); letter-spacing: .2em; color: var(--color-ink-mute); }
 /* 社名は和文書体で。欧文と同じ .2em では字間が空きすぎるため少し詰める */
 .footer-copy-name { font-family: var(--font-jp); letter-spacing: .08em; }
+
+/* 動きを減らす設定：演出せず即表示（内容は必ず読める） */
+@media (prefers-reduced-motion: reduce) {
+  .fw-ch, .footer-lead { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
