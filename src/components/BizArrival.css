@@ -1,0 +1,48 @@
+/* BizArrival.css — 事業ページ入場時のズームアウト演出
+ * トップのズームインと同じ画像・同じ領域（transform-origin）から引いていく。
+ * 見た目も出発側と揃える：全体はアイボリーの膜がかかった状態で、
+ * 対象領域だけが色づいたまま（マスク付きの鮮明レイヤー）。
+ * 領域座標・マスク形状・彩度はトップの .panel-bg / .panel-bg-vivid と一致させること。
+ */
+.biz-arrival {
+  position: fixed; inset: 0; z-index: 300; pointer-events: none;
+  transform: scale(2.55);
+  opacity: 1;
+  transition:
+    transform 1.15s var(--ease-expo),
+    opacity .4s linear .8s;   /* 引き切る手前からページへ溶ける */
+}
+
+/* 下層：アイボリーの膜がかかった背景（トップの .panel-bg ＋ 膜と同じ見え方） */
+.biz-arrival::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(90deg,
+      color-mix(in oklch, var(--color-paper-2) 96%, transparent) 0%,
+      color-mix(in oklch, var(--color-paper-2) 84%, transparent) 55%,
+      color-mix(in oklch, var(--color-paper-2) 62%, transparent) 100%),
+    url("/assets/business.jpg");
+  background-size: cover, cover;
+  background-position: center, center;
+}
+
+/* 上層：対象領域だけ色づいたまま（トップの .panel-bg-vivid と同じマスク・彩度） */
+.biz-arrival::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: url("/assets/business.jpg");
+  background-size: cover; background-position: center;
+  filter: saturate(1.45) contrast(1.07);
+  -webkit-mask-image: radial-gradient(ellipse 33% 46% at var(--bx) var(--by), #000 0 50%, transparent 78%);
+  mask-image: radial-gradient(ellipse 33% 46% at var(--bx) var(--by), #000 0 50%, transparent 78%);
+}
+
+.biz-arrival--gold     { transform-origin: 82% 38%; --bx: 82%; --by: 38%; }
+.biz-arrival--ruby     { transform-origin: 58% 78%; --bx: 58%; --by: 78%; }
+.biz-arrival--sapphire { transform-origin: 18% 55%; --bx: 18%; --by: 55%; }
+
+.biz-arrival.is-out  { transform: scale(1); opacity: 0; }
+.biz-arrival.is-gone { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .biz-arrival { display: none !important; }
+}

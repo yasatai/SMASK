@@ -10,11 +10,11 @@
   --pm-line:    oklch(91% 0.006 60);      /* カード枠・区切り線 */
   --pm-up:      oklch(72% 0.10 165);      /* ローソク足（陽線） */
   --pm-down:    oklch(72% 0.12 25);       /* ローソク足（陰線） */
-  background: var(--color-paper);
 }
 
 .pm-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
-.pm-sec { padding-block: clamp(3.5rem, 7vw, 6rem); }
+/* 各セクションは不透明タイル。固定背景（.pm-fixedbg）の上をスクロールで乗り上げていく */
+.pm-sec { padding-block: clamp(3.5rem, 7vw, 6rem); background: var(--color-paper); }
 .pm-sec--tint { background: var(--pm-tint); }
 
 .pm-page .pm-eyebrow {
@@ -29,15 +29,45 @@
   color: var(--color-ink); margin-top: .7rem;
 }
 
+/* ============ 固定背景（Hero の舞台） ============
+   ズーム遷移の最終フレームと同じ絵をビューポートに固定。スクロールしても動かず、
+   下の不透明セクションが上に乗り上げていく（案2：背景固定・中身が動く）。
+   z-index:-1 なので、フッター含む通常フローの中身は自動的にこの上に描画される。
+   座標・マスク・彩度は BizArrival.css / トップの vivid と一致させること。 */
+.pm-fixedbg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.pm-fixedbg::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(90deg,
+      color-mix(in oklch, var(--color-paper-2) 96%, transparent) 0%,
+      color-mix(in oklch, var(--color-paper-2) 84%, transparent) 55%,
+      color-mix(in oklch, var(--color-paper-2) 62%, transparent) 100%),
+    url("/assets/business.jpg");
+  background-size: cover, cover;
+  background-position: center, center;
+}
+.pm-fixedbg::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: url("/assets/business.jpg");
+  background-size: cover; background-position: center;
+  filter: saturate(1.45) contrast(1.07);
+  -webkit-mask-image: radial-gradient(ellipse 33% 46% at 82% 38%, #000 0 50%, transparent 78%);
+  mask-image: radial-gradient(ellipse 33% 46% at 82% 38%, #000 0 50%, transparent 78%);
+}
+
 /* ============ Hero ============ */
 .pm-hero {
   position: relative; overflow: hidden;
   display: grid; place-items: center;
-  min-height: clamp(360px, 52vh, 460px);
+  min-height: min(86svh, 800px);
   padding: 7rem 1.5rem 3.4rem;
   border-bottom: 1px solid var(--pm-line);
-  background: var(--color-paper);
+  background: transparent;   /* 透明にして固定背景を見せる */
 }
+/* チャート・ガイド線・月ラベルは画像より上に */
+.pm-hero .pm-chart,
+.pm-hero .pm-guideline,
+.pm-hero .pm-months { z-index: 1; }
 .pm-chart {
   position: absolute; left: 0; right: 0; top: 0;
   width: 100%; height: calc(100% - 2.6rem);

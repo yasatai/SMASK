@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import LoadCurtain from "../../components/LoadCurtain";
+import BizArrival from "../../components/BizArrival";
 import { useReveal, useCountUp } from "../../useReveal";
 import { EMPTY_PRICES, fetchMetalPrices, type MetalPrice } from "../../data/metalPrices";
 import "./PreciousMetals.css";
@@ -133,8 +133,10 @@ export default function PreciousMetals() {
 
   return (
     <>
-      <LoadCurtain />
+      <BizArrival />
       <main className="pm-page">
+        {/* ビューポート固定の背景（案2：背景固定・中身がスクロール） */}
+        <div className="pm-fixedbg" aria-hidden="true"></div>
 
         {/* ============ Hero ============ */}
         <section className="pm-hero is-in">

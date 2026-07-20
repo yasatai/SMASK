@@ -8,12 +8,12 @@
   --jw-circle: oklch(93.5% 0.030 30);     /* アイコン円の背景 */
   --jw-line:   oklch(91% 0.005 60);       /* カード枠・区切り線 */
   --jw-mute:   oklch(62% 0.008 65);       /* 補助テキスト */
-  background: var(--color-paper);
 }
 
 .jw-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
 .jw-narrow { width: min(100% - 2.5rem, 46rem); }
-.jw-sec { padding-block: clamp(3.6rem, 7vw, 6.4rem); }
+/* 各セクションは不透明タイル。固定背景の上をスクロールで乗り上げていく */
+.jw-sec { padding-block: clamp(3.6rem, 7vw, 6.4rem); background: var(--color-paper); }
 .jw-sec--tint { background: var(--jw-tint); }
 .jw-sec--wide { padding-top: 0; }
 
@@ -54,10 +54,38 @@
 .jw-photo--tall { aspect-ratio: 4 / 5; }
 
 /* ============ Hero ============ */
+/* ============ 固定背景（Hero の舞台） ============
+   ズーム遷移の最終フレームと同じ絵をビューポートに固定（案2：背景固定・中身が動く）。
+   膜つき business.jpg ＋ ジュエリー領域（58% 78%）だけ色づいたまま。
+   z-index:-1 なので通常フローの中身は自動的にこの上に描画される。
+   座標・マスク・彩度は BizArrival.css / トップの vivid と一致させること。 */
+.jw-fixedbg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.jw-fixedbg::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(90deg,
+      color-mix(in oklch, var(--color-paper-2) 96%, transparent) 0%,
+      color-mix(in oklch, var(--color-paper-2) 84%, transparent) 55%,
+      color-mix(in oklch, var(--color-paper-2) 62%, transparent) 100%),
+    url("/assets/business.jpg");
+  background-size: cover, cover;
+  background-position: center, center;
+}
+.jw-fixedbg::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: url("/assets/business.jpg");
+  background-size: cover; background-position: center;
+  filter: saturate(1.45) contrast(1.07);
+  -webkit-mask-image: radial-gradient(ellipse 33% 46% at 58% 78%, #000 0 50%, transparent 78%);
+  mask-image: radial-gradient(ellipse 33% 46% at 58% 78%, #000 0 50%, transparent 78%);
+}
+
 .jw-hero {
-  position: relative; text-align: center;
+  position: relative; overflow: hidden; text-align: center;
+  min-height: min(86svh, 800px);
+  display: flex; flex-direction: column; justify-content: center;
   padding: clamp(5rem, 12vh, 8rem) 1.5rem clamp(5rem, 11vh, 7rem);
-  background: var(--color-paper);
+  background: transparent;   /* 透明にして固定背景を見せる */
 }
 .jw-hero-copy { max-width: 44rem; margin-inline: auto; }
 .jw-hero h1 {

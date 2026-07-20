@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import LoadCurtain from "../../components/LoadCurtain";
+import BizArrival from "../../components/BizArrival";
 import "./Jewelry.css";
 
 const BASE = import.meta.env.BASE_URL;
@@ -54,8 +54,10 @@ export default function Jewelry() {
 
   return (
     <>
-      <LoadCurtain />
+      <BizArrival />
       <main className="jw-page">
+        {/* ビューポート固定の背景（案2：背景固定・中身がスクロール） */}
+        <div className="jw-fixedbg" aria-hidden="true"></div>
 
         {/* ============ Hero ============ */}
         <section className="jw-hero">

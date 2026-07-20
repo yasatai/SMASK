@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import SplitLn from "../../components/SplitLn";
 import { prefersReduced } from "../../motion";
+import { setBizArrival, type BizGem } from "../../bizTransition";
 import "./Home.css";
 
 /**
@@ -20,6 +22,7 @@ import "./Home.css";
 let hasPlayedIntro = false;
 
 export default function Home() {
+  const navigate = useNavigate();
   const introRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLElement>(null);
@@ -51,6 +54,36 @@ export default function Home() {
         document.body.style.overflow = "";
       });
     }
+
+    /* ---- 事業カード「詳細を見る」：対象領域へズームインしてから遷移 ----
+       文字・カードをフェードアウト → 色づいた領域だけ残し → その場所へ寄っていく。
+       遷移先では BizArrival が同じ場所のアップから引いて見せる。 */
+    let departing = false;
+    const bizLinks = Array.from(
+      mainRef.current!.querySelectorAll<HTMLAnchorElement>(".biz-card .biz-link")
+    );
+    const onBizClick = (e: MouseEvent) => {
+      if (prefersReduced) return;                       // 演出なし＝Appの通常遷移に任せる
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();                               // Appの遷移カーテンを止め、こちらで遷移する
+      if (departing) return;
+      departing = true;
+      const a = e.currentTarget as HTMLAnchorElement;
+      const card = a.closest<HTMLElement>(".biz-card")!;
+      const gem = (card.dataset.gem ?? "gold") as BizGem;
+      const biz = document.getElementById("business")!;
+      biz.dataset.depart = gem;                         // ズームの寄り先（CSS側で座標が決まる）
+      biz.classList.add("is-departing");
+      setBizArrival(gem);                               // 到着側へ「どこから来たか」を渡す
+      const t = window.setTimeout(() => navigate(a.getAttribute("href")!), 1400);
+      cleanups.push(() => clearTimeout(t));
+    };
+    bizLinks.forEach(a => a.addEventListener("click", onBizClick));
+    cleanups.push(() => {
+      bizLinks.forEach(a => a.removeEventListener("click", onBizClick));
+      const biz = document.getElementById("business");
+      if (biz) { biz.classList.remove("is-departing"); delete biz.dataset.depart; }
+    });
 
     /* ---- フルページ（PC）か通常スクロール（タッチ/狭幅/reduce）かを判定 ---- */
     const fullpage =
@@ -140,6 +173,7 @@ export default function Home() {
 
       const onWheel = (e: WheelEvent) => {
         if (e.ctrlKey) return; // ピンチズームはネイティブ
+        if (departing) { e.preventDefault(); return; }  // ズーム遷移中は操作を受けない
         if (!intro.classList.contains("is-done")) { e.preventDefault(); return; }
         if (canScrollInside(sections[current], e.deltaY)) return;
         e.preventDefault();
@@ -153,7 +187,7 @@ export default function Home() {
       window.addEventListener("wheel", onWheel, { passive: false });
 
       const onKey = (e: KeyboardEvent) => {
-        if (animating) return;
+        if (animating || departing) return;
         if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
           e.preventDefault(); goTo(current + 1);
         } else if (e.key === "ArrowUp" || e.key === "PageUp") {

@@ -260,6 +260,39 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 #business:has(.biz-card[data-gem="gold"]:hover)     .panel-bg-vivid { opacity: 1; --biz-x: 82%; --biz-y: 38%; }
 #business:has(.biz-card[data-gem="ruby"]:hover)     .panel-bg-vivid { opacity: 1; --biz-x: 58%; --biz-y: 78%; }
 #business:has(.biz-card[data-gem="sapphire"]:hover) .panel-bg-vivid { opacity: 1; --biz-x: 18%; --biz-y: 55%; }
+
+/* ---- 「詳細を見る」ズーム遷移（出発側） ----
+ * クリックで .is-departing ＋ data-depart が付く（Home.tsx）。
+ * 1) 文字・カード（.wrap）がフェードアウト
+ * 2) 色づいた領域（vivid）だけ残る
+ * 3) 背景2層がその領域の中心（transform-origin）へ寄っていく
+ * 到着側 BizArrival.css と scale / 座標 / 鮮明さを一致させること。 */
+#business.is-departing .wrap {
+  opacity: 0;
+  transition: opacity .45s var(--ease-out);
+  pointer-events: none;
+}
+#business.is-departing .panel-bg,
+#business.is-departing .panel-bg-vivid {
+  transition:
+    opacity .5s var(--ease-out),
+    transform 1.05s cubic-bezier(.6, 0, .25, 1) .25s;  /* 文字が消え始めてから寄る */
+  transform: scale(2.55);
+}
+#business.is-departing .panel-bg-vivid { opacity: 1; }
+/* 寄り先＝ホバー演出と同じ領域中心 */
+#business[data-depart="gold"] .panel-bg,
+#business[data-depart="gold"] .panel-bg-vivid {
+  --biz-x: 82%; --biz-y: 38%; transform-origin: 82% 38%;
+}
+#business[data-depart="ruby"] .panel-bg,
+#business[data-depart="ruby"] .panel-bg-vivid {
+  --biz-x: 58%; --biz-y: 78%; transform-origin: 58% 78%;
+}
+#business[data-depart="sapphire"] .panel-bg,
+#business[data-depart="sapphire"] .panel-bg-vivid {
+  --biz-x: 18%; --biz-y: 55%; transform-origin: 18% 55%;
+}
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid;
   grid-template-columns: repeat(4, 1fr); pointer-events: none;

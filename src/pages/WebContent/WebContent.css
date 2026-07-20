@@ -12,11 +12,11 @@
   --wc-ic-bg:  oklch(95% 0.022 28);       /* アイコン下地 */
   --wc-line:   oklch(90% 0.004 60);       /* カード枠・区切り線 */
   --wc-mute:   oklch(60% 0.006 65);       /* 英字ラベル */
-  background: var(--color-paper);
 }
 
 .wc-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
-.wc-sec { padding-block: clamp(3.4rem, 6.5vw, 5.6rem); }
+/* 各セクションは不透明タイル。固定背景の上をスクロールで乗り上げていく */
+.wc-sec { padding-block: clamp(3.4rem, 6.5vw, 5.6rem); background: var(--color-paper); }
 .wc-sec--tint { background: var(--wc-tint); }
 
 .wc-page .wc-eyebrow {
@@ -44,10 +44,38 @@
 .wc-page .wc-strong { color: var(--color-ink); }
 
 /* ============ Hero ============ */
+/* ============ 固定背景（Hero の舞台） ============
+   ズーム遷移の最終フレームと同じ絵をビューポートに固定（案2：背景固定・中身が動く）。
+   膜つき business.jpg ＋ Web制作領域（18% 55%）だけ色づいたまま。
+   z-index:-1 なので通常フローの中身は自動的にこの上に描画される。
+   座標・マスク・彩度は BizArrival.css / トップの vivid と一致させること。 */
+.wc-fixedbg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+.wc-fixedbg::before {
+  content: ""; position: absolute; inset: 0;
+  background-image:
+    linear-gradient(90deg,
+      color-mix(in oklch, var(--color-paper-2) 96%, transparent) 0%,
+      color-mix(in oklch, var(--color-paper-2) 84%, transparent) 55%,
+      color-mix(in oklch, var(--color-paper-2) 62%, transparent) 100%),
+    url("/assets/business.jpg");
+  background-size: cover, cover;
+  background-position: center, center;
+}
+.wc-fixedbg::after {
+  content: ""; position: absolute; inset: 0;
+  background-image: url("/assets/business.jpg");
+  background-size: cover; background-position: center;
+  filter: saturate(1.45) contrast(1.07);
+  -webkit-mask-image: radial-gradient(ellipse 33% 46% at 18% 55%, #000 0 50%, transparent 78%);
+  mask-image: radial-gradient(ellipse 33% 46% at 18% 55%, #000 0 50%, transparent 78%);
+}
+
 .wc-hero {
-  text-align: center;
+  position: relative; overflow: hidden; text-align: center;
+  min-height: min(86svh, 800px);
+  display: flex; flex-direction: column; justify-content: center;
   padding: clamp(4.6rem, 11vh, 7rem) 1.5rem clamp(3.4rem, 8vh, 5rem);
-  background: var(--color-paper);
+  background: transparent;   /* 透明にして固定背景を見せる */
 }
 .wc-hero h1 {
   font-family: var(--font-jp); font-weight: 500;

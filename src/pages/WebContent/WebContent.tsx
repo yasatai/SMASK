@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import LoadCurtain from "../../components/LoadCurtain";
+import BizArrival from "../../components/BizArrival";
 import "./WebContent.css";
 
 /* ---- 線画アイコン ---- */
@@ -129,8 +129,10 @@ export default function WebContent() {
 
   return (
     <>
-      <LoadCurtain />
+      <BizArrival />
       <main className="wc-page">
+        {/* ビューポート固定の背景（案2：背景固定・中身がスクロール） */}
+        <div className="wc-fixedbg" aria-hidden="true"></div>
 
         {/* ============ Hero ============ */}
         <section className="wc-hero">
