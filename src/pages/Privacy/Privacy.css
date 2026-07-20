@@ -1,0 +1,112 @@
+/* Privacy.css — プライバシーポリシーページ専用
+ * 法務文書なので装飾は最小限。読みやすさと条項の区切りの明快さを優先する。
+ * スクロール連動の演出は付けない。
+ */
+.pv-page {
+  --pv-accent: oklch(55% 0.205 32);      /* 鍵アイコン・リンクの赤 */
+  --pv-ic-bg:  oklch(95% 0.022 28);      /* アイコン円 */
+  --pv-line:   oklch(91% 0.005 60);      /* 枠線・条項の区切り */
+  --pv-mute:   oklch(58% 0.008 65);
+  background: var(--color-paper);
+}
+
+.pv-wrap { width: min(100% - 2.5rem, 62rem); margin-inline: auto; }
+
+/* ============ 見出し ============ */
+.pv-head { padding: clamp(3.4rem, 8vh, 5rem) 0 clamp(1.6rem, 3vw, 2.2rem); }
+.pv-title { display: flex; align-items: center; gap: 1.4rem; }
+.pv-title-ic {
+  flex: none; display: grid; place-items: center;
+  width: 3.6rem; height: 3.6rem; border-radius: 50%;
+  background: var(--pv-ic-bg); color: var(--pv-accent);
+}
+.pv-title-ic svg { width: 1.5rem; height: 1.5rem; display: block; }
+.pv-title h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.8rem, 4.4vw, 2.8rem); letter-spacing: .06em;
+  color: var(--color-ink);
+}
+.pv-lead {
+  margin-top: 1.6rem; font-size: .86rem; letter-spacing: .05em;
+  color: var(--color-ink-soft);
+}
+
+/* ============ 本文パネル ============ */
+.pv-sec { padding-bottom: clamp(4rem, 8vw, 6.5rem); }
+.pv-panel {
+  border: 1px solid var(--pv-line); border-radius: 8px;
+  padding: clamp(1.8rem, 4vw, 3.2rem);
+  background: var(--color-paper);
+}
+
+.pv-article + .pv-article { margin-top: clamp(2rem, 3.6vw, 2.6rem); }
+.pv-article h2 {
+  font-family: var(--font-body); font-weight: 600; font-size: .92rem;
+  letter-spacing: .05em; color: var(--color-ink);
+  padding-bottom: 1rem; border-bottom: 1px solid var(--pv-line);
+}
+.pv-article p {
+  margin-top: 1.3rem; font-size: .86rem; line-height: 2.15;
+  letter-spacing: .04em; color: var(--color-ink-soft);
+}
+.pv-article ul {
+  margin: 1.2rem 0 0; padding-left: 1.4rem;
+  display: grid; gap: .85rem;
+}
+.pv-article li {
+  font-size: .86rem; line-height: 1.95; letter-spacing: .04em;
+  color: var(--color-ink-soft);
+}
+.pv-article li::marker { color: var(--color-ink-mute); }
+.pv-article a {
+  color: var(--pv-accent); text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.pv-article a:hover, .pv-article a:focus-visible { text-decoration-thickness: 2px; }
+
+/* 第7条の窓口：一段下げて連絡先であることを示す */
+.pv-desk { margin-top: 1.2rem; padding-left: 1.1rem; }
+.pv-desk p { margin-top: .6rem; }
+.pv-desk p:first-child { margin-top: 0; color: var(--color-ink); }
+
+/* ============ 制定日・改定日 ============ */
+.pv-dates {
+  margin-top: clamp(2.2rem, 4vw, 3rem);
+  padding-top: 1.6rem; border-top: 1px solid var(--pv-line);
+}
+.pv-dates p {
+  font-size: .8rem; line-height: 1.95; letter-spacing: .04em;
+  color: var(--pv-mute);
+}
+
+/* ============ ホームに戻る ============ */
+.pv-back { margin-top: clamp(2rem, 4vw, 3rem); text-align: center; }
+.pv-back-btn {
+  display: inline-flex; align-items: center; gap: .7rem;
+  padding: .95rem 2.2rem; border-radius: 4px;
+  border: 1px solid var(--pv-line); background: var(--color-paper);
+  font-size: .86rem; letter-spacing: .06em; color: var(--color-ink);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out),
+              transform var(--dur-fast) var(--ease-out);
+}
+.pv-back-btn svg { width: 1.05rem; height: 1.05rem; color: var(--pv-accent); }
+.pv-back-btn:hover,
+.pv-back-btn:focus-visible {
+  border-color: var(--pv-accent); color: var(--pv-accent);
+  background: var(--pv-ic-bg);
+}
+.pv-back-btn:active { transform: translateY(1px); }
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
+@media (min-width: 761px) {
+  .pv-page .pv-wrap { padding-left: 6.3rem; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 620px) {
+  .pv-title { gap: 1rem; }
+  .pv-title-ic { width: 2.8rem; height: 2.8rem; }
+  .pv-title-ic svg { width: 1.2rem; height: 1.2rem; }
+}

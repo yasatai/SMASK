@@ -9,6 +9,7 @@ import WebContent from "./pages/WebContent/WebContent";
 import Column from "./pages/Column/Column";
 import Company from "./pages/Company/Company";
 import Contact from "./pages/Contact/Contact";
+import Privacy from "./pages/Privacy/Privacy";
 import { prefersReduced } from "./motion";
 import "./App.css";
 
@@ -20,6 +21,7 @@ const ROUTES = new Set([
   "/column",
   "/company",
   "/contact",
+  "/privacy",
 ]);
 
 /** 慣性スムーススクロールを使うページ。
@@ -117,6 +119,7 @@ export default function App() {
         <Route path="/column" element={<Column />} />
         <Route path="/company" element={<Company />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/privacy" element={<Privacy />} />
       </Routes>
       <Footer />
     </>

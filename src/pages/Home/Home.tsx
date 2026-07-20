@@ -9,6 +9,16 @@ import "./Home.css";
  * モバイルはスクロール＋IntersectionObserver リビール）を ref + effect で忠実に移植。
  * クラスの付け外しはすべて元実装と同じ classList 操作で行う。
  */
+/**
+ * オープニングを再生済みかどうか。
+ *
+ * モジュール変数なので、ページを再読み込みするとリセットされる。つまり
+ *   ・直接アクセス／リロード（＝サイトへの入場）→ 毎回再生
+ *   ・サイト内の移動で戻ってきたとき         → 再生しない
+ * オープニングは「入口」の演出なので、中を回っている人には見せない。
+ */
+let hasPlayedIntro = false;
+
 export default function Home() {
   const introRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -20,11 +30,12 @@ export default function Home() {
     const intro = introRef.current!;
     const hero = heroRef.current!;
 
-    /* ---- オープニング（ホームを開くたびに毎回再生・元実装どおり） ---- */
-    if (prefersReduced) {
+    /* ---- オープニング（サイトへの入場時のみ再生） ---- */
+    if (prefersReduced || hasPlayedIntro) {
       intro.classList.add("is-done");
       hero.classList.add("is-ready");
     } else {
+      hasPlayedIntro = true;
       document.body.style.overflow = "hidden";
       const t1 = setTimeout(() => {
         intro.classList.add("is-parting");

@@ -12,6 +12,7 @@ export default function Footer() {
         <a href="/column">コラム</a>
         <a href="/company">会社概要</a>
         <a href="/contact">お問い合わせ</a>
+        <a href="/privacy">プライバシーポリシー</a>
       </nav>
       <hr className="rule-gold footer-rule" />
       {/* 著作権表記は登記上の社名。年はサイト公開年 */}
