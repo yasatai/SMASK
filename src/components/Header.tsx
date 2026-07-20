@@ -68,6 +68,13 @@ export default function Header() {
     setMenuOpen(false);
   }, [pathname]);
 
+  /* 下層ページ（デスクトップ）は上部ヘッダー方式。ページ側の「左サイドナビ用余白」を
+     解除するため html に nav-top を付ける（CSSは min-width:761 でのみ効かせる）。 */
+  useEffect(() => {
+    document.documentElement.classList.toggle("nav-top", !isHome);
+    return () => document.documentElement.classList.remove("nav-top");
+  }, [isHome]);
+
   /* モバイルナビ表示中は背面スクロールを止める */
   useEffect(() => {
     if (navOpen) document.body.style.overflow = "hidden";
@@ -119,6 +126,8 @@ export default function Header() {
 
   return (
     <>
+      {/* 下層ページ（デスクトップ）は上部ヘッダーバー。ホームは縦サイドナビのまま。 */}
+      {!isHome && <div className="site-headerbar" aria-hidden="true"></div>}
       <a className="site-logo" href="/" aria-label="SMASK ホーム">
         <img src={`${BASE}assets/logo.jpg`} alt="SMASK" width="1024" height="512" />
       </a>
@@ -132,7 +141,7 @@ export default function Header() {
         <span></span><span></span><span></span>
       </button>
 
-      <ul className={"nav" + (navOpen ? " is-open" : "")} id="site-nav">
+      <ul className={"nav" + (navOpen ? " is-open" : "") + (isHome ? " nav--side" : " nav--bar")} id="site-nav">
         {ITEMS.map((it, idx) => {
           const here = idx === hereIdx ? " is-here" : "";
           if (it.kind === "section") {
