@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SplitLn from "../../components/SplitLn";
 import { prefersReduced } from "../../motion";
 import { setBizArrival, type BizGem } from "../../bizTransition";
+import { takeHomeSection } from "../../homeNav";
 import "./Home.css";
 
 /**
@@ -161,7 +162,13 @@ export default function Home() {
         timers.add(t1);
       };
 
-      setActive(0); // hero の is-ready はイントロ側が付与
+      /* 下層ページのサイドナビから「SMASKとは/事業内容/SMASKの考え方」で来た場合は、
+         先頭ではなく対象セクションに直接着地する（イントロ済み＝SPA復帰なので即時でよい） */
+      const wanted = takeHomeSection();
+      const start = wanted != null && wanted > 0 && wanted < sections.length ? wanted : 0;
+      setActive(start); // hero の is-ready はイントロ側が付与
+      current = start;
+      if (start !== 0) reveal(start);
 
       /* 画面より背が高いセクションは内部スクロールを先に消化 */
       const canScrollInside = (el: HTMLElement, dy: number) => {
@@ -231,6 +238,18 @@ export default function Home() {
       });
     } else {
       /* ---- 通常スクロールモード：セクションのカーテンリビール（元実装どおり） ---- */
+      /* サイドナビ経由で対象セクション指定があれば、そこへスクロール。
+         App 側の「先頭へ戻す」処理より後に効かせるため rAF で1フレーム遅らせる。 */
+      const wanted = takeHomeSection();
+      const idBySection: Record<number, string> = { 1: "about", 2: "business", 3: "approach" };
+      if (wanted && idBySection[wanted]) {
+        const raf = requestAnimationFrame(() => {
+          document.getElementById(idBySection[wanted])
+            ?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" });
+        });
+        cleanups.push(() => cancelAnimationFrame(raf));
+      }
+
       const panels = mainRef.current!.querySelectorAll<HTMLElement>(".panel");
       if (prefersReduced || !("IntersectionObserver" in window)) {
         panels.forEach(p => p.classList.add("is-revealed"));

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useLocation } from "react-router-dom";
 import { prefersReduced } from "../motion";
+import { setHomeSection } from "../homeNav";
 import "./Header.css";
 
 const BASE = import.meta.env.BASE_URL;
@@ -80,7 +81,12 @@ export default function Header() {
 
   /* セクション項目クリック：ホーム上ではフルページ遷移／スクロール移動 */
   const jump = (e: ReactMouseEvent, sectionIdx: number, id: string | null) => {
-    if (!isHome) return; // 下層ページでは App の遷移カーテンで "/" へ
+    if (!isHome) {
+      // 下層ページから：href="/" で App のカーテン遷移に任せつつ、
+      // ホーム到着後に対象セクションへ寄せる（0=先頭はそのまま先頭へ）
+      if (sectionIdx > 0) setHomeSection(sectionIdx);
+      return;
+    }
     e.preventDefault();
     if (window.__smaskFullpage) {
       window.dispatchEvent(new CustomEvent("smask:goto", { detail: sectionIdx }));
@@ -150,6 +156,7 @@ export default function Header() {
                 >
                   {labelSpans(it)} <span className="caret" aria-hidden="true"></span>
                 </a>
+                {/* サブメニューはモバイルのプルダウンのみ（デスクトップは CSS で非表示） */}
                 <div className={"submenu" + (menuOpen ? " is-open" : "")}>
                   <a href="/business-precious-metals"><span className="en">Precious Metals</span><span className="jp">貴金属買取</span></a>
                   <a href="/business-jewelry"><span className="en">Jewelry</span><span className="jp">ジュエリー制作</span></a>

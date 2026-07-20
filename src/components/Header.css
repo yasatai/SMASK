@@ -61,8 +61,7 @@
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out), visibility var(--dur-fast);
 }
-.has-menu:hover .submenu,
-.has-menu:focus-within .submenu,
+/* デスクトップのホバー展開は廃止。開くのはモバイルのプルダウン（.is-open）だけ。 */
 .has-menu .submenu.is-open {
   opacity: 1; visibility: visible; pointer-events: auto;
   transform: translateX(-50%) translateY(0);
@@ -165,14 +164,10 @@
   .nav li.is-here .nav-link { color: var(--color-ink); }
   .nav li.is-here .nl-en { color: var(--color-gold-deep); }
 
-  /* 事業内容サブメニュー：右横に開く */
-  .has-menu .submenu {
-    top: auto; bottom: 0; left: calc(100% + 1.1rem);
-    transform: translateY(6px);
-  }
-  .has-menu:hover .submenu,
-  .has-menu:focus-within .submenu,
-  .has-menu .submenu.is-open { transform: translateY(0); }
+  /* 事業内容サブメニューはデスクトップでは廃止（クリックでビジネスセクションへ）。
+     モバイルのプルダウンのみ残す。キャレット（下向き記号）も不要。 */
+  .has-menu .submenu { display: none; }
+  .has-menu .caret { display: none; }
 
   /* メニュー帯のぶん、トップのコンテンツを右へ逃がす（12-officeと同じ住み分け） */
   .hero { padding-left: 4.6rem; }
