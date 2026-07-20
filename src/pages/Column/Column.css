@@ -1,13 +1,174 @@
-/* Column.css — コラム一覧 */
-.col-list { max-width: 48rem; margin-inline: auto; display: grid; gap: 0; }
-.col-item {
-  display: grid; grid-template-columns: auto 1fr; gap: 1.5rem; align-items: baseline;
-  padding: 1.8rem 0; border-bottom: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 45%, transparent);
+/* Column.css — コラムページ専用
+ * 管理画面（CMS）から投稿する想定。記事0件のときは「準備中」の案内になる。
+ * 事業ページの差し色（赤・オレンジ）ではなく、サイト共通の金を基調にする。
+ * スクロール連動の演出は付けない（素直に読める状態）。
+ */
+.cl-page {
+  --cl-line: oklch(90% 0.006 70);
+  --cl-mute: oklch(60% 0.008 65);
+  background: var(--color-paper);
+}
+
+.cl-wrap { width: min(100% - 2.5rem, 60rem); margin-inline: auto; }
+.cl-sec { padding-block: clamp(2.8rem, 5vw, 4rem) clamp(4rem, 8vw, 6.5rem); }
+
+.cl-page .cl-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .68rem; font-weight: 500;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--cl-mute);
+}
+
+/* ============ Hero ============ */
+.cl-hero {
+  text-align: center;
+  padding: clamp(4.6rem, 11vh, 7rem) 1.5rem clamp(2.6rem, 6vh, 3.6rem);
+}
+.cl-hero h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.9rem, 4.4vw, 2.7rem); letter-spacing: .1em;
+  color: var(--color-ink); margin-top: .9rem;
+}
+.cl-hero p {
+  margin-top: 1.2rem; font-size: .88rem; line-height: 2.1;
+  letter-spacing: .05em; color: var(--color-ink-soft);
+}
+.cl-hero-mark {
+  display: block; width: 1px; height: 3rem;
+  margin: clamp(2.2rem, 5vh, 3.4rem) auto 0;
+  background: var(--cl-line);
+}
+
+/* ============ カテゴリ絞り込み ============ */
+.cl-filter {
+  display: flex; flex-wrap: wrap; gap: .6rem;
+  padding-bottom: 1.6rem; margin-bottom: .4rem;
+  border-bottom: 1px solid var(--cl-line);
+}
+.cl-chip {
+  display: inline-flex; align-items: baseline; gap: .5rem;
+  padding: .5rem 1.1rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--cl-line); background: transparent;
+  font-family: var(--font-body); font-size: .8rem; letter-spacing: .06em;
+  color: var(--color-ink-soft);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.cl-chip:hover { border-color: var(--color-gold-line); color: var(--color-ink); }
+.cl-chip.is-active {
+  background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper);
+}
+.cl-chip-n {
+  font-family: var(--font-display); font-size: .72rem; letter-spacing: .04em;
+  color: var(--cl-mute);
+}
+.cl-chip.is-active .cl-chip-n { color: color-mix(in oklch, var(--color-paper) 65%, transparent); }
+
+/* ============ 記事一覧 ============ */
+.cl-list { list-style: none; margin: 0; padding: 0; }
+.cl-list li { border-bottom: 1px solid var(--cl-line); }
+.cl-item {
+  display: grid; grid-template-columns: 13rem 1fr; gap: 1.8rem;
+  padding: 2rem 0;
   transition: padding-left var(--dur-mid) var(--ease-out);
 }
-.col-item:first-child { border-top: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 45%, transparent); }
-.col-item:hover { padding-left: .6rem; }
-.col-item time { font-family: var(--font-display); font-size: var(--text-sm); letter-spacing: .1em; color: var(--color-ink-mute); white-space: nowrap; }
-.col-item .tag { font-size: var(--text-xs); letter-spacing: .1em; color: var(--color-gold-deep); }
-.col-item h3 { font-family: var(--font-jp); font-size: var(--text-lg); letter-spacing: .03em; margin-top: .3rem; transition: color var(--dur-fast) var(--ease-out); }
-.col-item:hover h3 { color: var(--color-gold-deep); }
+.cl-item:hover { padding-left: .5rem; }
+.cl-thumb {
+  display: block; aspect-ratio: 4 / 3; border-radius: 4px;
+  background-color: var(--color-paper-3);
+  background-size: cover; background-position: center;
+}
+/* サムネイル未設定：金の細い斜線で「画像なし」を静かに示す */
+.cl-thumb.is-empty {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 9px,
+    color-mix(in oklch, var(--color-gold-line) 40%, transparent) 9px 10px
+  );
+}
+.cl-body { display: flex; flex-direction: column; align-items: flex-start; }
+.cl-meta { display: inline-flex; align-items: center; gap: .9rem; }
+.cl-meta time {
+  font-family: var(--font-display); font-size: .82rem; letter-spacing: .1em;
+  color: var(--cl-mute);
+}
+.cl-cat {
+  font-size: .68rem; letter-spacing: .1em; color: var(--color-gold-deep);
+  border: 1px solid color-mix(in oklch, var(--color-gold-line) 70%, transparent);
+  border-radius: 2px; padding: .18rem .6rem;
+}
+.cl-title {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: 1.12rem; line-height: 1.7; letter-spacing: .04em;
+  color: var(--color-ink); margin-top: .8rem;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.cl-item:hover .cl-title { color: var(--color-gold-deep); }
+.cl-excerpt {
+  margin-top: .7rem; font-size: .84rem; line-height: 2;
+  letter-spacing: .04em; color: var(--color-ink-soft);
+  /* 3行を超えたら省略（一覧の見通しを保つ） */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.cl-more {
+  margin-top: 1rem; font-size: .78rem; letter-spacing: .06em;
+  color: var(--color-gold-deep);
+}
+.cl-more span { display: inline-block; transition: transform var(--dur-fast) var(--ease-out); }
+.cl-item:hover .cl-more span { transform: translateX(4px); }
+
+.cl-loading {
+  padding: 3.4rem 0; text-align: center;
+  font-size: .86rem; letter-spacing: .06em; color: var(--cl-mute);
+}
+
+/* ============ 記事0件：準備中 ============ */
+.cl-empty {
+  text-align: center;
+  border: 1px solid var(--cl-line); border-radius: 8px;
+  padding: clamp(2.8rem, 6vw, 4.4rem) clamp(1.6rem, 4vw, 3.4rem);
+  background: var(--color-paper-2);
+}
+.cl-empty-ic {
+  display: grid; place-items: center;
+  width: 3.4rem; height: 3.4rem; margin: 0 auto; border-radius: 50%;
+  background: var(--color-paper); border: 1px solid var(--cl-line);
+  color: var(--color-gold-deep);
+}
+.cl-empty-ic svg { width: 1.4rem; height: 1.4rem; display: block; }
+.cl-empty-title {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem); letter-spacing: .06em;
+  color: var(--color-ink); margin-top: 1.4rem;
+}
+.cl-empty-text {
+  max-width: 34rem; margin: 1.2rem auto 0;
+  font-size: .86rem; line-height: 2.15; letter-spacing: .05em;
+  color: var(--color-ink-soft);
+}
+.cl-empty-link {
+  display: inline-block; margin-top: 2rem;
+  font-size: .84rem; letter-spacing: .06em; color: var(--color-ink);
+  border-bottom: 1px solid var(--color-gold);
+  padding-bottom: .3rem;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.cl-empty-link:hover, .cl-empty-link:focus-visible { color: var(--color-gold-deep); }
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
+@media (min-width: 761px) {
+  .cl-page .cl-wrap { padding-left: 6.3rem; }
+  .cl-page .cl-hero { padding-left: 7.5rem; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 760px) {
+  .cl-item { grid-template-columns: 9rem 1fr; gap: 1.1rem; }
+  .cl-title { font-size: 1rem; }
+}
+@media (max-width: 560px) {
+  .cl-item { grid-template-columns: 1fr; gap: 1rem; }
+  .cl-thumb { aspect-ratio: 16 / 9; }
+  .cl-excerpt { -webkit-line-clamp: 2; }
+}

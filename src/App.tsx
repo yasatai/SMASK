@@ -27,6 +27,7 @@ const NO_SMOOTH_SCROLL = new Set([
   "/business-precious-metals",
   "/business-jewelry",
   "/business-web",
+  "/column",
 ]);
 
 export default function App() {
