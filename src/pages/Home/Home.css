@@ -30,28 +30,65 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 .is-fullpage .hero { min-height: 100vh; }
 .is-fullpage .site-footer { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
 
-/* global fullpage transition curtain (between sections, under the header) */
-.fp-curtain {
-  position: fixed; inset: 0; z-index: 90;
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  pointer-events: none; visibility: hidden;
+/* ============ 12-office式 セクション遷移：退場の振り付け（カーテンは廃止） ============
+   実測に基づく移植：出る側の要素が「それぞれ別方向」へ飛び去る（transform 0.8s expo ＋
+   opacity 0.2〜0.25s linear で素早く消える）→ 800ms で切替 → 入る側は既存 reveal の時間差入場。
+   fp-section は overflow:hidden なので飛び去りはセクション内で綺麗にクリップされる。
+   ※背景の液体的な歪みクロスフェード（WebGL）は再現対象外。 */
+.fp-section.is-leaving { pointer-events: none; }
+.fp-section.is-leaving * { transition-delay: 0s !important; }  /* 入場用の時間差を即解除して一斉に退場 */
+
+/* 共通：セクション見出しはマスクの中を上へ抜ける（12-officeのkvTitle相当）。
+   入場用ルール（.panel.is-revealed…、後方定義）に負けないよう !important（本家も同じ流儀） */
+.fp-section.is-leaving .sec-head h2 .ln {
+  transform: translateY(-118%) !important;
+  transition: transform .8s var(--ease-expo) !important;
 }
-.fp-curtain span {
-  background: linear-gradient(180deg, color-mix(in oklch, var(--color-paper) 94%, var(--color-gold-glow)), var(--color-paper));
-  border-right: var(--rule-hair) solid color-mix(in oklch, var(--color-gold-line) 40%, transparent);
-  transform: translateY(-102%);
+.fp-section.is-leaving .sec-head .eyebrow,
+.fp-section.is-leaving .sec-head .lead { opacity: 0; transition: opacity .2s linear; }
+
+/* 共通：本文ブロックは左右に割れて飛び去る（奇数=左へ、偶数=右へ。kvCopy/features__inner相当） */
+.fp-section.is-leaving .wrap > :not(.sec-head) {
+  opacity: 0;
+  transition: opacity .25s linear, transform .8s var(--ease-expo);
 }
-.fp-curtain span:last-child { border-right: 0; }
-.fp-curtain span:nth-child(even) { transform: translateY(102%); }
-.fp-curtain.is-closing, .fp-curtain.is-opening { visibility: visible; }
-.fp-curtain.is-closing span { transform: translateY(0); transition: transform 680ms var(--ease-expo); }
-.fp-curtain.is-opening span:nth-child(odd)  { transform: translateY(-102%); }
-.fp-curtain.is-opening span:nth-child(even) { transform: translateY(102%); }
-.fp-curtain.is-opening span { transition: transform 760ms var(--ease-expo); }
-.fp-curtain.is-closing span:nth-child(1), .fp-curtain.is-opening span:nth-child(1) { transition-delay: 0ms; }
-.fp-curtain.is-closing span:nth-child(2), .fp-curtain.is-opening span:nth-child(2) { transition-delay: 70ms; }
-.fp-curtain.is-closing span:nth-child(3), .fp-curtain.is-opening span:nth-child(3) { transition-delay: 140ms; }
-.fp-curtain.is-closing span:nth-child(4), .fp-curtain.is-opening span:nth-child(4) { transition-delay: 210ms; }
+.fp-section.is-leaving .wrap > :not(.sec-head):nth-child(odd)  { transform: translateX(-55%); }
+.fp-section.is-leaving .wrap > :not(.sec-head):nth-child(even) { transform: translateX(55%); }
+
+/* Hero：1行目は左へ・2行目は右へ、脇役は上下へ抜ける。
+   eyebrow / hero-sub は入場の fadeUp(forwards) フィルが transition を上書きするため、
+   退場側も animation で行う（フィル同士は後勝ち・!importantでdelayも打ち消す） */
+.hero.is-leaving .hero-copy .eyebrow,
+.hero.is-leaving .hero-scroll {
+  animation: heroLeaveUp .8s var(--ease-expo) forwards !important;
+}
+.hero.is-leaving .hero-sub {
+  animation: heroLeaveDown .8s var(--ease-expo) forwards !important;
+}
+@keyframes heroLeaveUp {
+  from { opacity: 1; transform: none; }
+  31%  { opacity: 0; }
+  to   { opacity: 0; transform: translateY(-26px); }
+}
+@keyframes heroLeaveDown {
+  from { opacity: 1; transform: none; }
+  31%  { opacity: 0; }
+  to   { opacity: 0; transform: translateY(30px); }
+}
+.hero.is-leaving h1 .hl {
+  display: inline-block;
+  transition: opacity .25s linear, transform .8s var(--ease-expo);
+}
+.hero.is-leaving h1 .hl:first-child { opacity: 0; transform: translateX(-45%); }
+.hero.is-leaving h1 .hl:last-child  { opacity: 0; transform: translateX(45%); }
+
+/* フッター（明色クロージング）から戻る時も同じ流儀で */
+.site-footer.is-leaving > * {
+  opacity: 0;
+  transition: opacity .25s linear, transform .8s var(--ease-expo);
+}
+.site-footer.is-leaving > :nth-child(odd)  { transform: translateX(-10%); }
+.site-footer.is-leaving > :nth-child(even) { transform: translateX(10%); }
 
 /* ============ Opening animation (homepage) ============ */
 .intro {
@@ -139,10 +176,10 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
   background-color: var(--color-paper);
   background-image:
     linear-gradient(90deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 86%, transparent) 34%, transparent 60%),
-    image-set(url("/assets/hero.jpg") 1x);
+    image-set(url("/assets/hero.png") 1x);
   background-image:
     linear-gradient(90deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 86%, transparent) 34%, transparent 60%),
-    url("/assets/hero.jpg");
+    url("/assets/hero.png");
   background-repeat: no-repeat, no-repeat;
   background-size: cover, cover;
   background-position: center, right center;
@@ -468,7 +505,7 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
   .sub-br { display: none; }
   .hero { background-image:
       linear-gradient(180deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 70%, transparent) 45%, color-mix(in oklch, var(--color-paper) 30%, transparent) 100%),
-      url("/assets/hero.jpg");
+      url("/assets/hero.png");
     background-position: center, center bottom;
   }
 }

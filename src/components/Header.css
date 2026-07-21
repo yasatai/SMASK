@@ -238,7 +238,6 @@
   .nav-top .pv-page .pv-wrap,
   .nav-top .wc-page .wc-wrap, .nav-top .wc-page .wc-hero { padding-left: 0; }
   .nav-top .jw-page .jw-band { width: min(100% - 2.5rem, 1400px); margin-inline: auto; }
-  .nav-top .pm-page .pm-months { padding-left: 0; }
 
   /* 短いHeroの情報ページは、固定ヘッダー(4.6rem)ぶん上に余白を足して見出しが隠れないように。
      事業ページ（pm/jw/wc）のHeroは全画面・中央寄せなので対象外（ヘッダーは余白部分に重なるだけ）。 */

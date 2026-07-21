@@ -6,60 +6,6 @@ import "./PreciousMetals.css";
 
 const BASE = import.meta.env.BASE_URL;
 
-/* ---- Hero背景のローソク足チャート（装飾。実データではない） ---- */
-function chartBars() {
-  const keys: [number, number][] = [
-    [0, 0.28], [8, 0.31], [14, 0.40], [20, 0.53], [24, 0.49], [28, 0.51],
-    [34, 0.55], [40, 0.59], [44, 0.70], [47, 0.96], [49, 0.76], [52, 0.85],
-    [56, 0.91], [60, 0.81], [64, 0.68], [68, 0.75], [72, 0.71], [76, 0.65],
-    [80, 0.57], [84, 0.55],
-  ];
-  const at = (i: number) => {
-    let k = 0;
-    while (k < keys.length - 2 && keys[k + 1][0] < i) k++;
-    const [x0, y0] = keys[k], [x1, y1] = keys[k + 1];
-    const t = x1 === x0 ? 0 : (i - x0) / (x1 - x0);
-    const s = t * t * (3 - 2 * t);
-    return y0 + (y1 - y0) * s + Math.sin(i * 7.31) * 0.017 + Math.sin(i * 2.17) * 0.011;
-  };
-  const out: { o: number; c: number; h: number; l: number }[] = [];
-  let prev = at(0);
-  for (let i = 0; i < 84; i++) {
-    const v = at(i + 1);
-    out.push({
-      o: prev, c: v,
-      h: Math.max(prev, v) + 0.014 + Math.abs(Math.sin(i * 3.7)) * 0.02,
-      l: Math.min(prev, v) - 0.014 - Math.abs(Math.sin(i * 5.1)) * 0.02,
-    });
-    prev = v;
-  }
-  return out;
-}
-
-function PmChart() {
-  const data = chartBars();
-  const W = 1200, H = 420, cw = W / data.length;
-  const y = (v: number) => H * (1 - (v * 0.74 + 0.1));
-  return (
-    <svg className="pm-chart" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" aria-hidden="true">
-      {data.map((d, i) => {
-        const color = d.c >= d.o ? "var(--pm-up)" : "var(--pm-down)";
-        const x = i * cw + cw / 2;
-        const top = y(Math.max(d.o, d.c)), bot = y(Math.min(d.o, d.c));
-        return (
-          /* --d：左から右へ順に立ち上がるための時間差 */
-          <g key={i} style={{ "--d": `${i * 14}ms` } as React.CSSProperties}>
-            <line x1={x} y1={y(d.h)} x2={x} y2={y(d.l)} stroke={color} strokeWidth="1.3" />
-            <rect x={x - cw * 0.3} y={top} width={cw * 0.6} height={Math.max(bot - top, 1.5)} fill={color} />
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-const MONTHS = ["8月", "9月", "10月", "11月", "12月", "2026", "2月", "3月", "4月", "5月", "6月", "7月"];
-
 /* ---- 線画アイコン ---- */
 const IC = {
   home: <path d="M4.5 11 12 5l7.5 6M6.8 9.8V19h10.4V9.8" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />,
@@ -140,15 +86,10 @@ export default function PreciousMetals() {
 
         {/* ============ Hero ============ */}
         <section className="pm-hero is-in">
-          <PmChart />
-          <span className="pm-guideline" aria-hidden="true"></span>
           <div className="pm-hero-copy">
             <span className="pm-eyebrow" style={{ "--d": "900ms" } as React.CSSProperties}>PRECIOUS METALS</span>
             <h1 style={{ "--d": "1040ms" } as React.CSSProperties}>貴金属買取</h1>
             <p style={{ "--d": "1200ms" } as React.CSSProperties}>相場だけでなく、状態や背景も踏まえて丁寧に確認し、<br />適正にご案内します。</p>
-          </div>
-          <div className="pm-months" aria-hidden="true">
-            {MONTHS.map(m => <span key={m}>{m}</span>)}
           </div>
         </section>
 

@@ -102,12 +102,6 @@ export default function Home() {
       document.documentElement.classList.add("is-fullpage");
       sections.forEach(s => s.classList.add("fp-section"));
 
-      /* 遷移カーテン */
-      const curtain = document.createElement("div");
-      curtain.className = "fp-curtain";
-      for (let k = 0; k < 4; k++) curtain.appendChild(document.createElement("span"));
-      document.body.appendChild(curtain);
-
       /* 現在地の表示は左端サイドメニューの金バーが担うため、ドットナビは持たない */
 
       let current = 0;
@@ -139,24 +133,25 @@ export default function Home() {
         else s.classList.add("is-revealed");
       };
 
+      /* 12-office式の遷移（実測を移植）：カーテンは使わない。
+         出る側 .is-leaving ＝ 要素が方向別に飛び去る（0.8s expo）
+         → 800ms でセクション切替 → 入る側は既存の reveal（時間差入場）。 */
       const goTo = (i: number) => {
         if (animating || i === current || i < 0 || i >= sections.length) return;
         animating = true;
-        curtain.classList.add("is-closing");
+        const from = sections[current];
+        from.classList.add("is-leaving");
         const t1 = window.setTimeout(() => {
+          from.classList.remove("is-leaving");
           setActive(i);
           current = i;
-          curtain.classList.remove("is-closing");
-          void curtain.offsetWidth;
-          curtain.classList.add("is-opening");
           reveal(i);
           const t2 = window.setTimeout(() => {
-            curtain.classList.remove("is-opening");
             animating = false;
             wheelLock = Date.now(); // トラックパッド慣性の吸収
-          }, 1000);
+          }, 1100);
           timers.add(t2);
-        }, 920);
+        }, 800);
         timers.add(t1);
       };
 
@@ -227,10 +222,9 @@ export default function Home() {
         window.removeEventListener("resize", onResize);
         window.removeEventListener("smask:goto", onGoto);
         if (hint) { hint.removeEventListener("click", onHint); hint.style.cursor = ""; }
-        curtain.remove();
         document.documentElement.classList.remove("is-fullpage", "is-fp-dark");
         sections.forEach(s =>
-          s.classList.remove("fp-section", "is-active", "is-revealed")
+          s.classList.remove("fp-section", "is-active", "is-revealed", "is-leaving")
         );
         delete window.__smaskFullpage;
       });

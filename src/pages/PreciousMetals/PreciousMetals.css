@@ -8,8 +8,6 @@
   --pm-tint:    oklch(97.6% 0.012 30);    /* セクション帯の淡いピンク */
   --pm-circle:  oklch(94% 0.028 30);      /* アイコン円の背景 */
   --pm-line:    oklch(91% 0.006 60);      /* カード枠・区切り線 */
-  --pm-up:      oklch(72% 0.10 165);      /* ローソク足（陽線） */
-  --pm-down:    oklch(72% 0.12 25);       /* ローソク足（陰線） */
 }
 
 .pm-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; }
@@ -64,20 +62,6 @@
   border-bottom: 1px solid var(--pm-line);
   background: transparent;   /* 透明にして固定背景を見せる */
 }
-/* チャート・ガイド線・月ラベルは画像より上に */
-.pm-hero .pm-chart,
-.pm-hero .pm-guideline,
-.pm-hero .pm-months { z-index: 1; }
-.pm-chart {
-  position: absolute; left: 0; right: 0; top: 0;
-  width: 100%; height: calc(100% - 2.6rem);
-  opacity: .55; pointer-events: none;
-}
-.pm-guideline {
-  position: absolute; left: 0; right: 0; top: 52%;
-  border-top: 1px dotted oklch(80% 0.06 190);
-  pointer-events: none;
-}
 .pm-hero-copy { position: relative; z-index: 2; text-align: center; }
 .pm-hero-copy h1 {
   font-family: var(--font-jp); font-weight: 500;
@@ -88,13 +72,6 @@
   margin-top: 1.1rem; font-size: .92rem; line-height: 2.1;
   color: var(--color-ink-soft); letter-spacing: .04em;
 }
-.pm-months {
-  position: absolute; left: 0; right: 0; bottom: .9rem;
-  display: flex; justify-content: space-between;
-  padding-inline: clamp(1rem, 4vw, 3.2rem);
-  font-size: .72rem; color: var(--color-ink-mute); letter-spacing: .04em;
-}
-
 /* ============ TODAY'S PRICE ============ */
 .pm-price-grid {
   margin-top: 2.6rem;
@@ -157,7 +134,11 @@
 .pm-overview-photo {
   aspect-ratio: 16 / 11; border-radius: 10px;
   background-color: oklch(95% 0.02 80);   /* 画像未設置でも崩れない下地 */
-  background-size: cover; background-position: center;
+  background-size: cover;
+  /* 縦写真を横16:11枠に収めるトリミング。
+     Y値が小さいほど画像の「上側」、大きいほど「下側」が見える（0%=上端/100%=下端）。
+     リング群は画像の縦42〜67%付近にあるため、枠中央に来るよう 57% に設定。数値で微調整可。 */
+  background-position: center 57%;
   box-shadow: 0 18px 44px -34px color-mix(in oklch, var(--color-ink) 60%, transparent);
 }
 
@@ -305,24 +286,14 @@
 .pm-page .pm-eyebrow[data-reveal].is-in + .pm-h2,
 .pm-page .pm-contact .pm-eyebrow[data-reveal].is-in + .pm-h2 { opacity: 1; transform: none; }
 
-/* --- 案A：Heroのチャートが左から描かれる ---
+/* --- Hero文言のせり上がり（チャート装飾は 2026-07-21 廃止） ---
    入場カーテンが降りている間（html.is-entering）は始動しない。
    カーテンの裏で走り切ってしまい「開いた時にはもう終わっている」のを防ぐ。 */
-.pm-chart g { opacity: 0; transform: translateY(14px); transform-origin: center bottom; }
-.pm-guideline { transform: scaleX(0); transform-origin: left; }
 .pm-hero-copy > * { opacity: 0; transform: translateY(12px); }
 
-html:not(.is-entering) .pm-chart g {
-  animation: pmCandle 360ms var(--ease-expo) var(--d, 0ms) forwards;
-}
-html:not(.is-entering) .pm-guideline {
-  animation: pmGuide 1s var(--ease-expo) .1s forwards;
-}
 html:not(.is-entering) .pm-hero-copy > * {
   animation: pmRise 900ms var(--ease-expo) var(--d, 0ms) forwards;
 }
-@keyframes pmCandle { to { opacity: 1; transform: none; } }
-@keyframes pmGuide  { to { transform: scaleX(1); } }
 @keyframes pmRise   { to { opacity: 1; transform: none; } }
 
 /* --- 案B：前日比の色（数字が確定してから乗る） --- */
@@ -380,7 +351,6 @@ html:not(.is-entering) .pm-hero-copy > * {
 /* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
 @media (min-width: 761px) {
   .pm-page .pm-wrap { padding-left: 5rem; }
-  .pm-page .pm-months { padding-left: 7rem; }
 }
 
 /* ============ レスポンシブ ============ */
@@ -404,7 +374,6 @@ html:not(.is-entering) .pm-hero-copy > * {
 }
 @media (max-width: 620px) {
   .pm-price-grid, .pm-who-grid, .pm-items-grid { grid-template-columns: 1fr; }
-  .pm-months { font-size: .62rem; }
   .pm-who-card { min-height: 0; }
 }
 
@@ -413,12 +382,11 @@ html:not(.is-entering) .pm-hero-copy > * {
   .pm-page [data-reveal],
   .pm-page .pm-eyebrow[data-reveal] + .pm-h2,
   .pm-hero-copy > *,
-  .pm-chart g,
   .pm-approach-item .pm-approach-num,
   .pm-flow li > * {
     opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important;
   }
-  .pm-circle, .pm-approach-item .pm-dash, .pm-guideline, .pm-flow-track {
+  .pm-circle, .pm-approach-item .pm-dash, .pm-flow-track {
     transform: none !important; animation: none !important;
   }
   .pm-ic path, .pm-ic circle, .pm-ic line { stroke-dashoffset: 0 !important; animation: none !important; }
