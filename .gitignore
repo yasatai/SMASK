@@ -1,2 +1,5 @@
 node_modules
 dist
+
+# Vite ローカル上書き用（各自の環境値）
+.env*.local

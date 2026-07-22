@@ -133,7 +133,7 @@ export default function PreciousMetals() {
                       })}
                     >—</span>
                   </div>
-                  <a className="pm-more" href="#">詳細を見る →</a>
+                  <a className="pm-more" href={`/business-precious-metals/${m.key}`}>詳細を見る →</a>
                 </article>
               ))}
             </div>

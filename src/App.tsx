@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home/Home";
 import PreciousMetals from "./pages/PreciousMetals/PreciousMetals";
+import MetalDetail from "./pages/MetalDetail/MetalDetail";
 import Jewelry from "./pages/Jewelry/Jewelry";
 import WebContent from "./pages/WebContent/WebContent";
 import Column from "./pages/Column/Column";
@@ -16,6 +17,9 @@ import "./App.css";
 const ROUTES = new Set([
   "/",
   "/business-precious-metals",
+  "/business-precious-metals/gold",
+  "/business-precious-metals/platinum",
+  "/business-precious-metals/silver",
   "/business-jewelry",
   "/business-web",
   "/column",
@@ -114,6 +118,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/business-precious-metals" element={<PreciousMetals />} />
+        <Route path="/business-precious-metals/:metal" element={<MetalDetail />} />
         <Route path="/business-jewelry" element={<Jewelry />} />
         <Route path="/business-web" element={<WebContent />} />
         <Route path="/column" element={<Column />} />
