@@ -13,6 +13,14 @@
  *   買取価格を入れる。retail / diff はデータが無いため null（＝「—」）のまま。
  */
 
+/** 品位ごとの買取価格（詳細ページの「純度別買取価格」表用） */
+export type PurityPrice = {
+  /** 品位名（K24 / Pt1000 / Sv925 など） */
+  name: string;
+  /** 買取価格（税込・円/g） */
+  price: number;
+};
+
 export type MetalPrice = {
   /** 表示用の英字ラベル */
   en: string;
@@ -26,13 +34,15 @@ export type MetalPrice = {
   buy: number | null;
   /** 前日比（円。プラスで上昇）。未取得は null */
   diff: number | null;
+  /** 品位別の買取価格。未取得は空配列 */
+  purities: PurityPrice[];
 };
 
 /** 価格が未取得の状態（枠だけを表示する） */
 export const EMPTY_PRICES: MetalPrice[] = [
-  { en: "GOLD", jp: "金", key: "gold", retail: null, buy: null, diff: null },
-  { en: "PLATINUM", jp: "プラチナ", key: "platinum", retail: null, buy: null, diff: null },
-  { en: "SILVER", jp: "銀", key: "silver", retail: null, buy: null, diff: null },
+  { en: "GOLD", jp: "金", key: "gold", retail: null, buy: null, diff: null, purities: [] },
+  { en: "PLATINUM", jp: "プラチナ", key: "platinum", retail: null, buy: null, diff: null, purities: [] },
+  { en: "SILVER", jp: "銀", key: "silver", retail: null, buy: null, diff: null, purities: [] },
 ];
 
 /** 公開API `/api/public/prices` のレスポンス形 */
@@ -67,7 +77,11 @@ export async function fetchMetalPrices(): Promise<MetalPrice[]> {
       const top = metal?.prices?.[0]; // 先頭＝最高純度（K24 / Pt1000 / SV1000）
       if (!top) return p;             // 未公開の金属は「—」のまま
       const buy = Number(top.price);
-      return { ...p, buy: Number.isFinite(buy) ? buy : null };
+      // 品位別の一覧（詳細ページ用）。数値化できない行は除外して安全側に
+      const purities: PurityPrice[] = (metal?.prices ?? [])
+        .map(x => ({ name: x.name, price: Number(x.price) }))
+        .filter(x => Number.isFinite(x.price));
+      return { ...p, buy: Number.isFinite(buy) ? buy : null, purities };
     });
   } catch {
     return EMPTY_PRICES;

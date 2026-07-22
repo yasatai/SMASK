@@ -1,0 +1,157 @@
+/* MetalDetail.css — 金・プラチナ・銀の買取価格 詳細ページ専用
+ * テスト公開版（test-smask.com）の詳細ページ構成を、本サイトのトーン（紙色・明朝）に載せて再現。
+ * 赤アクセントは貴金属買取ページと同じ値をこのスコープで再定義する。
+ */
+.md-page {
+  --md-accent:  oklch(55% 0.175 35);
+  --md-line:    oklch(91% 0.006 60);
+  --md-row:     oklch(97.3% 0.004 60);   /* 表の縞・ヘッダー行 */
+  --md-notice:  oklch(97.6% 0.003 60);   /* ご注意ボックスの地 */
+  background: var(--color-paper);
+  padding-bottom: clamp(3.5rem, 7vw, 6rem);
+}
+
+.md-wrap { width: min(100% - 2.5rem, 1120px); margin-inline: auto; padding-left: 5rem; }
+
+/* ============ ページヘッダー ============ */
+.md-head {
+  text-align: center;
+  padding: clamp(7rem, 14vh, 9.5rem) 1.5rem 0;
+}
+.md-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .74rem; font-weight: 500;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--md-accent);
+}
+.md-head h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(2rem, 4.6vw, 3.1rem); letter-spacing: .08em;
+  color: var(--color-ink); margin-top: .7rem;
+}
+.md-dash {
+  display: block; width: 1.1rem; height: 1px;
+  background: var(--color-ink-mute); opacity: .6;
+  margin: 1.6rem auto 0;
+}
+
+/* ============ 印刷ボタン ============ */
+.md-print-row { display: flex; justify-content: flex-end; margin-top: clamp(2.4rem, 5vw, 3.6rem); }
+.md-print-btn {
+  display: inline-flex; align-items: center; gap: .55rem;
+  padding: .78rem 1.35rem;
+  background: var(--color-ink); color: var(--color-paper);
+  border: 0; border-radius: 4px; cursor: pointer;
+  font-family: var(--font-body); font-size: .84rem; letter-spacing: .06em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.md-print-btn:hover, .md-print-btn:focus-visible { opacity: .78; }
+.md-print-btn svg { width: 1.1rem; height: 1.1rem; }
+
+/* ============ 共通見出し ============ */
+.md-sec { margin-top: clamp(2.6rem, 5vw, 3.8rem); }
+.md-h2 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.05rem, 2vw, 1.25rem); letter-spacing: .05em;
+  color: var(--color-ink);
+}
+
+/* ============ 店頭買取価格カード ============ */
+.md-card {
+  margin-top: 1.3rem;
+  background: var(--color-paper);
+  border: 1px solid var(--md-line); border-radius: 8px;
+  padding: 1.6rem 1.8rem 1.7rem;
+}
+.md-card h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.35rem;
+  letter-spacing: .06em; margin-top: .35rem; color: var(--color-ink);
+}
+.md-card dl {
+  margin: 1.4rem 0 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem;
+}
+.md-card dt { font-size: .78rem; color: var(--color-ink-soft); letter-spacing: .03em; }
+.md-card dd {
+  margin: .5rem 0 0; font-size: 1.25rem; color: var(--color-ink);
+  font-variant-numeric: tabular-nums;
+}
+.md-card dd small { font-size: .8rem; margin-left: .1rem; }
+.md-card dd.is-up   { color: oklch(52% 0.19 27); }
+.md-card dd.is-down { color: oklch(50% 0.14 255); }
+
+/* ============ 純度別買取価格の表 ============ */
+.md-table {
+  margin-top: 1.3rem;
+  border: 1px solid var(--md-line); border-radius: 8px;
+  overflow: hidden;
+}
+.md-tr {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 1.05rem 1.5rem;
+  font-size: .95rem; color: var(--color-ink); letter-spacing: .03em;
+}
+.md-tr:nth-child(odd):not(.md-tr--head) { background: var(--md-row); }
+.md-tr--head {
+  background: var(--md-row);
+  border-bottom: 1px solid var(--md-line);
+  font-size: .82rem; color: var(--color-ink-soft);
+}
+.md-price { font-weight: 600; font-variant-numeric: tabular-nums; }
+.md-price small { font-weight: 400; font-size: .78rem; margin-left: .1rem; }
+
+/* ============ ご注意 ============ */
+.md-notice {
+  background: var(--md-notice);
+  border: 1px solid var(--md-line); border-radius: 8px;
+  padding: 1.6rem 1.8rem;
+}
+.md-notice h2 {
+  display: flex; align-items: center; gap: .5rem;
+  font-family: var(--font-jp); font-weight: 600; font-size: 1rem;
+  letter-spacing: .05em; color: var(--color-ink);
+}
+.md-notice h2 svg { width: 1.15rem; height: 1.15rem; color: var(--color-ink-soft); }
+.md-notice ul { margin: 1.1rem 0 0; padding-left: 1.3rem; }
+.md-notice li {
+  font-size: .86rem; line-height: 2; color: var(--color-ink-soft);
+  letter-spacing: .02em; margin-top: .35rem;
+}
+.md-notice a { color: var(--md-accent); text-decoration: underline; text-underline-offset: .2em; }
+.md-notice a:hover { opacity: .7; }
+
+/* ============ ホームへ戻る ============ */
+.md-back { display: flex; justify-content: center; margin-top: clamp(2.8rem, 5vw, 4rem); }
+.md-back-btn {
+  display: inline-block; padding: .95rem 2.6rem;
+  background: var(--color-ink); color: var(--color-paper);
+  border-radius: 4px; font-size: .88rem; letter-spacing: .08em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.md-back-btn:hover, .md-back-btn:focus-visible { opacity: .78; }
+
+/* ============ スクロール連動の表示（他の下層ページと同じ流儀） ============ */
+html:not(.is-entering) .md-page [data-reveal] {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+html:not(.is-entering) .md-page [data-reveal].is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .md-page [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+
+/* ============ 印刷用（相場情報だけを刷る） ============ */
+@media print {
+  .site-header, .site-footer, .nav-toggle, .site-logo, .site-headerbar,
+  .md-print-row, .md-back { display: none !important; }
+  .md-page { background: #fff; padding-bottom: 0; }
+  .md-wrap { padding-left: 0; width: 100%; }
+  .md-head { padding-top: 1rem; }
+  .md-page [data-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 900px) {
+  .md-wrap { padding-left: 0; }
+  .md-card dl { grid-template-columns: 1fr; gap: .9rem; }
+}
