@@ -50,8 +50,7 @@ const NOTES: React.ReactNode[] = [
   "国内ブランドのインゴットに関しても、状況により、お買取りが出来ない場合がございますので、必ずお問い合わせ下さいませ。",
   <>
     当社では税関が公表する
-    {/* TODO: リンク先URLは要確認（暫定で税関トップ） */}
-    <a href="https://www.customs.go.jp/" target="_blank" rel="noopener noreferrer">金密輸図鑑</a>
+    <a href="https://www.customs.go.jp/mizugiwa/gold/gold_photo.pdf" target="_blank" rel="noopener noreferrer">金密輸図鑑</a>
     に該当するもの又は類似するものの買い取りは致しかねます。
   </>,
 ];
