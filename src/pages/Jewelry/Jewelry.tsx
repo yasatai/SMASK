@@ -218,7 +218,6 @@ export default function Jewelry() {
                   aria-label="ダイヤモンドの輝き"
                   style={{ backgroundImage: `url(${BASE}assets/jw-brilliance.jpg)` }}
                 ></div>
-                <figcaption>LIGHT &amp; DEPTH — PRISTINE DIAMOND</figcaption>
               </figure>
               <div className="jw-expr-sub">
                 <div
