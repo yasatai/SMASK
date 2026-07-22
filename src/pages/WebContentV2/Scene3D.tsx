@@ -9,11 +9,16 @@ import { prefersReduced } from "../../motion";
 /**
  * ページ全面の固定 WebGL シーン（V2 の主役）。
  *
- * - 液体クロームのブロブ：MeshPhysicalMaterial（metalness 1 + iridescence=薄膜の虹）に
- *   onBeforeCompile で simplex ノイズの頂点変形を注入。法線は勾配の有限差分で再計算
- * - 衛星球 2 個・粒子場・UnrealBloom の発光
- * - スクロール進行度で位置/スケール/うねり/虹の強さを振り付け（セクションごとに表情が変わる）
- * - マウスで視差、reduced-motion では時間停止（静止した彫刻として1フレーム描画）
+ * 液体クロームのブロブ＋衛星球＋粒子場＋ブルーム。
+ * セクションごとに「別の動き」をする振り付けエンジン：
+ *   HERO      … 右で大きく、ゆったり自転
+ *   APPROACH  … 左へ退き、軸が傾いて速い自転
+ *   WORKS     … 画面下へ完全退場（作品セクション＝光の間を邪魔しない）
+ *   SERVICES  … 左から再入場して8の字浮遊、衛星は近く速く
+ *   STRENGTHS … 右へスイッチして逆回転
+ *   CONTACT   … 中央で最大化・うねり全開・ブルーム増強のフィナーレ
+ * 区間の境界は実際のセクション位置（DOM）から算出し、スクロール進行度は
+ * 慣性付きで補間するので、動きは常になめらか。
  */
 
 /* ---- GLSL: Ashima simplex noise（定番実装・依存なし） ---- */
@@ -69,30 +74,37 @@ float disp(vec3 p, float t, float amp){
 }
 `;
 
-/* ---- スクロール振り付け：進行度 0..1 の区間ごとにブロブの表情を変える ----
-   pos はワールド座標、amp はうねり振幅、iri は虹の強さ、rough は面の荒れ */
-type Key = { at: number; x: number; y: number; z: number; s: number; amp: number; iri: number; rough: number };
-const KEYS: Key[] = [
-  { at: 0.00, x:  1.55, y: -0.05, z: 0,    s: 1.00, amp: 0.34, iri: 1.0, rough: 0.16 }, // Hero：右に大きく
-  { at: 0.16, x: -1.75, y:  0.15, z: -0.4, s: 0.62, amp: 0.22, iri: 0.7, rough: 0.22 }, // APPROACH：左へ退いて静かに
-  { at: 0.36, x:  1.9,  y: -0.2,  z: -1.2, s: 0.48, amp: 0.16, iri: 0.5, rough: 0.3  }, // WORKS：右奥で小さく（作品の邪魔をしない）
-  { at: 0.62, x: -1.6,  y:  0.1,  z: -0.6, s: 0.58, amp: 0.30, iri: 0.9, rough: 0.2  }, // SERVICES〜：左でうねりを取り戻す
-  { at: 0.85, x:  0.0,  y:  0.05, z:  0.6, s: 1.25, amp: 0.5,  iri: 1.0, rough: 0.12 }, // CONTACT：中央で最大・虹全開
-  { at: 1.00, x:  0.0,  y:  0.0,  z:  0.7, s: 1.3,  amp: 0.52, iri: 1.0, rough: 0.12 },
-];
+/* ---- 振り付けキー：区間ごとのパラメータ一式 ---- */
+type Key = {
+  at: number;       // 進行度 0..1（実セクション位置から算出）
+  x: number; y: number; z: number;   // ブロブ位置
+  s: number;        // スケール
+  amp: number;      // うねり振幅
+  iri: number;      // 薄膜イリデッセンス強度
+  rough: number;    // 面の荒れ
+  spin: number;     // 自転速度（負で逆回転）
+  rotX: number;     // 軸の傾き
+  lis: number;      // 8の字（リサージュ）浮遊の振幅
+  satR: number;     // 衛星の軌道半径倍率
+  satS: number;     // 衛星の速度倍率
+  dust: number;     // 粒子の濃さ
+  bloomS: number;   // ブルーム強度
+  camZ: number;     // カメラ距離
+};
+
 const smooth = (t: number) => t * t * (3 - 2 * t);
-function sampleKeys(p: number): Key {
-  if (p <= KEYS[0].at) return KEYS[0];
-  for (let i = 0; i < KEYS.length - 1; i++) {
-    const a = KEYS[i], b = KEYS[i + 1];
+function sampleKeys(keys: Key[], p: number): Key {
+  if (p <= keys[0].at) return keys[0];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const a = keys[i], b = keys[i + 1];
     if (p >= a.at && p <= b.at) {
       const t = smooth((p - a.at) / (b.at - a.at || 1));
-      const mix = (ka: number, kb: number) => ka + (kb - ka) * t;
-      return { at: p, x: mix(a.x, b.x), y: mix(a.y, b.y), z: mix(a.z, b.z),
-        s: mix(a.s, b.s), amp: mix(a.amp, b.amp), iri: mix(a.iri, b.iri), rough: mix(a.rough, b.rough) };
+      const out = { ...a };
+      (Object.keys(a) as (keyof Key)[]).forEach(k => { out[k] = a[k] + (b[k] - a[k]) * t; });
+      return out;
     }
   }
-  return KEYS[KEYS.length - 1];
+  return keys[keys.length - 1];
 }
 
 export default function Scene3D() {
@@ -105,7 +117,7 @@ export default function Scene3D() {
     /* ---- renderer / composer ---- */
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
     renderer.setClearColor(0x05060a, 1);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6)); // ブルーム込みでも軽く
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
     host.appendChild(renderer.domElement);
@@ -120,26 +132,17 @@ export default function Scene3D() {
     scene.environment = envTex;
 
     /* ---- 液体クロームのブロブ ---- */
-    const uniforms = {
-      uTime: { value: 0 },
-      uAmp: { value: KEYS[0].amp },
-    };
+    const uniforms = { uTime: { value: 0 }, uAmp: { value: 0.34 } };
     const blobGeo = new THREE.IcosahedronGeometry(1.55, 5);
     const blobMat = new THREE.MeshPhysicalMaterial({
-      color: 0xbfc3c9,
-      metalness: 1,
-      roughness: 0.16,
-      envMapIntensity: 1.35,
-      iridescence: 1,          // 薄膜の虹（油膜）
-      iridescenceIOR: 1.32,
-      iridescenceThicknessRange: [120, 620],
+      color: 0xbfc3c9, metalness: 1, roughness: 0.16, envMapIntensity: 1.35,
+      iridescence: 1, iridescenceIOR: 1.32, iridescenceThicknessRange: [120, 620],
     });
     blobMat.onBeforeCompile = shader => {
       shader.uniforms.uTime = uniforms.uTime;
       shader.uniforms.uAmp = uniforms.uAmp;
       shader.vertexShader = shader.vertexShader
         .replace("#include <common>", `#include <common>\nuniform float uTime;\nuniform float uAmp;\n${SNOISE}`)
-        /* 法線：ノイズ勾配の有限差分で再計算（変形後も反射が破綻しない） */
         .replace("#include <beginnormal_vertex>", `
           vec3 objectNormal = normalize(normal);
           {
@@ -163,7 +166,7 @@ export default function Scene3D() {
     const blob = new THREE.Mesh(blobGeo, blobMat);
     scene.add(blob);
 
-    /* ---- 衛星球（変形なしの純クローム。構図に奥行きを出す） ---- */
+    /* ---- 衛星球 ---- */
     const satMat = new THREE.MeshPhysicalMaterial({
       color: 0xd7dade, metalness: 1, roughness: 0.05, envMapIntensity: 1.6,
       iridescence: 0.65, iridescenceIOR: 1.3,
@@ -192,7 +195,6 @@ export default function Scene3D() {
     const dust = new THREE.Points(pGeo, pMat);
     scene.add(dust);
 
-    /* ---- ライト（環境が主・輪郭の締めだけ足す） ---- */
     const rim = new THREE.DirectionalLight(0xffffff, 1.1);
     rim.position.set(-3, 4, 2);
     scene.add(rim);
@@ -203,7 +205,46 @@ export default function Scene3D() {
     const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.85, 0.78);
     composer.addPass(bloom);
 
-    /* ---- 入力：マウス視差・スクロール進行度 ---- */
+    /* ---- 振り付けキー：実セクション位置から構築 ---- */
+    let KEYS: Key[] = [];
+    const buildKeys = () => {
+      const H = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const vh = window.innerHeight;
+      const topOf = (sel: string) => {
+        const el = document.querySelector(sel);
+        return el ? (el as HTMLElement).getBoundingClientRect().top + window.scrollY : H;
+      };
+      const f = (px: number) => Math.min(1, Math.max(0, px / H));
+      const approach  = topOf(".wc2-approach-sec");
+      const works     = topOf(".wc2-works-sec");
+      const worksEnd  = works + ((document.querySelector(".wc2-works-sec") as HTMLElement)?.offsetHeight ?? vh);
+      const services  = topOf(".wc2-services-sec");
+      const strengths = topOf(".wc2-strengths-sec");
+      const contact   = topOf(".wc2-contact");
+
+      KEYS = [
+        /* HERO：右で大きく・ゆったり */
+        { at: 0,                        x: 1.55, y: -.05, z: 0,   s: 1,    amp: .34, iri: 1,  rough: .16, spin: .12, rotX: 0,    lis: .06, satR: 1,   satS: 1,   dust: .55, bloomS: .5,  camZ: 6 },
+        /* APPROACH：左へ退いて軸が傾き、自転が速まる */
+        { at: f(approach - vh * .6),    x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6 },
+        /* WORKS：画面下へ完全退場（光の間に主役を譲る） */
+        { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2 },
+        { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6 },
+        /* SERVICES：左から再入場、8の字浮遊・衛星は近く速く */
+        { at: f(services - vh * .25),   x: -1.5, y: .05,  z: -.3, s: .62,  amp: .34, iri: .9, rough: .18, spin: .26, rotX: -.25, lis: .38, satR: .75, satS: 2.3, dust: .5,  bloomS: .5,  camZ: 5.5 },
+        /* STRENGTHS：右へスイッチして逆回転 */
+        { at: f(strengths - vh * .25),  x: 1.7,  y: -.1,  z: -.6, s: .55,  amp: .26, iri: .8, rough: .2,  spin: -.3, rotX: .2,   lis: .2,  satR: 1.25, satS: 1.4, dust: .45, bloomS: .45, camZ: 5.8 },
+        /* CONTACT：中央で最大化のフィナーレ */
+        { at: f(contact - vh * .45),    x: 0,    y: .02,  z: .6,  s: 1.28, amp: .5,  iri: 1,  rough: .12, spin: .4,  rotX: 0,    lis: .08, satR: 1.1, satS: 1.8, dust: .6,  bloomS: .8,  camZ: 5.1 },
+        { at: 1,                        x: 0,    y: 0,    z: .7,  s: 1.32, amp: .54, iri: 1,  rough: .12, spin: .42, rotX: 0,    lis: .08, satR: 1.1, satS: 1.9, dust: .6,  bloomS: .85, camZ: 5 },
+      ].sort((a, b) => a.at - b.at);
+    };
+    buildKeys();
+    /* コンテンツ読み込みで文書の高さが変わったら境界を測り直す */
+    const roDoc = new ResizeObserver(buildKeys);
+    roDoc.observe(document.body);
+
+    /* ---- 入力 ---- */
     let mx = 0, my = 0, tmx = 0, tmy = 0;
     const onMouse = (e: MouseEvent) => {
       tmx = e.clientX / window.innerWidth - 0.5;
@@ -224,6 +265,7 @@ export default function Scene3D() {
       composer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      buildKeys();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(host);
@@ -233,33 +275,45 @@ export default function Scene3D() {
     const clock = new THREE.Clock();
     let raf = 0;
     let disposed = false;
+    let pSmooth = 0;          // 進行度の慣性（急スクロールでも滑らかに振り付けが追う）
+    let spinAcc = 0.6;        // 自転の積分（速度が変わっても角度が飛ばない）
+    let lastT = 0;
     const renderFrame = () => {
       const t = prefersReduced ? 0.8 : clock.getElapsedTime();
+      const dt = Math.min(0.05, t - lastT); lastT = t;
       uniforms.uTime.value = t;
 
-      const k = sampleKeys(progress());
+      pSmooth += (progress() - pSmooth) * 0.07;
+      const k = sampleKeys(KEYS, pSmooth);
+
       uniforms.uAmp.value = k.amp;
       blobMat.iridescence = k.iri;
       blobMat.roughness = k.rough;
+      pMat.opacity = k.dust;
+      bloom.strength = k.bloomS;
 
       mx += (tmx - mx) * 0.05;
       my += (tmy - my) * 0.05;
 
-      blob.position.set(k.x + mx * 0.3, k.y - my * 0.25, k.z);
-      blob.scale.setScalar(k.s);
-      blob.rotation.y = t * 0.12 + window.scrollY * 0.0006;
-      blob.rotation.x = my * 0.2;
+      spinAcc += k.spin * dt * 4;
 
-      /* 衛星はブロブの周回軌道 */
+      /* 8の字（リサージュ）浮遊＋マウス視差 */
+      const lx = Math.sin(t * 0.55) * k.lis * 1.6;
+      const ly = Math.sin(t * 1.1) * k.lis;
+      blob.position.set(k.x + lx + mx * 0.3, k.y + ly - my * 0.25, k.z);
+      blob.scale.setScalar(k.s);
+      blob.rotation.y = spinAcc;
+      blob.rotation.x = k.rotX + my * 0.2 + Math.sin(t * 0.4) * 0.06;
+
       sat1.position.set(
-        blob.position.x + Math.cos(t * 0.5) * 2.1 * k.s,
-        blob.position.y + Math.sin(t * 0.7) * 0.75 * k.s,
-        blob.position.z + Math.sin(t * 0.5) * 1.1
+        blob.position.x + Math.cos(t * 0.5 * k.satS) * 2.1 * k.satR * k.s,
+        blob.position.y + Math.sin(t * 0.7 * k.satS) * 0.75 * k.satR * k.s,
+        blob.position.z + Math.sin(t * 0.5 * k.satS) * 1.1
       );
       sat2.position.set(
-        blob.position.x + Math.cos(t * 0.85 + 2.4) * 1.55 * k.s,
-        blob.position.y + Math.sin(t * 0.6 + 1.2) * 1.05 * k.s,
-        blob.position.z + Math.cos(t * 0.7) * 0.8
+        blob.position.x + Math.cos(t * 0.85 * k.satS + 2.4) * 1.55 * k.satR * k.s,
+        blob.position.y + Math.sin(t * 0.6 * k.satS + 1.2) * 1.05 * k.satR * k.s,
+        blob.position.z + Math.cos(t * 0.7 * k.satS) * 0.8
       );
 
       dust.rotation.y = t * 0.012 + mx * 0.06;
@@ -267,6 +321,7 @@ export default function Scene3D() {
 
       camera.position.x = mx * 0.35;
       camera.position.y = -my * 0.3;
+      camera.position.z = k.camZ;
       camera.lookAt(0, 0, 0);
 
       composer.render();
@@ -285,6 +340,7 @@ export default function Scene3D() {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", onMouse);
       ro.disconnect();
+      roDoc.disconnect();
       blobGeo.dispose(); blobMat.dispose();
       sat1.geometry.dispose(); sat2.geometry.dispose(); satMat.dispose();
       pGeo.dispose(); pMat.dispose();

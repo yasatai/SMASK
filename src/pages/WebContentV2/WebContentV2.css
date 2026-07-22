@@ -176,8 +176,22 @@
 }
 @keyframes wc2Marquee { to { transform: translateX(-50%); } }
 
-/* ============ WORKS ============ */
-.wc2-works-sec .wc2-h2 { margin-bottom: 0; }
+/* ============ WORKS：光の間（trionn は作品セクションで白銀に明転する） ============ */
+.wc2-works-sec {
+  /* 漆黒 → 白銀 → 漆黒。3D側もこの区間はブロブが画面下へ退場する振り付け */
+  background: linear-gradient(180deg,
+    transparent 0%,
+    #c9cbd1 clamp(5rem, 10vw, 9rem),
+    #eceded 42%,
+    #e2e3e6 70%,
+    #c3c5cb calc(100% - clamp(5rem, 10vw, 9rem)),
+    transparent 100%);
+  padding-block: clamp(7rem, 14vw, 12rem);
+}
+.wc2-works-sec .wc2-label { color: #7c808a; }
+.wc2-works-sec .wc2-h2 { margin-bottom: 0; color: #101318; }
+.wc2-works-sec .wc2-works-grid::before { background: rgb(9 11 16 / .16); }
+.wc2-work-inner { will-change: transform; }
 .wc2-amp {
   margin-inline: .22em;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -199,7 +213,8 @@
 .wc2-work-cover {
   aspect-ratio: 670 / 460;
   border-radius: 14px; overflow: hidden;
-  border: 1px solid var(--wc2-line);
+  border: 1px solid rgb(9 11 16 / .14);
+  box-shadow: 0 24px 60px -28px rgb(9 11 16 / .35);
 }
 .wc2-cover-art {
   width: 100%; height: 100%;
@@ -231,16 +246,16 @@
 .wc2-work-meta { margin-top: 1.4rem; }
 .wc2-work-meta h3 {
   font-family: var(--wc2-body); font-weight: 600;
-  font-size: 1.08rem; letter-spacing: .02em; color: var(--wc2-ink);
+  font-size: 1.08rem; letter-spacing: .02em; color: #14161c;
 }
 .wc2-work-meta p {
   margin-top: .55rem;
   display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem 1rem;
   font-size: .74rem; letter-spacing: .08em; text-transform: uppercase;
-  color: var(--wc2-ink-mute);
+  color: #585c66;
 }
 .wc2-work-meta time { margin-left: auto; font-family: var(--wc2-display); }
-.wc2-works-note { margin-top: 2rem; font-size: .76rem; color: var(--wc2-ink-mute); }
+.wc2-works-note { margin-top: 2rem; font-size: .76rem; color: #6a6e78; }
 
 /* ============ CONCERNS（チップ） ============ */
 .wc2-chips {

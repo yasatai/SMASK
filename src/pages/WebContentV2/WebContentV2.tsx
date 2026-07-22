@@ -112,6 +112,35 @@ export default function WebContentV2() {
 
   useReveal();
 
+  /* 作品カードのスクロール視差（trionn の js-work-card-inner）。
+     左右の列を逆方向・別速度で流す。タッチ環境・reduced-motion では無効 */
+  useEffect(() => {
+    if ("ontouchstart" in window || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const inners = Array.from(document.querySelectorAll<HTMLElement>(".wc2-work-inner"));
+    if (!inners.length) return;
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      inners.forEach((el, i) => {
+        const r = el.parentElement!.getBoundingClientRect();
+        if (r.bottom < -200 || r.top > vh + 200) return;      // 画面外は触らない
+        const c = (r.top + r.height / 2 - vh / 2) / vh;       // 画面中心からのずれ -1..1
+        const speed = i % 2 ? 90 : -70;                       // 右列は下へ・左列は上へ
+        el.style.transform = `translateY(${(c * speed).toFixed(1)}px)`;
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* カスタムカーソル（ドット＋遅れて追う輪）。タッチ環境・reduced-motion では出さない */
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -172,7 +201,7 @@ export default function WebContentV2() {
         </div>
 
         {/* ============ APPROACH ============ */}
-        <section className="wc2-sec">
+        <section className="wc2-sec wc2-approach-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 01 ) — APPROACH</span>
             <h2 className="wc2-h2" data-reveal>Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
@@ -195,22 +224,25 @@ export default function WebContentV2() {
             <div className="wc2-works-grid">
               {WORKS.map(w => (
                 <article className="wc2-work" key={w.num} data-reveal>
-                  <div className="wc2-work-cover">
-                    {w.img ? (
-                      <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
-                    ) : (
-                      <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
-                        <span className="wc2-cover-num">{w.num}</span>
-                        <span className="wc2-cover-en">{w.en}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="wc2-work-meta">
-                    <h3>{w.title}</h3>
-                    <p>
-                      {w.tags.map(t => <span key={t}>{t}</span>)}
-                      <time>{w.year}</time>
-                    </p>
+                  {/* inner はスクロール視差（trionn の js-work-card-inner）用 */}
+                  <div className="wc2-work-inner">
+                    <div className="wc2-work-cover">
+                      {w.img ? (
+                        <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
+                      ) : (
+                        <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
+                          <span className="wc2-cover-num">{w.num}</span>
+                          <span className="wc2-cover-en">{w.en}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="wc2-work-meta">
+                      <h3>{w.title}</h3>
+                      <p>
+                        {w.tags.map(t => <span key={t}>{t}</span>)}
+                        <time>{w.year}</time>
+                      </p>
+                    </div>
                   </div>
                 </article>
               ))}
@@ -234,7 +266,7 @@ export default function WebContentV2() {
         </section>
 
         {/* ============ SERVICES：大きな行（trionnのサービス列の引用） ============ */}
-        <section className="wc2-sec">
+        <section className="wc2-sec wc2-services-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 04 ) — SERVICES</span>
             <h2 className="wc2-h2" data-reveal>SMASKが提供できること</h2>
@@ -253,7 +285,7 @@ export default function WebContentV2() {
         </section>
 
         {/* ============ STRENGTHS ============ */}
-        <section className="wc2-sec">
+        <section className="wc2-sec wc2-strengths-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 05 ) — STRENGTHS</span>
             <h2 className="wc2-h2" data-reveal>SMASKの強み</h2>
