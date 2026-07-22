@@ -87,7 +87,18 @@
   padding: clamp(5rem, 12vh, 8rem) 1.5rem clamp(5rem, 11vh, 7rem);
   background: transparent;   /* 透明にして固定背景を見せる */
 }
-.jw-hero-copy { max-width: 44rem; margin-inline: auto; }
+/* 可読性の確保：コピーの背後にだけ淡い紙色のハロを敷く。
+   全体の膜を濃くすると「ジュエリー領域だけ鮮やか」の演出が死ぬため、
+   文字が乗る中央帯だけを静かに沈め、周辺の写真の見え方は保つ。 */
+.jw-hero::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 52% 60% at 50% 46%,
+    color-mix(in oklch, var(--color-paper) 92%, transparent) 0 40%,
+    color-mix(in oklch, var(--color-paper) 55%, transparent) 62%,
+    transparent 78%);
+}
+.jw-hero-copy { position: relative; max-width: 44rem; margin-inline: auto; }
+.jw-hero-mark { position: relative; }
 .jw-hero h1 {
   font-family: var(--font-jp); font-weight: 500;
   font-size: clamp(2rem, 4.6vw, 2.9rem); letter-spacing: .1em;
