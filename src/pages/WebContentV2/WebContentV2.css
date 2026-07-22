@@ -1,0 +1,299 @@
+/* WebContentV2.css — Webコンテンツ制作 V2（試作）
+ * trionn.com 参考：ダーク基調・巨大タイポ・3Dオブジェクト・2カラム作品グリッド。
+ * SMASK のトーン（紙色・金・明朝）をダーク側へ反転して使う。
+ * このファイルは .wc2-page スコープに閉じ、既存ページへ影響させない。
+ */
+.wc2-page {
+  --wc2-bg:       oklch(16.5% 0.012 265);   /* 夜の紺墨 */
+  --wc2-bg-2:     oklch(19.5% 0.014 262);   /* パネル */
+  --wc2-ink:      oklch(93% 0.010 85);      /* 紙色寄りの明るい文字 */
+  --wc2-ink-soft: oklch(74% 0.012 82);
+  --wc2-ink-mute: oklch(56% 0.012 80);
+  --wc2-line:     oklch(32% 0.014 262);     /* 罫線 */
+  --wc2-gold:     var(--color-gold);
+  --wc2-gold-line: oklch(66% 0.100 82);
+
+  background: var(--wc2-bg);
+  color: var(--wc2-ink);
+  overflow-x: clip;
+}
+
+.wc2-wrap { width: min(100% - 2.5rem, 1180px); margin-inline: auto; padding-left: 5rem; }
+
+/* ============ 共通の見出し・文字 ============ */
+.wc2-page .wc2-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .74rem; font-weight: 500;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--wc2-gold);
+}
+.wc2-h2 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem); letter-spacing: .05em; line-height: 1.5;
+  color: var(--wc2-ink); margin-top: .8rem;
+}
+.wc2-sec { padding-block: clamp(4rem, 9vw, 7.5rem); position: relative; }
+.wc2-sec--panel { background: var(--wc2-bg-2); }
+.wc2-head { margin-bottom: clamp(2rem, 4.5vw, 3.4rem); }
+.wc2-page p { color: var(--wc2-ink-soft); font-size: .92rem; line-height: 2.1; letter-spacing: .03em; }
+.wc2-strong { color: var(--wc2-ink); font-weight: 500; font-size: .98rem; }
+
+/* ============ Hero ============ */
+.wc2-hero {
+  position: relative;
+  min-height: min(100svh, 960px);
+  display: flex; flex-direction: column; justify-content: center;
+  overflow: hidden;
+  padding: 6rem 1.5rem 4.5rem;
+}
+/* 3Dジェムの置き場：右寄り全高。pointer-events は殺して文字選択を邪魔しない */
+.wc2-gem {
+  position: absolute; inset: 0 0 0 28%;
+  pointer-events: none;
+  opacity: .9;
+}
+.wc2-gem canvas { width: 100% !important; height: 100% !important; display: block; }
+/* ジェム背後の淡い光暈（キャンバス透過部の沈み対策） */
+.wc2-hero::before {
+  content: ""; position: absolute; pointer-events: none;
+  inset: 10% 5% 15% 40%;
+  background: radial-gradient(ellipse 50% 42% at 62% 46%,
+    oklch(30% 0.03 78 / .55) 0%, transparent 70%);
+}
+
+.wc2-hero-copy { position: relative; z-index: 2; width: min(100% - 2.5rem, 1180px); margin-inline: auto; padding-left: 5rem; }
+.wc2-hero h1 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(2.6rem, 7vw, 5.4rem); letter-spacing: .06em; line-height: 1.24;
+  color: var(--wc2-ink); margin-top: 1.2rem;
+}
+.wc2-hero-ln { display: block; }
+.wc2-hero h1 em { font-style: normal; color: var(--wc2-gold); }
+.wc2-hero-sub {
+  margin-top: 1.7rem; max-width: 34rem;
+  font-size: .95rem; letter-spacing: .06em;
+}
+
+/* Hero 底部の英字リボン（trionn の INSPIRE·INNOVATE·IMPACT を引用） */
+.wc2-hero-foot {
+  position: absolute; left: 0; right: 0; bottom: 2.2rem; z-index: 2;
+  display: flex; justify-content: center; align-items: baseline; gap: 1.2rem;
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(.9rem, 2vw, 1.25rem); letter-spacing: .34em;
+  color: var(--wc2-ink-mute); text-transform: uppercase;
+}
+.wc2-hero-foot i { font-style: normal; color: var(--wc2-gold); }
+
+/* ============ APPROACH ============ */
+.wc2-approach-body { max-width: 46rem; }
+.wc2-approach-body p + p { margin-top: 1.2rem; }
+
+/* ============ SELECTED WORKS ============ */
+.wc2-works-sec {
+  /* trionn のグラデ転換を引用：上下をわずかに明るく沈める */
+  background: linear-gradient(180deg, var(--wc2-bg) 0%, oklch(14% 0.012 266) 50%, var(--wc2-bg) 100%);
+}
+.wc2-head--works .wc2-works-lead { margin-top: 1rem; }
+.wc2-amp { color: var(--wc2-gold); margin-inline: .18em; }
+
+.wc2-works-grid {
+  position: relative;
+  display: grid; grid-template-columns: 1fr 1fr;
+  column-gap: clamp(2.4rem, 5vw, 4.5rem);
+  row-gap: clamp(3rem, 6vw, 5rem);
+  padding-bottom: 5rem;   /* 右列の段差ぶんの逃げ */
+}
+/* 中央の区切り線（trionn の js-card-line） */
+.wc2-works-grid::before {
+  content: ""; position: absolute; left: 50%; top: .5rem; bottom: 0;
+  width: 1px; background: var(--wc2-line);
+}
+/* 右列は一段下げて互い違いに */
+.wc2-work:nth-child(even) { transform: translateY(5rem); }
+
+.wc2-work-cover {
+  aspect-ratio: 670 / 460;
+  border-radius: 10px; overflow: hidden;
+  border: 1px solid var(--wc2-line);
+}
+.wc2-cover-art {
+  width: 100%; height: 100%;
+  background-size: cover; background-position: center;
+  transition: transform 1.2s var(--ease-expo);
+}
+.wc2-work:hover .wc2-cover-art { transform: scale(1.05); }
+
+/* タイポグラフィックカバー（画像が入るまでの顔） */
+.wc2-cover-art--type {
+  display: grid; place-items: center; position: relative;
+  background:
+    radial-gradient(ellipse 90% 80% at 78% 18%, oklch(30% 0.045 var(--hue) / .6) 0%, transparent 60%),
+    linear-gradient(160deg, oklch(24% 0.02 var(--hue)) 0%, oklch(15% 0.014 265) 78%);
+}
+.wc2-cover-num {
+  position: absolute; top: 1.1rem; left: 1.4rem;
+  font-family: var(--font-display); font-size: .95rem; letter-spacing: .2em;
+  color: var(--wc2-gold-line); opacity: .9;
+}
+.wc2-cover-en {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(1.3rem, 2.6vw, 2rem); letter-spacing: .18em;
+  color: oklch(88% 0.02 85 / .82);
+  text-align: center; padding-inline: 1rem;
+}
+
+.wc2-work-meta { margin-top: 1.3rem; }
+.wc2-work-meta h3 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: 1.12rem; letter-spacing: .05em; color: var(--wc2-ink);
+}
+.wc2-work-meta p {
+  margin-top: .5rem; display: flex; flex-wrap: wrap; align-items: baseline; gap: .4rem .9rem;
+  font-size: .76rem; letter-spacing: .06em; color: var(--wc2-ink-mute);
+}
+.wc2-work-meta p span::before { content: "— "; color: var(--wc2-gold-line); }
+.wc2-work-meta time { margin-left: auto; font-family: var(--font-display); letter-spacing: .12em; }
+
+/* ============ CONCERNS ============ */
+.wc2-concerns {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0;
+  border-top: 1px solid var(--wc2-line);
+}
+.wc2-concerns li {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.15rem .4rem;
+  border-bottom: 1px solid var(--wc2-line);
+}
+.wc2-concerns li:nth-child(odd) { padding-right: 2rem; }
+.wc2-concern-ic { flex: none; width: 2.4rem; height: 2.4rem; display: grid; place-items: center;
+  border: 1px solid var(--wc2-line); border-radius: 50%; color: var(--wc2-gold); }
+.wc2-ic { width: 1.15rem; height: 1.15rem; }
+.wc2-concerns p { font-size: .88rem; color: var(--wc2-ink-soft); }
+.wc2-concern-note { margin-top: 2rem; max-width: 46rem; }
+
+/* ============ SERVICES ============ */
+.wc2-services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem; }
+.wc2-service {
+  position: relative;
+  border: 1px solid var(--wc2-line); border-radius: 10px;
+  padding: 2rem 1.7rem 1.9rem;
+  background: linear-gradient(170deg, oklch(21% 0.014 262) 0%, transparent 55%);
+  transition: border-color .5s var(--ease-out), transform .8s var(--ease-expo);
+}
+.wc2-service:hover { border-color: var(--wc2-gold-line); transform: translateY(-4px); }
+.wc2-service-num {
+  position: absolute; top: 1.2rem; right: 1.4rem;
+  font-family: var(--font-display); font-size: .9rem; letter-spacing: .14em;
+  color: var(--wc2-ink-mute);
+}
+.wc2-service-ic { display: inline-grid; place-items: center; width: 2.8rem; height: 2.8rem;
+  border: 1px solid var(--wc2-line); border-radius: 50%; color: var(--wc2-gold); }
+.wc2-service h3 {
+  margin-top: 1.4rem;
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.08rem;
+  letter-spacing: .04em; color: var(--wc2-ink);
+}
+.wc2-service p { margin-top: .9rem; font-size: .85rem; line-height: 2; }
+
+/* ============ STRENGTHS ============ */
+.wc2-strengths-lead { max-width: 46rem; margin-bottom: 2.6rem; }
+.wc2-strengths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.6rem 3.5rem; }
+.wc2-strength { position: relative; padding-left: 4.2rem; }
+.wc2-strength-num {
+  position: absolute; left: 0; top: -.4rem;
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 2.4rem; letter-spacing: .04em;
+  color: transparent; -webkit-text-stroke: 1px var(--wc2-gold-line);
+}
+.wc2-strength h3 {
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.05rem;
+  letter-spacing: .04em; color: var(--wc2-ink);
+}
+.wc2-strength p { margin-top: .6rem; font-size: .86rem; }
+
+/* ============ PROCESS ============ */
+.wc2-process {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.4rem;
+  counter-reset: none;
+}
+.wc2-process li {
+  border-top: 1px solid var(--wc2-line);
+  padding-top: 1.3rem;
+}
+.wc2-process-num {
+  font-family: var(--font-display); font-size: .9rem; letter-spacing: .16em;
+  color: var(--wc2-gold);
+}
+.wc2-process h3 {
+  margin-top: .6rem;
+  font-family: var(--font-jp); font-weight: 500; font-size: 1.02rem;
+  letter-spacing: .04em; color: var(--wc2-ink);
+}
+.wc2-process p { margin-top: .5rem; font-size: .84rem; line-height: 1.95; }
+
+/* ============ CONTACT ============ */
+.wc2-contact { text-align: center; padding-bottom: 0; }
+.wc2-contact .wc2-wrap { padding-left: 5rem; }
+.wc2-contact-lead { margin-top: 1rem; }
+.wc2-btn {
+  display: inline-flex; align-items: center; gap: .7rem;
+  margin-top: 2.2rem; padding: 1rem 2.4rem;
+  border: 1px solid var(--wc2-gold-line); border-radius: 999px;
+  color: var(--wc2-ink); font-size: .9rem; letter-spacing: .1em;
+  transition: background .5s var(--ease-out), color .5s var(--ease-out), gap .5s var(--ease-expo);
+}
+.wc2-btn svg { width: 1.15rem; height: 1.15rem; color: var(--wc2-gold); transition: transform .5s var(--ease-expo); }
+.wc2-btn:hover, .wc2-btn:focus-visible {
+  background: oklch(93% 0.010 85 / .07); gap: 1rem;
+}
+.wc2-btn:hover svg { transform: translateX(4px); }
+/* 紙色フッターへの橋渡し */
+.wc2-bridge { height: clamp(5rem, 11vw, 9rem); margin-top: clamp(4rem, 8vw, 6.5rem);
+  background: linear-gradient(180deg, transparent 0%, var(--color-paper) 100%); }
+
+/* ============ スクロール連動の表示（他ページと同じ流儀・一度きり） ============ */
+html:not(.is-entering) .wc2-page [data-reveal] {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .9s var(--ease-out), transform .9s var(--ease-expo);
+}
+html:not(.is-entering) .wc2-page [data-reveal].is-in { opacity: 1; transform: none; }
+/* stagger コンテナ（CONCERNS / STRENGTHS / PROCESS） */
+html:not(.is-entering) .wc2-page [data-reveal-stagger] > * {
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .8s var(--ease-out), transform .8s var(--ease-expo);
+}
+html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; transform: none; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(2) { transition-delay: .08s; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(3) { transition-delay: .16s; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(4) { transition-delay: .24s; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(5) { transition-delay: .32s; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(6) { transition-delay: .40s; }
+.wc2-page [data-reveal-stagger].is-in > :nth-child(7) { transition-delay: .48s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > * {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+  .wc2-cover-art { transition: none !important; }
+}
+
+/* ============ レスポンシブ ============ */
+@media (max-width: 1080px) {
+  .wc2-services, .wc2-process { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .wc2-wrap, .wc2-hero-copy, .wc2-contact .wc2-wrap { padding-left: 0; }
+  .wc2-gem { inset: 34% 0 0 0; opacity: .55; }   /* モバイルは下半分に薄く */
+  .wc2-works-grid { grid-template-columns: 1fr; padding-bottom: 0; }
+  .wc2-works-grid::before { display: none; }
+  .wc2-work:nth-child(even) { transform: none; }
+  .wc2-concerns { grid-template-columns: 1fr; }
+  .wc2-concerns li:nth-child(odd) { padding-right: .4rem; }
+  .wc2-strengths { grid-template-columns: 1fr; gap: 2rem; }
+}
+@media (max-width: 640px) {
+  .wc2-services, .wc2-process { grid-template-columns: 1fr; }
+  .wc2-hero-foot { letter-spacing: .2em; gap: .8rem; }
+}
