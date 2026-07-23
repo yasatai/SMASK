@@ -100,6 +100,8 @@
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .wc2-sec { padding-block: clamp(5rem, 11vw, 9.5rem); }
+/* 見出しのスクロール染色：JSが1文字ずつ opacity を駆動（灰→白） */
+.wc2-fc { will-change: opacity; }
 .wc2-page p { color: var(--wc2-ink-soft); font-size: .93rem; line-height: 2.05; letter-spacing: .02em; }
 .wc2-lead { color: var(--wc2-ink); font-weight: 500; font-size: 1.02rem; }
 

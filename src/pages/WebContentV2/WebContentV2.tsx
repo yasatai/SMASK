@@ -199,6 +199,66 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- 見出しのスクロール染色（.wc2-fill） ----
+     暗色セクションの見出しを1文字ずつ<span>に分割し、スクロールに同期して
+     灰色→白へ読む順に染めていく（スクラブ＝戻すと色も引く）。
+     グラデーションの<em>は1かたまりとして扱い、順番が来たら浮かび上がる */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const heads = Array.from(document.querySelectorAll<HTMLElement>(".wc2-fill"));
+    if (!heads.length) return;
+
+    /* 分割：テキストノード→1文字span、要素（em等）→そのまま1ユニット */
+    const units: HTMLElement[][] = heads.map(head => {
+      const list: HTMLElement[] = [];
+      Array.from(head.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          for (const ch of node.textContent ?? "") {
+            const s = document.createElement("span");
+            s.className = "wc2-fc";
+            s.textContent = ch;
+            frag.appendChild(s);
+            list.push(s);
+          }
+          head.replaceChild(frag, node);
+        } else if (node instanceof HTMLElement && node.tagName !== "BR") {
+          node.classList.add("wc2-fc");
+          list.push(node);
+        }
+      });
+      list.forEach(u => { u.style.opacity = "0.22"; });   // 初期状態＝薄い（染まる前）
+      return list;
+    });
+
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      heads.forEach((head, hi) => {
+        const r = head.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
+        const p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
+        const list = units[hi];
+        const f = p * list.length;
+        list.forEach((u, i) => {
+          const c = Math.min(1, Math.max(0, f - i));
+          u.style.opacity = (0.22 + 0.78 * c).toFixed(3);
+        });
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* カスタムカーソル（ドット＋遅れて追う輪）。タッチ環境・reduced-motion では出さない */
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -267,7 +327,7 @@ export default function WebContentV2() {
         <section className="wc2-sec wc2-approach-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 01 ) — APPROACH</span>
-            <h2 className="wc2-h2" data-reveal>Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
+            <h2 className="wc2-h2 wc2-fill">Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
             <div className="wc2-cols">
               <p className="wc2-lead" data-reveal>
                 Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
@@ -318,7 +378,7 @@ export default function WebContentV2() {
         <section className="wc2-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 03 ) — CONCERNS</span>
-            <h2 className="wc2-h2" data-reveal>こんなお悩みに対応します</h2>
+            <h2 className="wc2-h2 wc2-fill">こんなお悩みに対応します</h2>
             <ul className="wc2-chips" data-reveal-stagger>
               {CONCERNS.map(text => <li key={text}>{text}</li>)}
             </ul>
@@ -332,7 +392,7 @@ export default function WebContentV2() {
         <section className="wc2-sec wc2-services-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 04 ) — SERVICES</span>
-            <h2 className="wc2-h2" data-reveal>SMASKが提供できること</h2>
+            <h2 className="wc2-h2 wc2-fill">SMASKが提供できること</h2>
           </div>
           <div className="wc2-rows">
             {SERVICES.map(([num, title, body]) => (
@@ -351,7 +411,7 @@ export default function WebContentV2() {
         <section className="wc2-sec wc2-strengths-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 05 ) — STRENGTHS</span>
-            <h2 className="wc2-h2" data-reveal>SMASKの強み</h2>
+            <h2 className="wc2-h2 wc2-fill">SMASKの強み</h2>
             <p className="wc2-lead wc2-lead--solo" data-reveal>
               SMASKは、制作そのものを目的とせず、事業にとって本当に必要な形を整えることを重視しています。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
             </p>
@@ -371,7 +431,7 @@ export default function WebContentV2() {
         <section className="wc2-sec">
           <div className="wc2-wrap">
             <span className="wc2-label" data-reveal>( 06 ) — PROCESS</span>
-            <h2 className="wc2-h2" data-reveal>ご相談から制作までの流れ</h2>
+            <h2 className="wc2-h2 wc2-fill">ご相談から制作までの流れ</h2>
             <ol className="wc2-steps" data-reveal-stagger>
               {PROCESS.map(([num, title, body]) => (
                 <li key={num}>
