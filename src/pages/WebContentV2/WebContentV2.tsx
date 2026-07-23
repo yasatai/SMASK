@@ -199,6 +199,53 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- ピン留めセクションのスクロール演出 ----
+     APPROACH＝本文の遅れフェード／白の転調＝ストライプ伸長＋見出しフェードイン。
+     どちらもスクラブ式（戻せば逆再生） */
+  const whiteinRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const apCols = document.querySelector<HTMLElement>(".wc2-approach-cols");
+    const ap = document.querySelector<HTMLElement>(".wc2-approach-sec");
+    const wi = whiteinRef.current;
+    const stripes = wi ? Array.from(wi.querySelectorAll<HTMLElement>(".wc2-stripes span")) : [];
+    const wiHead = wi?.querySelector<HTMLElement>(".wc2-whitein-head") ?? null;
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
+    /* ピン区間の進行度：0=固定開始, 1=固定解除 */
+    const pinP = (el: HTMLElement) => {
+      const len = Math.max(1, el.offsetHeight - window.innerHeight);
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      return Math.min(1, Math.max(0, (window.scrollY - top) / len));
+    };
+    const tick = () => {
+      raf = 0;
+      if (ap && apCols) {
+        /* 見出しの染色（6%〜66%）が終わった頃に本文がフェードイン */
+        apCols.style.opacity = seg(pinP(ap), 0.62, 0.88).toFixed(3);
+      }
+      if (wi) {
+        const p = pinP(wi);
+        /* 白帯：上から順に少しずつ遅れて伸び、85%で画面が完全に白くなる */
+        stripes.forEach((s, i) => {
+          s.style.transform = `scaleY(${seg(p, i * 0.06, i * 0.06 + 0.55).toFixed(3)})`;
+        });
+        /* 白になりかけ（55%〜）で見出しがフェードイン */
+        if (wiHead) wiHead.style.opacity = seg(p, 0.55, 0.85).toFixed(3);
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* ---- 見出しのスクロール染色（.wc2-fill） ----
      暗色セクションの見出しを1文字ずつ<span>に分割し、スクロールに同期して
      灰色→白へ読む順に染めていく（スクラブ＝戻すと色も引く）。
@@ -238,8 +285,19 @@ export default function WebContentV2() {
       heads.forEach((head, hi) => {
         const r = head.getBoundingClientRect();
         if (r.bottom < -100 || r.top > vh + 100) return;
-        /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
-        const p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
+        /* ピン留めセクション内の見出しは、画面位置が固定で動かないため
+           ピン区間の進行度（6%〜66%）で染める。通常セクションは画面位置基準 */
+        const pin = head.closest<HTMLElement>(".wc2-pin");
+        let p: number;
+        if (pin) {
+          const len = Math.max(1, pin.offsetHeight - vh);
+          const top = pin.getBoundingClientRect().top + window.scrollY;
+          const pp = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+          p = Math.min(1, Math.max(0, (pp - 0.06) / 0.6));
+        } else {
+          /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
+          p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
+        }
         const list = units[hi];
         const f = p * list.length;
         list.forEach((u, i) => {
@@ -323,18 +381,34 @@ export default function WebContentV2() {
           </div>
         </div>
 
-        {/* ============ APPROACH ============ */}
-        <section className="wc2-sec wc2-approach-sec">
-          <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 01 ) — APPROACH</span>
-            <h2 className="wc2-h2 wc2-fill">Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
-            <div className="wc2-cols">
-              <p className="wc2-lead" data-reveal>
-                Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
-              </p>
-              <p data-reveal>
-                SMASKでは、見た目の整ったページを制作するだけではなく、事業内容の伝わりやすさ、情報の整理、導線のわかりやすさ、運用のしやすさまで含めて設計します。制作そのものを目的にするのではなく、事業にとって意味のある形で機能することを重視しています。
-              </p>
+        {/* ============ APPROACH：文字が染まりきるまで画面固定（ピン留め） ============ */}
+        <section className="wc2-sec wc2-approach-sec wc2-pin">
+          <div className="wc2-pin-sticky">
+            <div className="wc2-wrap">
+              <span className="wc2-label">( 01 ) — APPROACH</span>
+              <h2 className="wc2-h2 wc2-fill">Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
+              <div className="wc2-cols wc2-approach-cols">
+                <p className="wc2-lead">
+                  Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
+                </p>
+                <p>
+                  SMASKでは、見た目の整ったページを制作するだけではなく、事業内容の伝わりやすさ、情報の整理、導線のわかりやすさ、運用のしやすさまで含めて設計します。制作そのものを目的にするのではなく、事業にとって意味のある形で機能することを重視しています。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ 白の転調（trionnのストライプ）：画面固定のまま白帯が伸びて
+             背景が完全に白になり、なりかけでWORKSの見出しがフェードイン ============ */}
+        <section className="wc2-whitein" ref={whiteinRef}>
+          <div className="wc2-whitein-sticky">
+            <div className="wc2-stripes" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div className="wc2-whitein-head">
+              <span className="wc2-label">( 02 ) — WORKS</span>
+              <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
             </div>
           </div>
         </section>
@@ -342,8 +416,6 @@ export default function WebContentV2() {
         {/* ============ SELECTED WORKS（trionn: Selected work & explorations） ============ */}
         <section className="wc2-sec wc2-works-sec">
           <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 02 ) — WORKS</span>
-            <h2 className="wc2-h2" data-reveal>Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
             <div className="wc2-works-grid">
               {WORKS.map(w => (
                 <article className="wc2-work" key={w.num} data-reveal>
