@@ -210,7 +210,7 @@
 /* ============ ピン留め画面（APPROACH＋白の転調） ============
    セクションを縦に長く取り、中身は sticky で1画面に固定したまま
    「文字の染色 → 本文 → 白帯が下から上へ → WORKS見出し」を進める */
-.wc2-pin { height: 330svh; padding-block: 0; }
+.wc2-pin { height: 560svh; padding-block: 0; }
 .wc2-pin-sticky {
   position: sticky; top: 0; height: 100svh;
   display: flex; align-items: center;
@@ -221,6 +221,7 @@
 /* 帯：ピン画面の上部に常駐（染色中も見えている） */
 .wc2-marquee--pin {
   position: absolute; top: clamp(3.4rem, 9vh, 5.5rem); left: 0; right: 0;
+  z-index: 1;
 }
 
 /* 白の転調：横一杯の白帯6本。下の帯から順に、自分の下辺を起点に立ち上がる */
@@ -231,53 +232,41 @@
   transform: scaleY(0); transform-origin: bottom;
   will-change: transform;
 }
-/* WORKS見出し：白帯の上のレイヤーで、白になりかけにフェードイン */
-.wc2-whitein-head {
-  position: absolute; inset: 0; z-index: 3;
-  display: flex; align-items: center;
-  opacity: 0; will-change: opacity; pointer-events: none;
-}
-.wc2-whitein-head > div {
-  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
-}
-.wc2-whitein-head .wc2-label { color: #7c808a; }
-.wc2-whitein-head .wc2-h2 { color: #101318; margin-bottom: 0; }
 
-/* ============ WORKS：光の間（白の転調から地続きの白背景） ============ */
-.wc2-works-sec {
-  /* 上端は転調後の白と同色でシームレスに。下端で漆黒へ還る */
-  background: linear-gradient(180deg,
-    #e8e9eb 0%,
-    #eceded 45%,
-    #dcdee2 75%,
-    #c3c5cb calc(100% - clamp(5rem, 10vw, 9rem)),
-    transparent 100%);
-  padding-block: clamp(4rem, 8vw, 7rem) clamp(7rem, 14vw, 12rem);
+/* ============ WORKS リビール層（白の上・z3。trionn 準拠） ============
+   タイトルが中央→上へ移動し、カードが横から順にスライドイン。全てJS駆動 */
+.wc2-worksreveal { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+/* タイトル：縦中央から JS の transform で上へ移動 */
+.wc2-worksreveal-head {
+  position: absolute; left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
+  opacity: 0; will-change: transform, opacity;
 }
-.wc2-works-sec .wc2-label { color: #7c808a; }
-.wc2-works-sec .wc2-h2 { margin-bottom: 0; color: #101318; }
-.wc2-works-sec .wc2-works-grid::before { background: rgb(9 11 16 / .16); }
-.wc2-work-inner { will-change: transform; }
+.wc2-worksreveal-head .wc2-label { color: #7c808a; }
+.wc2-worksreveal-head .wc2-h2 { color: #101318; margin-bottom: 0; }
 .wc2-amp {
   margin-inline: .22em;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.wc2-works-grid {
-  position: relative;
-  margin-top: clamp(2.5rem, 5vw, 4rem);
+
+/* カードグリッド：ピン画面下部に配置。カードは初期状態で画面外（JSがX移動） */
+.wc2-worksreveal .wc2-works-grid {
+  position: absolute; left: 0; right: 0; top: 31vh; bottom: 4vh;
+  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
   display: grid; grid-template-columns: 1fr 1fr;
-  column-gap: clamp(2.5rem, 5vw, 5rem);
-  row-gap: clamp(3.5rem, 7vw, 6rem);
-  padding-bottom: 6rem;                 /* 右列の段差の逃げ */
+  column-gap: clamp(2rem, 4vw, 3.4rem); row-gap: clamp(1.2rem, 2.6vh, 2rem);
+  align-content: center;
+  opacity: 0; will-change: opacity;
 }
-.wc2-works-grid::before {
-  content: ""; position: absolute; left: 50%; top: .5rem; bottom: 0;
-  width: 1px; background: var(--wc2-line);
+.wc2-worksreveal .wc2-works-grid::before {
+  content: ""; position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: rgb(9 11 16 / .14);
 }
-.wc2-work:nth-child(even) { transform: translateY(6rem); }
+.wc2-work { will-change: transform, opacity; }
 
 .wc2-work-cover {
-  aspect-ratio: 670 / 460;
+  height: clamp(130px, 23vh, 250px);
   border-radius: 14px; overflow: hidden;
   border: 1px solid rgb(9 11 16 / .14);
   box-shadow: 0 24px 60px -28px rgb(9 11 16 / .35);
@@ -309,7 +298,7 @@
   color: rgb(230 231 234 / .88);
 }
 
-.wc2-work-meta { margin-top: 1.4rem; }
+.wc2-work-meta { margin-top: .85rem; }
 .wc2-work-meta h3 {
   font-family: var(--wc2-body); font-weight: 600;
   font-size: 1.08rem; letter-spacing: .02em; color: #14161c;
@@ -321,7 +310,11 @@
   color: #585c66;
 }
 .wc2-work-meta time { margin-left: auto; font-family: var(--wc2-display); }
-.wc2-works-note { margin-top: 2rem; font-size: .76rem; color: #6a6e78; }
+.wc2-worksreveal .wc2-works-note {
+  position: absolute; left: 0; right: 0; bottom: 1.4vh;
+  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
+  font-size: .74rem; color: #6a6e78; opacity: .9;
+}
 
 /* ============ CONCERNS（チップ） ============ */
 .wc2-chips {
@@ -470,15 +463,21 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 @media (prefers-reduced-motion: reduce) {
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
   .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub,
-  .wc2-approach-cols, .wc2-whitein-head { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal .wc2-works-grid,
+  .wc2-work { opacity: 1 !important; transform: none !important; transition: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
   .wc2-marquee--pin { position: static; margin-bottom: 3rem; }
   .wc2-stripes { display: none; }
-  .wc2-whitein-head { position: static; display: block; margin-top: 5rem; }
-  .wc2-whitein-head .wc2-label { color: var(--wc2-ink-mute); }
-  .wc2-whitein-head .wc2-h2 { color: var(--wc2-ink); }
+  /* WORKS リビール層を通常フローの白セクションとして読ませる */
+  .wc2-worksreveal { position: static; background: #eceded; margin-top: 4rem; padding: 4rem 0; }
+  .wc2-worksreveal-head { position: static; margin-bottom: 3rem; }
+  .wc2-worksreveal-head .wc2-label { color: #7c808a; }
+  .wc2-worksreveal-head .wc2-h2 { color: #101318; }
+  .wc2-worksreveal .wc2-works-grid { position: static; width: min(100% - 3rem, 1240px); margin-inline: auto; }
+  .wc2-worksreveal .wc2-work-cover { height: auto; aspect-ratio: 670 / 460; }
+  .wc2-worksreveal .wc2-works-note { position: static; margin-top: 2rem; }
   .wc2-marquee-track, .wc2-hl--grad > span, .wc2-talk-main em,
   .wc2-hero-scroll i::after { animation: none !important; }
   .wc2-cover-art { transition: none !important; }

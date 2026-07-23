@@ -114,35 +114,6 @@ export default function WebContentV2() {
 
   useReveal();
 
-  /* 作品カードのスクロール視差（trionn の js-work-card-inner）。
-     左右の列を逆方向・別速度で流す。タッチ環境・reduced-motion では無効 */
-  useEffect(() => {
-    if ("ontouchstart" in window || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const inners = Array.from(document.querySelectorAll<HTMLElement>(".wc2-work-inner"));
-    if (!inners.length) return;
-    let raf = 0;
-    const tick = () => {
-      raf = 0;
-      const vh = window.innerHeight;
-      inners.forEach((el, i) => {
-        const r = el.parentElement!.getBoundingClientRect();
-        if (r.bottom < -200 || r.top > vh + 200) return;      // 画面外は触らない
-        const c = (r.top + r.height / 2 - vh / 2) / vh;       // 画面中心からのずれ -1..1
-        const speed = i % 2 ? 90 : -70;                       // 右列は下へ・左列は上へ
-        el.style.transform = `translateY(${(c * speed).toFixed(1)}px)`;
-      });
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    tick();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   /* ---- PS2オープニングのスクロール演出 ----
      最初は映像＋SCROLLヒントのみ。スクロールに同期して文字が順に立ち上がり
      （戻せば逆再生）、ダイブ終盤で文字が退場 → 終端で完全暗転 →
@@ -201,19 +172,23 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- ピン留め画面（APPROACH＋白の転調）のスクロール演出 ----
-     1本のピン区間でタイムラインを進める（スクラブ式・戻せば逆再生）：
-       4〜40% : 見出しの染色（fill側が担当）
-      38〜50% : 本文フェードイン
-      55〜95% : 白帯が「下から上へ」順に立ち上がり画面が白に
-      82〜95% : 白になりかけで WORKS 見出しがフェードイン */
+  /* ---- ピン留め画面（APPROACH→白の転調→WORKS）のスクロール演出 ----
+     1本のピン区間で全部を連続再生（スクラブ式・戻せば逆再生）：
+       3〜20% : 見出しの染色（fill側が担当）
+      20〜30% : 本文フェードイン
+      30〜52% : 白帯が「下から上へ」立ち上がり画面が白に
+      46〜56% : WORKS タイトルが中央にフェードイン
+      56〜66% : タイトルが上へ移動
+      62〜100%: カードが横から順にスライドイン（trionn 準拠） */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ap = document.querySelector<HTMLElement>(".wc2-approach-sec");
     if (!ap) return;
     const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
     const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
-    const wiHead = ap.querySelector<HTMLElement>(".wc2-whitein-head");
+    const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
+    const grid = ap.querySelector<HTMLElement>(".wc2-worksreveal .wc2-works-grid");
+    const cards = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-worksreveal .wc2-work"));
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -226,13 +201,28 @@ export default function WebContentV2() {
     const tick = () => {
       raf = 0;
       const p = pinP(ap);
-      if (apCols) apCols.style.opacity = seg(p, 0.38, 0.50).toFixed(3);
+      const vh = window.innerHeight;
+      if (apCols) apCols.style.opacity = seg(p, 0.20, 0.30).toFixed(3);
       /* 白帯：一番下（i=5）から順に立ち上がる。各帯は自分の下辺から伸びる */
       stripes.forEach((s, i) => {
         const order = stripes.length - 1 - i;   // 下の帯ほど先
-        s.style.transform = `scaleY(${seg(p, 0.55 + order * 0.04, 0.75 + order * 0.04).toFixed(3)})`;
+        s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
       });
-      if (wiHead) wiHead.style.opacity = seg(p, 0.82, 0.95).toFixed(3);
+      /* WORKS：タイトルが中央でフェードイン → 上へ移動 */
+      if (head) {
+        head.style.opacity = seg(p, 0.46, 0.56).toFixed(3);
+        const up = seg(p, 0.56, 0.66) * vh * 0.30;   // 上へ 30vh
+        head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
+      }
+      /* カードグリッド：タイトルが上がったら現れる土台 */
+      if (grid) grid.style.opacity = seg(p, 0.58, 0.66).toFixed(3);
+      /* カード：左列は左から・右列は右から、順にスライドイン（95%までに全着地） */
+      cards.forEach((c, i) => {
+        const cp = seg(p, 0.62 + i * 0.05, 0.80 + i * 0.05);
+        const dir = i % 2 ? 1 : -1;                  // 偶数(0,2)=左 / 奇数(1,3)=右
+        c.style.transform = `translateX(${((1 - cp) * dir * 118).toFixed(1)}%)`;
+        c.style.opacity = cp.toFixed(3);
+      });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -289,11 +279,11 @@ export default function WebContentV2() {
         const pin = head.closest<HTMLElement>(".wc2-pin");
         let p: number;
         if (pin) {
-          /* 統合ピンの前半（4〜40%）で染まりきる。後半は白の転調が使う */
+          /* 統合ピンの前半（3〜20%）で染まりきる。以降は白の転調→WORKSが使う */
           const len = Math.max(1, pin.offsetHeight - vh);
           const top = pin.getBoundingClientRect().top + window.scrollY;
           const pp = Math.min(1, Math.max(0, (window.scrollY - top) / len));
-          p = Math.min(1, Math.max(0, (pp - 0.04) / 0.36));
+          p = Math.min(1, Math.max(0, (pp - 0.03) / 0.17));
         } else {
           /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
           p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
@@ -402,45 +392,40 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            <div className="wc2-whitein-head">
-              <div>
+            {/* WORKS：白の上に、タイトルが中央→上へ移動し、カードが横からスライドイン
+               （trionn の Selected work & explorations の挙動。全てスクロール同期） */}
+            <div className="wc2-worksreveal">
+              <div className="wc2-worksreveal-head">
                 <span className="wc2-label">( 02 ) — WORKS</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============ SELECTED WORKS（trionn: Selected work & explorations） ============ */}
-        <section className="wc2-sec wc2-works-sec">
-          <div className="wc2-wrap">
-            <div className="wc2-works-grid">
-              {WORKS.map(w => (
-                <article className="wc2-work" key={w.num} data-reveal>
-                  {/* inner はスクロール視差（trionn の js-work-card-inner）用 */}
-                  <div className="wc2-work-inner">
-                    <div className="wc2-work-cover">
-                      {w.img ? (
-                        <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
-                      ) : (
-                        <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
-                          <span className="wc2-cover-num">{w.num}</span>
-                          <span className="wc2-cover-en">{w.en}</span>
-                        </div>
-                      )}
+              <div className="wc2-works-grid">
+                {WORKS.map(w => (
+                  <article className="wc2-work" key={w.num}>
+                    <div className="wc2-work-inner">
+                      <div className="wc2-work-cover">
+                        {w.img ? (
+                          <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
+                        ) : (
+                          <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
+                            <span className="wc2-cover-num">{w.num}</span>
+                            <span className="wc2-cover-en">{w.en}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="wc2-work-meta">
+                        <h3>{w.title}</h3>
+                        <p>
+                          {w.tags.map(t => <span key={t}>{t}</span>)}
+                          <time>{w.year}</time>
+                        </p>
+                      </div>
                     </div>
-                    <div className="wc2-work-meta">
-                      <h3>{w.title}</h3>
-                      <p>
-                        {w.tags.map(t => <span key={t}>{t}</span>)}
-                        <time>{w.year}</time>
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                ))}
+              </div>
+              <p className="wc2-works-note">※ 掲載内容はサンプルです（実案件へ差し替え予定）</p>
             </div>
-            <p className="wc2-works-note" data-reveal>※ 掲載内容はサンプルです（実案件へ差し替え予定）</p>
           </div>
         </section>
 
