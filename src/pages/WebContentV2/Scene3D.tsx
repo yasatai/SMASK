@@ -502,7 +502,9 @@ export default function Scene3D() {
       blob.scale.setScalar(k.s);
       blob.rotation.y = spinAcc;
       blob.rotation.x = k.rotX + my * 0.2 + Math.sin(t * 0.4) * 0.06;
-      blob.visible = sp < 0.98;   // Hero中は完全に隠す（潜伏はしているが描かない）
+      /* クロームブロブは一旦非表示（代表指示：白い球体が眩しい）。
+         振り付けコードは次の演出が決まるまで温存 */
+      blob.visible = false;
 
       sat1.visible = sat2.visible = blob.visible;
       sat1.position.set(
