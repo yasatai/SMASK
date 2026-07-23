@@ -141,6 +141,42 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- PS2オープニングのスクロール演出 ----
+     Hero区間（320svh）を進むほど文字が消え、終端で完全暗転 →
+     ヒーローを抜けて半画面ぶんで幕が明け、次セクションが始まる */
+  const heroCopyRef = useRef<HTMLDivElement>(null);
+  const blackoutRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>(".wc2-hero");
+    const black = blackoutRef.current;
+    if (!hero || !black) return;
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, hero.offsetHeight - vh);
+      const p = Math.min(1, Math.max(0, window.scrollY / len));
+      if (heroCopyRef.current) {
+        heroCopyRef.current.style.opacity = String(Math.max(0, 1 - p * 2.4));
+      }
+      /* 暗転：ダイブ終盤(72%〜)で立ち上がり、終端で1。抜けたら0.55画面ぶんで明ける */
+      const rise = ss(Math.min(1, Math.max(0, (p - 0.72) / 0.28)));
+      const past = Math.max(0, (window.scrollY - len) / (vh * 0.55));
+      const o = Math.max(0, Math.min(1, rise - past));
+      black.style.opacity = o.toFixed(3);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* カスタムカーソル（ドット＋遅れて追う輪）。タッチ環境・reduced-motion では出さない */
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -176,21 +212,26 @@ export default function WebContentV2() {
         <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
-        {/* ============ HERO：巨大ステートメント ============ */}
+        {/* ============ HERO：PS2オープニング（縦に長い区間＝靄へのダイブ） ============ */}
         <section className="wc2-hero">
-          <div className="wc2-wrap">
-            <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
-            <h1 className="wc2-hero-h1">
-              <span className="wc2-hl"><span>伝わるWebを、</span></span>
-              <span className="wc2-hl wc2-hl--grad"><span>動かすまで。</span></span>
-            </h1>
-            <p className="wc2-hero-sub">現場理解をもとに、伝わるWebと業務の流れを整えます。</p>
-            <div className="wc2-hero-scroll" aria-hidden="true">
-              <span>SCROLL</span>
-              <i></i>
+          <div className="wc2-hero-sticky">
+            <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
+              <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
+              <h1 className="wc2-hero-h1">
+                <span className="wc2-hl"><span>伝わるWebを、</span></span>
+                <span className="wc2-hl wc2-hl--grad"><span>動かすまで。</span></span>
+              </h1>
+              <p className="wc2-hero-sub">現場理解をもとに、伝わるWebと業務の流れを整えます。</p>
+              <div className="wc2-hero-scroll" aria-hidden="true">
+                <span>SCROLL</span>
+                <i></i>
+              </div>
             </div>
           </div>
         </section>
+
+        {/* ダイブ終端の完全暗転幕（スクロール駆動） */}
+        <div className="wc2-blackout" ref={blackoutRef} aria-hidden="true"></div>
 
         {/* ============ MARQUEE ============ */}
         <div className="wc2-marquee" aria-hidden="true">

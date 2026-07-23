@@ -9,17 +9,16 @@ import { prefersReduced } from "../../motion";
 /**
  * ページ全面の固定 WebGL シーン（V2 の主役）。
  *
- * 液体クロームのブロブ＋衛星球＋粒子場＋ブルーム。
- * セクションごとに「別の動き」をする振り付けエンジン：
- *   HERO      … PS2起動画面のオマージュ：霧の中に半透明のタワー群が立ち並ぶ
- *               （ブロブは画面下に潜伏。カメラはゆっくり漂う）
- *   APPROACH  … タワーが沈み、入れ替わりにブロブが左に浮上・軸が傾いて速い自転
- *   WORKS     … 画面下へ完全退場（作品セクション＝光の間を邪魔しない）
- *   SERVICES  … 左から再入場して8の字浮遊、衛星は近く速く
- *   STRENGTHS … 右へスイッチして逆回転
- *   CONTACT   … 中央で最大化・うねり全開・ブルーム増強のフィナーレ
- * 区間の境界は実際のセクション位置（DOM）から算出し、スクロール進行度は
- * 慣性付きで補間するので、動きは常になめらか。
+ * HERO＝PS2起動画面のオープニング再現：
+ *   - 中央に青い靄（星雲）。加算合成の雲スプライトの群れ
+ *   - 緑・青・赤の光点3つが、同色の光と尾（トレイル）を引きながら自由に浮遊
+ *   - 黒いサイコロ状のキューブがぎりぎり見える暗さでぷかぷか漂う
+ *   - スクロール＝靄の中心へのダイブ。スクロールしきると完全暗転（暗転幕はDOM側）
+ *   - 次のスクロールから通常セクションが始まり、ブロブの振り付けに引き継ぐ
+ *
+ * 以降のセクションは従来どおり：
+ *   APPROACH（左でブロブ浮上）→ WORKS（退場・光の間）→ SERVICES（8の字）
+ *   → STRENGTHS（右で逆回転）→ CONTACT（中央最大化のフィナーレ）
  */
 
 /* ---- GLSL: Ashima simplex noise（定番実装・依存なし） ---- */
@@ -75,25 +74,48 @@ float disp(vec3 p, float t, float amp){
 }
 `;
 
-/* ---- 振り付けキー：区間ごとのパラメータ一式 ---- */
-type Key = {
-  at: number;       // 進行度 0..1（実セクション位置から算出）
-  x: number; y: number; z: number;   // ブロブ位置
-  s: number;        // スケール
-  amp: number;      // うねり振幅
-  iri: number;      // 薄膜イリデッセンス強度
-  rough: number;    // 面の荒れ
-  spin: number;     // 自転速度（負で逆回転）
-  rotX: number;     // 軸の傾き
-  lis: number;      // 8の字（リサージュ）浮遊の振幅
-  satR: number;     // 衛星の軌道半径倍率
-  satS: number;     // 衛星の速度倍率
-  dust: number;     // 粒子の濃さ
-  bloomS: number;   // ブルーム強度
-  camZ: number;     // カメラ距離
-  towers: number;   // タワー都市の存在感（1=Hero、0=退場。透明度と沈み込みに効く）
-};
+/* ---- 柔らかい雲テクスチャを canvas で生成（外部アセット不要） ---- */
+function makeCloudTexture(size = 256, blobs = 26): THREE.CanvasTexture {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const cx = cv.getContext("2d")!;
+  for (let i = 0; i < blobs; i++) {
+    const x = size / 2 + (Math.random() - 0.5) * size * 0.55;
+    const y = size / 2 + (Math.random() - 0.5) * size * 0.55;
+    const r = size * (0.09 + Math.random() * 0.2);
+    const a = 0.05 + Math.random() * 0.08;
+    const g = cx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(255,255,255,${a})`);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    cx.fillStyle = g;
+    cx.beginPath(); cx.arc(x, y, r, 0, Math.PI * 2); cx.fill();
+  }
+  return new THREE.CanvasTexture(cv);
+}
+/* 光点のハロー用：中心が強い放射グラデ */
+function makeGlowTexture(size = 128): THREE.CanvasTexture {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const cx = cv.getContext("2d")!;
+  const g = cx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.25, "rgba(255,255,255,.45)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  cx.fillStyle = g;
+  cx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(cv);
+}
 
+/* ---- 振り付けキー ---- */
+type Key = {
+  at: number;
+  x: number; y: number; z: number;
+  s: number; amp: number; iri: number; rough: number;
+  spin: number; rotX: number; lis: number;
+  satR: number; satS: number;
+  dust: number; bloomS: number; camZ: number;
+  space: number;   // PS2空間（靄・光点・キューブ）の存在感。1=Hero、0=以降
+};
 const smooth = (t: number) => t * t * (3 - 2 * t);
 function sampleKeys(keys: Key[], p: number): Key {
   if (p <= keys[0].at) return keys[0];
@@ -109,6 +131,14 @@ function sampleKeys(keys: Key[], p: number): Key {
   return keys[keys.length - 1];
 }
 
+/* ---- 光点（緑・青・赤）の浮遊パラメータ ---- */
+const ORBS = [
+  { color: 0x49e07c, ax: 2.6, ay: 1.5, az: .9, fx: .21, fy: .33, fz: .27, px: 0.0, py: 1.1, pz: 2.2 },  // 緑
+  { color: 0x4aa8ff, ax: 3.1, ay: 1.2, az: 1.1, fx: .17, fy: .29, fz: .23, px: 2.1, py: 3.7, pz: 0.6 },  // 青
+  { color: 0xff4d5a, ax: 2.2, ay: 1.7, az: .8, fx: .25, fy: .19, fz: .31, px: 4.2, py: 0.4, pz: 3.9 },  // 赤
+];
+const TRAIL = 64;   // 尾の長さ（過去フレーム数）
+
 export default function Scene3D() {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -118,23 +148,122 @@ export default function Scene3D() {
 
     /* ---- renderer / composer ---- */
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: true });
-    renderer.setClearColor(0x05060a, 1);
+    renderer.setClearColor(0x020308, 1);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.1;
     host.appendChild(renderer.domElement);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x05060a, 0.055);
-    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 60);
-    camera.position.set(0, 0, 6);
+    scene.fog = new THREE.FogExp2(0x020308, 0.05);
+    const camera = new THREE.PerspectiveCamera(46, 1, 0.1, 80);
+    camera.position.set(0, 0, 7);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envTex = pmrem.fromScene(new RoomEnvironment(), 0.06).texture;
     scene.environment = envTex;
 
-    /* ---- 液体クロームのブロブ ---- */
-    const uniforms = { uTime: { value: 0 }, uAmp: { value: 0.34 } };
+    /* ================= PS2空間（Hero） ================= */
+    const space = new THREE.Group();
+    scene.add(space);
+
+    /* --- 青い靄（星雲）：加算合成の雲スプライト群を中心に --- */
+    const cloudTex = makeCloudTexture();
+    const NEB = 22;
+    const nebulaMats: THREE.SpriteMaterial[] = [];
+    const nebulaBase: number[] = [];
+    const NEB_COLORS = [0x2a4b9b, 0x3a6fd8, 0x274b8f, 0x4b3fae, 0x2f5fc0]; // 青〜わずかに紫
+    for (let i = 0; i < NEB; i++) {
+      /* 加算合成は枚数分明るさが積み上がる。1枚あたりはかなり薄くしないと
+         重なりで白飛びし、ブルームが全画面に流れる（実測済み） */
+      const m = new THREE.SpriteMaterial({
+        map: cloudTex,
+        color: NEB_COLORS[i % NEB_COLORS.length],
+        transparent: true,
+        opacity: 0.05 + Math.random() * 0.07,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        rotation: Math.random() * Math.PI * 2,
+      });
+      nebulaMats.push(m);
+      nebulaBase.push(m.opacity);
+      const sp = new THREE.Sprite(m);
+      const r = Math.random();
+      sp.position.set(
+        (Math.random() - 0.5) * 3.2 * (0.4 + r),
+        (Math.random() - 0.5) * 2.2 * (0.4 + r),
+        -4 + (Math.random() - 0.5) * 2.4
+      );
+      const sc = 2.6 + Math.random() * 4.2;
+      sp.scale.set(sc, sc * (0.7 + Math.random() * 0.5), 1);
+      space.add(sp);
+    }
+
+    /* --- 光点3つ（緑・青・赤）＋同色ハロー＋尾 --- */
+    const glowTex = makeGlowTexture();
+    const orbMeshes: THREE.Mesh[] = [];
+    const orbTrails: { line: THREE.Line; positions: Float32Array }[] = [];
+    ORBS.forEach(o => {
+      const core = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffffff })
+      );
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+        map: glowTex, color: o.color, transparent: true, opacity: .9,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      }));
+      halo.scale.setScalar(0.85);
+      core.add(halo);
+      space.add(core);
+      orbMeshes.push(core);
+
+      /* 尾：過去位置をつないだライン。加算合成なので末尾へ黒フェード＝自然に消える */
+      const positions = new Float32Array(TRAIL * 3);
+      const colors = new Float32Array(TRAIL * 3);
+      const c = new THREE.Color(o.color);
+      for (let i = 0; i < TRAIL; i++) {
+        const f = Math.pow(1 - i / TRAIL, 1.8);   // 先頭ほど明るい
+        colors[i * 3] = c.r * f; colors[i * 3 + 1] = c.g * f; colors[i * 3 + 2] = c.b * f;
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+      const line = new THREE.Line(g, new THREE.LineBasicMaterial({
+        vertexColors: true, transparent: true, opacity: .85,
+        blending: THREE.AdditiveBlending, depthWrite: false,
+      }));
+      line.frustumCulled = false;
+      space.add(line);
+      orbTrails.push({ line, positions });
+    });
+
+    /* --- 黒いサイコロ：ぎりぎり見える暗さでぷかぷか --- */
+    const CUBES = 7;
+    const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+    const cubeMat = new THREE.MeshStandardMaterial({
+      color: 0x090b12, roughness: 0.55, metalness: 0.3, envMapIntensity: 0.4,
+    });
+    const cubes: { m: THREE.Mesh; p0: THREE.Vector3; rs: THREE.Vector3; bob: number }[] = [];
+    for (let i = 0; i < CUBES; i++) {
+      const m = new THREE.Mesh(cubeGeo, cubeMat);
+      const p0 = new THREE.Vector3(
+        (Math.random() - 0.5) * 9,
+        (Math.random() - 0.5) * 4.5,
+        -2.5 + (Math.random() - 0.5) * 5
+      );
+      m.position.copy(p0);
+      m.scale.setScalar(0.35 + Math.random() * 0.5);
+      m.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3);
+      space.add(m);
+      cubes.push({
+        m, p0,
+        rs: new THREE.Vector3((Math.random() - .5) * .3, (Math.random() - .5) * .3, (Math.random() - .5) * .2),
+        bob: Math.random() * Math.PI * 2,
+      });
+    }
+
+    /* ================= ブロブ（APPROACH以降の主役） ================= */
+    const uniforms = { uTime: { value: 0 }, uAmp: { value: 0.3 } };
     const blobGeo = new THREE.IcosahedronGeometry(1.55, 5);
     const blobMat = new THREE.MeshPhysicalMaterial({
       color: 0xbfc3c9, metalness: 1, roughness: 0.16, envMapIntensity: 1.35,
@@ -168,7 +297,6 @@ export default function Scene3D() {
     const blob = new THREE.Mesh(blobGeo, blobMat);
     scene.add(blob);
 
-    /* ---- 衛星球 ---- */
     const satMat = new THREE.MeshPhysicalMaterial({
       color: 0xd7dade, metalness: 1, roughness: 0.05, envMapIntensity: 1.6,
       iridescence: 0.65, iridescenceIOR: 1.3,
@@ -177,72 +305,39 @@ export default function Scene3D() {
     const sat2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 40, 40), satMat);
     scene.add(sat1, sat2);
 
-    /* ---- 粒子場 ---- */
+    /* ---- 星屑（宇宙の背景。全セクション共通） ---- */
     const N = 1300;
     const pGeo = new THREE.BufferGeometry();
     const pos = new Float32Array(N * 3);
     for (let i = 0; i < N; i++) {
-      const r = 4.5 + Math.random() * 6.5;
+      const r = 5 + Math.random() * 9;
       const th = Math.random() * Math.PI * 2;
       const ph = Math.acos(2 * Math.random() - 1);
       pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
       pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th) * 0.7;
-      pos[i * 3 + 2] = r * Math.cos(ph) - 2;
+      pos[i * 3 + 2] = r * Math.cos(ph) - 3;
     }
     pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     const pMat = new THREE.PointsMaterial({
-      color: 0x93a4c8, size: 0.025, sizeAttenuation: true,
-      transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false,
+      color: 0x8fa0c4, size: 0.022, sizeAttenuation: true,
+      transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const dust = new THREE.Points(pGeo, pMat);
     scene.add(dust);
 
-    const rim = new THREE.DirectionalLight(0xffffff, 1.1);
+    const rim = new THREE.DirectionalLight(0xffffff, 1.0);
     rim.position.set(-3, 4, 2);
     scene.add(rim);
-
-    /* ---- PS2起動画面オマージュ：半透明タワー都市（Hero専用・InstancedMeshで1ドロー） ---- */
-    const T = 64;
-    const towerGeo = new THREE.BoxGeometry(0.22, 1, 0.22);
-    towerGeo.translate(0, 0.5, 0);          // 原点＝柱の根元（高さはY方向スケールで可変）
-    /* PS2の柱は「白い壁」ではなく、霧に沈む薄暗い青灰色の燐光。
-       重なりで白飛びしないよう、素材は暗め・低反射・低透明度に抑え、
-       発光級の明るさは instanceColor でごく数本にだけ与える（ブルームが拾う）。 */
-    const towerMat = new THREE.MeshPhysicalMaterial({
-      color: 0x9fb0cc, roughness: 0.45, metalness: 0,
-      transparent: true, opacity: 0.26, envMapIntensity: 0.22,
-      depthWrite: false,                    // 半透明同士の重なりを柔らかく
-    });
-    const towers = new THREE.InstancedMesh(towerGeo, towerMat, T);
-    {
-      const d = new THREE.Object3D();
-      const c = new THREE.Color();
-      for (let i = 0; i < T; i++) {
-        /* Heroの文字は左にあるので、柱は右寄りに密集させる。手前(z>0)には置かない */
-        const gx = Math.pow(Math.random(), 1.35) * 13 - 3.5;  // -3.5 .. +9.5（右に偏る）
-        const gz = -9 + Math.random() * 9;                    // 奥 -9 .. 0（霧で奥が霞む）
-        const h = 0.6 + Math.pow(Math.random(), 2) * 4.2;     // 低い柱が多く、たまに高い
-        d.position.set(gx + (Math.random() - 0.5) * 0.6, -2.6, gz);
-        d.rotation.y = (Math.random() - 0.5) * 0.12;
-        d.scale.set(1, h, 1);
-        d.updateMatrix();
-        towers.setMatrixAt(i, d.matrix);
-        /* 基本は暗く（0.3〜0.65）、ごく数本だけ明るい「光の柱」 */
-        const b = Math.random() < 0.06 ? 1.05 : 0.3 + Math.random() * 0.35;
-        towers.setColorAt(i, c.setRGB(b * 0.88, b * 0.95, b));
-      }
-      towers.instanceColor!.needsUpdate = true;
-    }
-    scene.add(towers);
 
     /* ---- ブルーム ---- */
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.5, 0.85, 0.78);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.55, 0.9, 0.72);
     composer.addPass(bloom);
 
-    /* ---- 振り付けキー：実セクション位置から構築 ---- */
+    /* ---- 振り付けキー（実セクション位置から構築） ---- */
     let KEYS: Key[] = [];
+    let heroLen = 1;   // Hero区間のスクロール長（px）＝ダイブの分母
     const buildKeys = () => {
       const H = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const vh = window.innerHeight;
@@ -251,6 +346,8 @@ export default function Scene3D() {
         return el ? (el as HTMLElement).getBoundingClientRect().top + window.scrollY : H;
       };
       const f = (px: number) => Math.min(1, Math.max(0, px / H));
+      const heroEl = document.querySelector(".wc2-hero") as HTMLElement | null;
+      heroLen = Math.max(1, (heroEl?.offsetHeight ?? vh * 3) - vh);
       const approach  = topOf(".wc2-approach-sec");
       const works     = topOf(".wc2-works-sec");
       const worksEnd  = works + ((document.querySelector(".wc2-works-sec") as HTMLElement)?.offsetHeight ?? vh);
@@ -259,24 +356,24 @@ export default function Scene3D() {
       const contact   = topOf(".wc2-contact");
 
       KEYS = [
-        /* HERO：PS2式タワー都市。ブロブは画面下に潜伏、粒子は濃いめ */
-        { at: 0,                        x: 0,    y: -3.8, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .75, bloomS: .48, camZ: 6,   towers: 1 },
-        /* APPROACH：タワーが沈み、ブロブが左に浮上・軸が傾いて自転が速まる */
-        { at: f(approach - vh * .6),    x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, towers: 0 },
-        /* WORKS：画面下へ完全退場（光の間に主役を譲る） */
-        { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2, towers: 0 },
-        { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6,   towers: 0 },
-        /* SERVICES：左から再入場、8の字浮遊・衛星は近く速く */
-        { at: f(services - vh * .25),   x: -1.5, y: .05,  z: -.3, s: .62,  amp: .34, iri: .9, rough: .18, spin: .26, rotX: -.25, lis: .38, satR: .75, satS: 2.3, dust: .5,  bloomS: .5,  camZ: 5.5, towers: 0 },
+        /* HERO：PS2空間。ブロブは潜伏。カメラはダイブ制御（camZはspaceで無効化される） */
+        { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .6,  bloomS: .65, camZ: 7,   space: 1 },
+        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .3,  bloomS: .5,  camZ: 6.2, space: 1 },
+        /* APPROACH：暗転明け。PS2空間は消え、ブロブが左に浮上 */
+        { at: f(approach - vh * .35),   x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, space: 0 },
+        /* WORKS：画面下へ退場（光の間） */
+        { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2, space: 0 },
+        { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6,   space: 0 },
+        /* SERVICES：左から再入場、8の字浮遊 */
+        { at: f(services - vh * .25),   x: -1.5, y: .05,  z: -.3, s: .62,  amp: .34, iri: .9, rough: .18, spin: .26, rotX: -.25, lis: .38, satR: .75, satS: 2.3, dust: .5,  bloomS: .5,  camZ: 5.5, space: 0 },
         /* STRENGTHS：右へスイッチして逆回転 */
-        { at: f(strengths - vh * .25),  x: 1.7,  y: -.1,  z: -.6, s: .55,  amp: .26, iri: .8, rough: .2,  spin: -.3, rotX: .2,   lis: .2,  satR: 1.25, satS: 1.4, dust: .45, bloomS: .45, camZ: 5.8, towers: 0 },
-        /* CONTACT：中央で最大化のフィナーレ */
-        { at: f(contact - vh * .45),    x: 0,    y: .02,  z: .6,  s: 1.28, amp: .5,  iri: 1,  rough: .12, spin: .4,  rotX: 0,    lis: .08, satR: 1.1, satS: 1.8, dust: .6,  bloomS: .8,  camZ: 5.1, towers: 0 },
-        { at: 1,                        x: 0,    y: 0,    z: .7,  s: 1.32, amp: .54, iri: 1,  rough: .12, spin: .42, rotX: 0,    lis: .08, satR: 1.1, satS: 1.9, dust: .6,  bloomS: .85, camZ: 5,   towers: 0 },
+        { at: f(strengths - vh * .25),  x: 1.7,  y: -.1,  z: -.6, s: .55,  amp: .26, iri: .8, rough: .2,  spin: -.3, rotX: .2,   lis: .2,  satR: 1.25, satS: 1.4, dust: .45, bloomS: .45, camZ: 5.8, space: 0 },
+        /* CONTACT：フィナーレ */
+        { at: f(contact - vh * .45),    x: 0,    y: .02,  z: .6,  s: 1.28, amp: .5,  iri: 1,  rough: .12, spin: .4,  rotX: 0,    lis: .08, satR: 1.1, satS: 1.8, dust: .6,  bloomS: .8,  camZ: 5.1, space: 0 },
+        { at: 1,                        x: 0,    y: 0,    z: .7,  s: 1.32, amp: .54, iri: 1,  rough: .12, spin: .42, rotX: 0,    lis: .08, satR: 1.1, satS: 1.9, dust: .6,  bloomS: .85, camZ: 5,   space: 0 },
       ].sort((a, b) => a.at - b.at);
     };
     buildKeys();
-    /* コンテンツ読み込みで文書の高さが変わったら境界を測り直す */
     const roDoc = new ResizeObserver(buildKeys);
     roDoc.observe(document.body);
 
@@ -307,26 +404,69 @@ export default function Scene3D() {
     ro.observe(host);
     resize();
 
-    /* ---- ループ ---- */
-    /* 開発時のみ：コンソールから各要素をON/OFFして問題を切り分けるためのハンドル */
+    /* 開発時のみ：コンソールから切り分けるためのハンドル */
     if (import.meta.env.DEV) {
-      (window as unknown as Record<string, unknown>).__wc2dbg = { bloom, towers, blob, dust, sat1, sat2, composer, renderer, scene };
+      (window as unknown as Record<string, unknown>).__wc2dbg = { bloom, space, blob, dust, composer, renderer, scene, camera, nebulaMats };
     }
 
+    /* ---- ループ ---- */
     const clock = new THREE.Clock();
     let raf = 0;
     let disposed = false;
-    let pSmooth = 0;          // 進行度の慣性（急スクロールでも滑らかに振り付けが追う）
-    let spinAcc = 0.6;        // 自転の積分（速度が変わっても角度が飛ばない）
+    let pSmooth = 0;
+    let spinAcc = 0.6;
     let lastT = 0;
     const renderFrame = () => {
       const t = prefersReduced ? 0.8 : clock.getElapsedTime();
       const dt = Math.min(0.05, t - lastT); lastT = t;
       uniforms.uTime.value = t;
 
-      pSmooth += (progress() - pSmooth) * 0.07;
+      pSmooth += (progress() - pSmooth) * 0.08;
       const k = sampleKeys(KEYS, pSmooth);
+      const sp = k.space;
 
+      /* --- Hero内のダイブ進行度（0=開始, 1=靄の中心＝暗転点） --- */
+      const heroP = Math.min(1, Math.max(0, window.scrollY / heroLen));
+
+      /* --- PS2空間 --- */
+      space.visible = sp > 0.01;
+      if (space.visible) {
+        /* 靄：ダイブで濃く・明るく（中心に近づく感覚） */
+        nebulaMats.forEach((m, i) => {
+          m.opacity = nebulaBase[i] * sp * (1 + heroP * 1.4);
+          m.rotation += dt * 0.02 * (i % 2 ? 1 : -1);
+        });
+
+        /* 光点：トリガーに関係なく常に自由浮遊 */
+        ORBS.forEach((o, i) => {
+          const p = orbMeshes[i].position;
+          p.set(
+            Math.sin(t * o.fx + o.px) * o.ax,
+            Math.sin(t * o.fy + o.py) * o.ay,
+            0.4 + Math.sin(t * o.fz + o.pz) * o.az
+          );
+          /* 尾：過去位置を1つずつ後ろへ送る */
+          const tr = orbTrails[i];
+          tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
+          tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
+          (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
+          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.85 * sp;
+          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.9 * sp;
+          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(sp);
+        });
+
+        /* 黒サイコロ：ぷかぷか＋ゆっくり回転 */
+        cubes.forEach(cb => {
+          cb.m.rotation.x += cb.rs.x * dt;
+          cb.m.rotation.y += cb.rs.y * dt;
+          cb.m.rotation.z += cb.rs.z * dt;
+          cb.m.position.y = cb.p0.y + Math.sin(t * 0.4 + cb.bob) * 0.25;
+          cb.m.position.x = cb.p0.x + Math.sin(t * 0.23 + cb.bob * 2) * 0.15;
+        });
+        cubeMat.opacity = 1;
+      }
+
+      /* --- ブロブ側 --- */
       uniforms.uAmp.value = k.amp;
       blobMat.iridescence = k.iri;
       blobMat.roughness = k.rough;
@@ -335,17 +475,17 @@ export default function Scene3D() {
 
       mx += (tmx - mx) * 0.05;
       my += (tmy - my) * 0.05;
-
       spinAcc += k.spin * dt * 4;
 
-      /* 8の字（リサージュ）浮遊＋マウス視差 */
       const lx = Math.sin(t * 0.55) * k.lis * 1.6;
       const ly = Math.sin(t * 1.1) * k.lis;
       blob.position.set(k.x + lx + mx * 0.3, k.y + ly - my * 0.25, k.z);
       blob.scale.setScalar(k.s);
       blob.rotation.y = spinAcc;
       blob.rotation.x = k.rotX + my * 0.2 + Math.sin(t * 0.4) * 0.06;
+      blob.visible = sp < 0.98;   // Hero中は完全に隠す（潜伏はしているが描かない）
 
+      sat1.visible = sat2.visible = blob.visible;
       sat1.position.set(
         blob.position.x + Math.cos(t * 0.5 * k.satS) * 2.1 * k.satR * k.s,
         blob.position.y + Math.sin(t * 0.7 * k.satS) * 0.75 * k.satR * k.s,
@@ -360,17 +500,14 @@ export default function Scene3D() {
       dust.rotation.y = t * 0.012 + mx * 0.06;
       dust.rotation.x = my * 0.04;
 
-      /* タワー都市：Heroでのみ現れ、離れると沈みながら消える */
-      const tv = k.towers;
-      towers.visible = tv > 0.01;
-      towerMat.opacity = 0.26 * tv;
-      towers.position.y = (tv - 1) * 3;
-
-      /* カメラ：Heroの間はPS2的にゆっくり漂う（tv=タワー存在感で減衰） */
-      camera.position.x = mx * 0.35 + Math.sin(t * 0.07) * 0.45 * tv;
-      camera.position.y = -my * 0.3 + Math.sin(t * 0.045) * 0.2 * tv;
-      camera.position.z = k.camZ + Math.sin(t * 0.05) * 0.3 * tv;
-      camera.lookAt(0, 0, 0);
+      /* --- カメラ ---
+         Hero中：z=7 から靄の中心(z≈-4)の先へ、スクロールで加速しながらダイブ。
+         以降：キーの camZ に戻る（spaceでブレンド） */
+      const diveZ = 7 - Math.pow(heroP, 1.5) * 10.2;   // 7 → -3.2（靄を突き抜ける）
+      camera.position.z = k.camZ * (1 - sp) + diveZ * sp;
+      camera.position.x = mx * 0.35 + Math.sin(t * 0.06) * 0.3 * sp;
+      camera.position.y = -my * 0.3 + Math.sin(t * 0.045) * 0.15 * sp;
+      camera.lookAt(0, 0, camera.position.z - 6);   // 常に進行方向を見る
 
       composer.render();
     };
@@ -379,7 +516,7 @@ export default function Scene3D() {
       renderFrame();
       raf = requestAnimationFrame(loop);
     };
-    renderFrame();            // rAF が凍る環境でも1フレームは必ず描く
+    renderFrame();
     if (!prefersReduced) raf = requestAnimationFrame(loop);
 
     /* ---- 後片付け ---- */
@@ -389,8 +526,12 @@ export default function Scene3D() {
       window.removeEventListener("mousemove", onMouse);
       ro.disconnect();
       roDoc.disconnect();
+      cloudTex.dispose(); glowTex.dispose();
+      nebulaMats.forEach(m => m.dispose());
+      orbMeshes.forEach(m => { m.geometry.dispose(); (m.material as THREE.Material).dispose(); });
+      orbTrails.forEach(tr => { tr.line.geometry.dispose(); (tr.line.material as THREE.Material).dispose(); });
+      cubeGeo.dispose(); cubeMat.dispose();
       blobGeo.dispose(); blobMat.dispose();
-      towerGeo.dispose(); towerMat.dispose(); towers.dispose();
       sat1.geometry.dispose(); sat2.geometry.dispose(); satMat.dispose();
       pGeo.dispose(); pMat.dispose();
       envTex.dispose(); pmrem.dispose();

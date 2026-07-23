@@ -109,11 +109,26 @@
   max-width: 62rem;
 }
 
-/* ============ HERO ============ */
+/* ============ HERO：PS2オープニング ============
+   セクション自体を縦に長く取り、その間ずっと画面に張り付く（sticky）。
+   スクロール量が「靄へのダイブ」の進行度になる。 */
 .wc2-hero {
-  min-height: 100svh;
+  height: 320svh;
+}
+.wc2-hero-sticky {
+  position: sticky; top: 0;
+  height: 100svh;
   display: flex; align-items: center;
   padding-block: 7rem 4rem;
+  overflow: hidden;
+}
+.wc2-hero-copy { will-change: opacity; }
+
+/* ダイブ終端の完全暗転幕（JSがopacityを駆動） */
+.wc2-blackout {
+  position: fixed; inset: 0; z-index: 4;
+  background: #000;
+  opacity: 0; pointer-events: none;
 }
 .wc2-hero-tag {
   font-family: var(--wc2-display); font-weight: 400;
