@@ -466,9 +466,9 @@ export default function Scene3D() {
           tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
           tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
           (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
-          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.32 * sp;
-          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.38 * sp;
-          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.65 * sp);
+          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.22 * sp;
+          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.26 * sp;
+          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.48 * sp);
         });
 
         /* 黒サイコロ：ぷかぷか＋ゆっくり回転 */
