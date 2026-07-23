@@ -188,6 +188,7 @@ export default function WebContentV2() {
     const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
     const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
+    const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -216,7 +217,7 @@ export default function WebContentV2() {
          開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
          （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
-        const prog = seg(p, 0.62, 0.95);
+        const prog = seg(p, 0.60, 0.84);
         const first = track.querySelector<HTMLElement>(".wc2-work");
         const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
         const cardW = first ? first.getBoundingClientRect().width : 380;
@@ -226,6 +227,14 @@ export default function WebContentV2() {
         const x = startX + (endX - startX) * prog;
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
+      }
+      /* 次セクションへの転換：白背景が左から捲れて暗転（カードが左に流れたのと同じ左方向）。
+         86%〜100% で暗い面が左端から右へ広がり、固定解除時には全面が暗色＝CONCERNSと地続き */
+      if (wipe) {
+        const wp = seg(p, 0.86, 1.0);
+        const w = wp * 112;                       // 右へ 112%（確実に覆いきる）
+        /* 右辺を斜めにして「捲れ」感を出す（上が先行） */
+        wipe.style.clipPath = `polygon(0 0, ${w.toFixed(1)}% 0, ${(w - 9).toFixed(1)}% 100%, 0 100%)`;
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -430,6 +439,8 @@ export default function WebContentV2() {
                 ))}
               </div>
             </div>
+            {/* 次セクションへの転換：白背景が左から捲れて暗転していく（JSがclip-path駆動） */}
+            <div className="wc2-wipe" aria-hidden="true"></div>
           </div>
         </section>
 
