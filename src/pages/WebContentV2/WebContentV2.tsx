@@ -186,9 +186,8 @@ export default function WebContentV2() {
     if (!ap) return;
     const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
     const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
-    const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
-    const grid = ap.querySelector<HTMLElement>(".wc2-worksreveal .wc2-works-grid");
-    const cards = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-worksreveal .wc2-work"));
+    const side = ap.querySelector<HTMLElement>(".wc2-worksreveal-side");
+    const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -201,28 +200,22 @@ export default function WebContentV2() {
     const tick = () => {
       raf = 0;
       const p = pinP(ap);
-      const vh = window.innerHeight;
       if (apCols) apCols.style.opacity = seg(p, 0.20, 0.30).toFixed(3);
       /* 白帯：一番下（i=5）から順に立ち上がる。各帯は自分の下辺から伸びる */
       stripes.forEach((s, i) => {
         const order = stripes.length - 1 - i;   // 下の帯ほど先
         s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
       });
-      /* WORKS：タイトルが中央でフェードイン → 上へ移動 */
-      if (head) {
-        head.style.opacity = seg(p, 0.46, 0.56).toFixed(3);
-        const up = seg(p, 0.56, 0.66) * vh * 0.30;   // 上へ 30vh
-        head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
+      /* WORKS：タイトルは左に固定のままフェードインして留まる（trionn 準拠） */
+      if (side) side.style.opacity = seg(p, 0.46, 0.58).toFixed(3);
+      /* カードのトラック：白が出来た後（58%〜）に、右側で横スクロールして流れる。
+         トラックを左へ送り、カードを 01→04 の順に右側ビューへ通す */
+      if (track) {
+        const prog = seg(p, 0.58, 1.0);
+        const maxT = Math.max(0, track.scrollWidth - track.clientWidth);
+        track.style.transform = `translateX(${(-maxT * prog).toFixed(1)}px)`;
+        track.style.opacity = seg(p, 0.5, 0.6).toFixed(3);
       }
-      /* カードグリッド：タイトルが上がったら現れる土台 */
-      if (grid) grid.style.opacity = seg(p, 0.58, 0.66).toFixed(3);
-      /* カード：左列は左から・右列は右から、順にスライドイン（95%までに全着地） */
-      cards.forEach((c, i) => {
-        const cp = seg(p, 0.62 + i * 0.05, 0.80 + i * 0.05);
-        const dir = i % 2 ? 1 : -1;                  // 偶数(0,2)=左 / 奇数(1,3)=右
-        c.style.transform = `translateX(${((1 - cp) * dir * 118).toFixed(1)}%)`;
-        c.style.opacity = cp.toFixed(3);
-      });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -392,14 +385,16 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* WORKS：白の上に、タイトルが中央→上へ移動し、カードが横からスライドイン
-               （trionn の Selected work & explorations の挙動。全てスクロール同期） */}
+            {/* WORKS（trionn 準拠）：タイトルは左に固定、カードは右で横スクロールして流れる。
+               全てスクロール同期（白の転調のあと連続で進む） */}
             <div className="wc2-worksreveal">
-              <div className="wc2-worksreveal-head">
+              <div className="wc2-worksreveal-side">
                 <span className="wc2-label">( 02 ) — WORKS</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
+                <p className="wc2-works-note">※ 掲載内容はサンプルです（実案件へ差し替え予定）</p>
               </div>
-              <div className="wc2-works-grid">
+              <div className="wc2-worksreveal-track">
                 {WORKS.map(w => (
                   <article className="wc2-work" key={w.num}>
                     <div className="wc2-work-inner">
@@ -424,7 +419,6 @@ export default function WebContentV2() {
                   </article>
                 ))}
               </div>
-              <p className="wc2-works-note">※ 掲載内容はサンプルです（実案件へ差し替え予定）</p>
             </div>
           </div>
         </section>
