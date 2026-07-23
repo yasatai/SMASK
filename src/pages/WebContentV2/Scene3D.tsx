@@ -216,7 +216,7 @@ export default function Scene3D() {
       }));
       halo.scale.setScalar(0.45);
       core.add(halo);
-      space.add(core);
+      scene.add(core);   // 光点は space から独立（暗転後も案内役として使うため）
       orbMeshes.push(core);
 
       /* 尾：過去位置をつないだライン。加算合成なので末尾へ黒フェード＝自然に消える */
@@ -235,7 +235,7 @@ export default function Scene3D() {
         blending: THREE.AdditiveBlending, depthWrite: false,
       }));
       line.frustumCulled = false;
-      space.add(line);
+      scene.add(line);   // 尾も光点と一緒に独立
       orbTrails.push({ line, positions });
     });
 
@@ -246,6 +246,7 @@ export default function Scene3D() {
        素材はほぼ黒・低反射、置き場所も靄と同じ深さ（霧とスプライトに呑まれる） */
     const cubeMat = new THREE.MeshStandardMaterial({
       color: 0x05060a, roughness: 0.75, metalness: 0.12, envMapIntensity: 0.1,
+      transparent: true,   // 空間の消灯（sp→0）と一緒にフェードで消えるように
     });
     const cubes: { m: THREE.Mesh; p0: THREE.Vector3; rs: THREE.Vector3; bob: number }[] = [];
     for (let i = 0; i < CUBES; i++) {
@@ -342,6 +343,8 @@ export default function Scene3D() {
     /* ---- 振り付けキー（実セクション位置から構築） ---- */
     let KEYS: Key[] = [];
     let heroLen = 1;   // Hero区間のスクロール長（px）＝ダイブの分母
+    /* C案：暗転後に光点が案内役として再点灯する位置（進行度）。buildKeysで実測に更新 */
+    let GUIDE_AT = [0.3, 0.6, 0.9];
     const buildKeys = () => {
       const H = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
       const vh = window.innerHeight;
@@ -358,13 +361,16 @@ export default function Scene3D() {
       const services  = topOf(".wc2-services-sec");
       const strengths = topOf(".wc2-strengths-sec");
       const contact   = topOf(".wc2-contact");
+      /* 案内役の点灯位置：緑=APPROACH / 青=SERVICES / 赤=CONTACT */
+      GUIDE_AT = [f(approach + vh * .35), f(services + vh * .35), f(contact + vh * .2)];
 
       KEYS = [
         /* HERO：PS2空間。ブロブは潜伏。カメラはダイブ制御（camZはspaceで無効化される） */
         { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .18, bloomS: .32, camZ: 7,   space: 1 },
-        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .12, bloomS: .3,  camZ: 6.2, space: 1 },
-        /* APPROACH：暗転明け。PS2空間は消え、ブロブが左に浮上 */
-        { at: f(approach - vh * .35),   x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, space: 0 },
+        /* ダイブ後半まで空間は満開のまま */
+        { at: f(heroLen * 0.8),         x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .12, bloomS: .3,  camZ: 6.2, space: 1 },
+        /* 暗転ピーク＝空間の完全消灯。幕が明けたときには靄もキューブも存在しない */
+        { at: f(heroLen + vh * .05),    x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, space: 0 },
         /* WORKS：画面下へ退場（光の間） */
         { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2, space: 0 },
         { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6,   space: 0 },
@@ -456,24 +462,6 @@ export default function Scene3D() {
           m.rotation += dt * 0.02 * (i % 2 ? 1 : -1);
         });
 
-        /* 光点：トリガーに関係なく常に自由浮遊 */
-        ORBS.forEach((o, i) => {
-          const p = orbMeshes[i].position;
-          p.set(
-            Math.sin(t * o.fx + o.px) * o.ax,
-            Math.sin(t * o.fy + o.py) * o.ay,
-            -1.4 + Math.sin(t * o.fz + o.pz) * o.az   // 靄の手前〜中を漂う＝霞に少し呑まれる
-          );
-          /* 尾：過去位置を1つずつ後ろへ送る */
-          const tr = orbTrails[i];
-          tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
-          tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
-          (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
-          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.22 * sp;
-          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.26 * sp;
-          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.48 * sp);
-        });
-
         /* 黒サイコロ：ぷかぷか＋ゆっくり回転 */
         cubes.forEach(cb => {
           cb.m.rotation.x += cb.rs.x * dt;
@@ -482,8 +470,40 @@ export default function Scene3D() {
           cb.m.position.y = cb.p0.y + Math.sin(t * 0.4 + cb.bob) * 0.25;
           cb.m.position.x = cb.p0.x + Math.sin(t * 0.23 + cb.bob * 2) * 0.15;
         });
-        cubeMat.opacity = 1;
+        cubeMat.opacity = sp;   // 空間の消灯に同期してキューブもフェード
       }
+
+      /* --- 光点：Heroでは靄の中を自由浮遊、暗転後は各セクションの案内役（C案） ---
+         担当セクション（緑=APPROACH/青=SERVICES/赤=CONTACT）に近づくとだけ、
+         画面右側で小さく再点灯して漂う。離れるとまた闇に還る */
+      ORBS.forEach((o, i) => {
+        /* Hero時の浮遊位置 */
+        const hx = Math.sin(t * o.fx + o.px) * o.ax;
+        const hy = Math.sin(t * o.fy + o.py) * o.ay;
+        const hz = -1.4 + Math.sin(t * o.fz + o.pz) * o.az;
+        /* 案内役時の位置（右側で控えめに漂う） */
+        const gx = 2.3 + Math.sin(t * o.fx + o.px) * 0.45;
+        const gy = 0.15 + Math.sin(t * o.fy + o.py) * 0.55;
+        const gz = 0.4 + Math.sin(t * o.fz + o.pz) * 0.35;
+        /* 担当セクション付近でだけ点灯（進行度の距離でフェード） */
+        const gO = Math.max(0, 1 - Math.abs(pSmooth - GUIDE_AT[i]) / 0.14);
+
+        const p = orbMeshes[i].position;
+        p.set(hx * sp + gx * (1 - sp), hy * sp + gy * (1 - sp), hz * sp + gz * (1 - sp));
+
+        /* 尾：過去位置を1つずつ後ろへ送る */
+        const tr = orbTrails[i];
+        tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
+        tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
+        (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
+
+        const on = sp > 0.01 || gO > 0.01;
+        orbMeshes[i].visible = on;
+        tr.line.visible = on;
+        (tr.line.material as THREE.LineBasicMaterial).opacity = 0.22 * sp + 0.24 * gO * (1 - sp);
+        (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.26 * sp + 0.3 * gO * (1 - sp);
+        (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.48 * sp + 0.5 * gO * (1 - sp));
+      });
 
       /* --- ブロブ側 --- */
       uniforms.uAmp.value = k.amp;
