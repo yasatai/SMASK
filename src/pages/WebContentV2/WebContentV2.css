@@ -145,10 +145,11 @@
   font-size: clamp(2.7rem, 8.6vw, 7rem); line-height: 1.16; letter-spacing: .005em;
   color: var(--wc2-ink);
 }
+/* Heroの文字はローダー明けの自動再生ではなく、スクロールに同期して立ち上がる
+   （JSがtransform/opacityを直接駆動。戻すと逆再生されるスクラブ式） */
 .wc2-hl { display: block; overflow: hidden; }
-.wc2-hl > span { display: inline-block; transform: translateY(110%); transition: transform 1.15s var(--ease-expo); }
-.is-ready .wc2-hl > span { transform: none; }
-.is-ready .wc2-hl:nth-child(2) > span { transition-delay: .12s; }
+.wc2-hl > span { display: inline-block; transform: translateY(110%); will-change: transform; }
+.wc2-hero-tag, .wc2-hero-sub { opacity: 0; will-change: opacity; }
 .wc2-hl--grad > span {
   background: var(--wc2-iri); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -418,7 +419,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 
 @media (prefers-reduced-motion: reduce) {
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
-  .wc2-hl > span { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-marquee-track, .wc2-hl--grad > span, .wc2-talk-main em,
   .wc2-hero-scroll i::after { animation: none !important; }
   .wc2-cover-art { transition: none !important; }

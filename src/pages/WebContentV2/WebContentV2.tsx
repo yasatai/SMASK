@@ -142,7 +142,8 @@ export default function WebContentV2() {
   }, []);
 
   /* ---- PS2オープニングのスクロール演出 ----
-     Hero区間（320svh）を進むほど文字が消え、終端で完全暗転 →
+     最初は映像＋SCROLLヒントのみ。スクロールに同期して文字が順に立ち上がり
+     （戻せば逆再生）、ダイブ終盤で文字が退場 → 終端で完全暗転 →
      ヒーローを抜けて半画面ぶんで幕が明け、次セクションが始まる */
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const blackoutRef = useRef<HTMLDivElement>(null);
@@ -150,16 +151,35 @@ export default function WebContentV2() {
     const hero = document.querySelector<HTMLElement>(".wc2-hero");
     const black = blackoutRef.current;
     if (!hero || !black) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const tag = hero.querySelector<HTMLElement>(".wc2-hero-tag");
+    const h1 = hero.querySelector<HTMLElement>(".wc2-hero-h1");
+    const lines = Array.from(hero.querySelectorAll<HTMLElement>(".wc2-hl > span"));
+    const sub = hero.querySelector<HTMLElement>(".wc2-hero-sub");
+    const hint = hero.querySelector<HTMLElement>(".wc2-hero-scroll");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
     const tick = () => {
       raf = 0;
       const vh = window.innerHeight;
       const len = Math.max(1, hero.offsetHeight - vh);
       const p = Math.min(1, Math.max(0, window.scrollY / len));
-      if (heroCopyRef.current) {
-        heroCopyRef.current.style.opacity = String(Math.max(0, 1 - p * 2.4));
+
+      if (!reduced) {
+        /* 文字はスクロールに同期して段階的に立ち上がる（スクラブ＝戻すと逆再生） */
+        const out = 1 - seg(p, 0.56, 0.72);          // ダイブ終盤の退場
+        if (tag) tag.style.opacity = (seg(p, 0.05, 0.14) * out).toFixed(3);
+        if (h1) h1.style.opacity = out.toFixed(3);
+        lines.forEach((ln, i) => {
+          const lp = seg(p, 0.08 + i * 0.05, 0.20 + i * 0.05);
+          ln.style.transform = `translateY(${((1 - lp) * 110).toFixed(1)}%)`;
+        });
+        if (sub) sub.style.opacity = (seg(p, 0.18, 0.30) * out).toFixed(3);
+        /* SCROLLヒントは最初から見えていて、動き出したら退く */
+        if (hint) hint.style.opacity = (1 - seg(p, 0.04, 0.12)).toFixed(3);
       }
+
       /* 暗転：ダイブ終盤(72%〜)で立ち上がり、終端で1。抜けたら0.55画面ぶんで明ける */
       const rise = ss(Math.min(1, Math.max(0, (p - 0.72) / 0.28)));
       const past = Math.max(0, (window.scrollY - len) / (vh * 0.55));
