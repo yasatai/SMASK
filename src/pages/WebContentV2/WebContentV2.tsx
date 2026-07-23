@@ -213,11 +213,16 @@ export default function WebContentV2() {
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
       /* カードのトラック：タイトルが上がった後（62%〜）に、下段で横スクロールして流れる。
-         トラックを左へ送り、カードを 01→04 の順に通す（左→右の流れ） */
+         開始時は先頭カードを画面右端に置き、スクロールで左へ送って 01→04 を順に通す */
       if (track) {
         const prog = seg(p, 0.62, 1.0);
-        const maxT = Math.max(0, track.scrollWidth - track.clientWidth);
-        track.style.transform = `translateX(${(-maxT * prog).toFixed(1)}px)`;
+        const first = track.querySelector<HTMLElement>(".wc2-work");
+        const cardW = first ? first.getBoundingClientRect().width : 380;
+        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
+        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
+        const maxT = Math.max(0, track.scrollWidth - track.clientWidth);    // 末尾カードが右端に来る位置
+        const x = startX + (-maxT - startX) * prog;
+        track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
     };
