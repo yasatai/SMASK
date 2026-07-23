@@ -199,17 +199,19 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- ピン留めセクションのスクロール演出 ----
-     APPROACH＝本文の遅れフェード／白の転調＝ストライプ伸長＋見出しフェードイン。
-     どちらもスクラブ式（戻せば逆再生） */
-  const whiteinRef = useRef<HTMLElement>(null);
+  /* ---- ピン留め画面（APPROACH＋白の転調）のスクロール演出 ----
+     1本のピン区間でタイムラインを進める（スクラブ式・戻せば逆再生）：
+       4〜40% : 見出しの染色（fill側が担当）
+      38〜50% : 本文フェードイン
+      55〜95% : 白帯が「下から上へ」順に立ち上がり画面が白に
+      82〜95% : 白になりかけで WORKS 見出しがフェードイン */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const apCols = document.querySelector<HTMLElement>(".wc2-approach-cols");
     const ap = document.querySelector<HTMLElement>(".wc2-approach-sec");
-    const wi = whiteinRef.current;
-    const stripes = wi ? Array.from(wi.querySelectorAll<HTMLElement>(".wc2-stripes span")) : [];
-    const wiHead = wi?.querySelector<HTMLElement>(".wc2-whitein-head") ?? null;
+    if (!ap) return;
+    const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
+    const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
+    const wiHead = ap.querySelector<HTMLElement>(".wc2-whitein-head");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -221,19 +223,14 @@ export default function WebContentV2() {
     };
     const tick = () => {
       raf = 0;
-      if (ap && apCols) {
-        /* 見出しの染色（6%〜66%）が終わった頃に本文がフェードイン */
-        apCols.style.opacity = seg(pinP(ap), 0.62, 0.88).toFixed(3);
-      }
-      if (wi) {
-        const p = pinP(wi);
-        /* 白帯：上から順に少しずつ遅れて伸び、85%で画面が完全に白くなる */
-        stripes.forEach((s, i) => {
-          s.style.transform = `scaleY(${seg(p, i * 0.06, i * 0.06 + 0.55).toFixed(3)})`;
-        });
-        /* 白になりかけ（55%〜）で見出しがフェードイン */
-        if (wiHead) wiHead.style.opacity = seg(p, 0.55, 0.85).toFixed(3);
-      }
+      const p = pinP(ap);
+      if (apCols) apCols.style.opacity = seg(p, 0.38, 0.50).toFixed(3);
+      /* 白帯：一番下（i=5）から順に立ち上がる。各帯は自分の下辺から伸びる */
+      stripes.forEach((s, i) => {
+        const order = stripes.length - 1 - i;   // 下の帯ほど先
+        s.style.transform = `scaleY(${seg(p, 0.55 + order * 0.04, 0.75 + order * 0.04).toFixed(3)})`;
+      });
+      if (wiHead) wiHead.style.opacity = seg(p, 0.82, 0.95).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -290,10 +287,11 @@ export default function WebContentV2() {
         const pin = head.closest<HTMLElement>(".wc2-pin");
         let p: number;
         if (pin) {
+          /* 統合ピンの前半（4〜40%）で染まりきる。後半は白の転調が使う */
           const len = Math.max(1, pin.offsetHeight - vh);
           const top = pin.getBoundingClientRect().top + window.scrollY;
           const pp = Math.min(1, Math.max(0, (window.scrollY - top) / len));
-          p = Math.min(1, Math.max(0, (pp - 0.06) / 0.6));
+          p = Math.min(1, Math.max(0, (pp - 0.04) / 0.36));
         } else {
           /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
           p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
@@ -373,17 +371,19 @@ export default function WebContentV2() {
         {/* ダイブ終端の完全暗転幕（スクロール駆動） */}
         <div className="wc2-blackout" ref={blackoutRef} aria-hidden="true"></div>
 
-        {/* ============ MARQUEE ============ */}
-        <div className="wc2-marquee" aria-hidden="true">
-          <div className="wc2-marquee-track">
-            <span>{MARQUEE.repeat(4)}</span>
-            <span>{MARQUEE.repeat(4)}</span>
-          </div>
-        </div>
-
-        {/* ============ APPROACH：文字が染まりきるまで画面固定（ピン留め） ============ */}
+        {/* ============ APPROACH＋白の転調：ひと続きのピン留め画面 ============
+             前半＝文字の染色→本文フェード（帯は画面上部に常駐）。
+             後半＝固定したまま白帯が「下から上へ」伸びて画面全体が白になり、
+             白になりかけで WORKS の見出しがフェードイン ============ */}
         <section className="wc2-sec wc2-approach-sec wc2-pin">
           <div className="wc2-pin-sticky">
+            {/* 帯：ピン画面の上部に常駐（文字の染色中も見えている） */}
+            <div className="wc2-marquee wc2-marquee--pin" aria-hidden="true">
+              <div className="wc2-marquee-track">
+                <span>{MARQUEE.repeat(4)}</span>
+                <span>{MARQUEE.repeat(4)}</span>
+              </div>
+            </div>
             <div className="wc2-wrap">
               <span className="wc2-label">( 01 ) — APPROACH</span>
               <h2 className="wc2-h2 wc2-fill">Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
@@ -396,19 +396,15 @@ export default function WebContentV2() {
                 </p>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ============ 白の転調（trionnのストライプ）：画面固定のまま白帯が伸びて
-             背景が完全に白になり、なりかけでWORKSの見出しがフェードイン ============ */}
-        <section className="wc2-whitein" ref={whiteinRef}>
-          <div className="wc2-whitein-sticky">
+            {/* 白の転調：下の帯から順に立ち上がる（APPROACHの文字ごと呑み込む） */}
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
             <div className="wc2-whitein-head">
-              <span className="wc2-label">( 02 ) — WORKS</span>
-              <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+              <div>
+                <span className="wc2-label">( 02 ) — WORKS</span>
+                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+              </div>
             </div>
           </div>
         </section>

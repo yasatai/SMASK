@@ -194,10 +194,10 @@
 }
 @keyframes wc2Marquee { to { transform: translateX(-50%); } }
 
-/* ============ ピン留めセクション（APPROACH） ============
-   セクションを縦に長く取り、中身は sticky で画面に固定。
-   スクロール量が見出しの染色→本文フェードの進行度になる */
-.wc2-pin { height: 240svh; padding-block: 0; }
+/* ============ ピン留め画面（APPROACH＋白の転調） ============
+   セクションを縦に長く取り、中身は sticky で1画面に固定したまま
+   「文字の染色 → 本文 → 白帯が下から上へ → WORKS見出し」を進める */
+.wc2-pin { height: 330svh; padding-block: 0; }
 .wc2-pin-sticky {
   position: sticky; top: 0; height: 100svh;
   display: flex; align-items: center;
@@ -205,26 +205,27 @@
 }
 .wc2-approach-cols { opacity: 0; will-change: opacity; }
 
-/* ============ 白の転調（trionnのストライプ） ============
-   画面固定のまま、横一杯の白帯が上から順に伸びて画面全体が白になる。
-   白になりかけで WORKS の見出しがフェードイン */
-.wc2-whitein { height: 230svh; }
-.wc2-whitein-sticky {
-  position: sticky; top: 0; height: 100svh;
-  display: flex; align-items: center;
-  overflow: hidden;
+/* 帯：ピン画面の上部に常駐（染色中も見えている） */
+.wc2-marquee--pin {
+  position: absolute; top: clamp(3.4rem, 9vh, 5.5rem); left: 0; right: 0;
 }
-.wc2-stripes { position: absolute; inset: 0; display: flex; flex-direction: column; }
+
+/* 白の転調：横一杯の白帯6本。下の帯から順に、自分の下辺を起点に立ち上がる */
+.wc2-stripes { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; pointer-events: none; }
 .wc2-stripes span {
   flex: 1;
   background: #e8e9eb;
-  transform: scaleY(0); transform-origin: center;
+  transform: scaleY(0); transform-origin: bottom;
   will-change: transform;
 }
+/* WORKS見出し：白帯の上のレイヤーで、白になりかけにフェードイン */
 .wc2-whitein-head {
-  position: relative; z-index: 1;
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; align-items: center;
+  opacity: 0; will-change: opacity; pointer-events: none;
+}
+.wc2-whitein-head > div {
   width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
-  opacity: 0; will-change: opacity;
 }
 .wc2-whitein-head .wc2-label { color: #7c808a; }
 .wc2-whitein-head .wc2-h2 { color: #101318; margin-bottom: 0; }
@@ -459,10 +460,12 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-approach-cols, .wc2-whitein-head { opacity: 1 !important; transform: none !important; transition: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
-  .wc2-pin-sticky { position: static; height: auto; }
-  .wc2-whitein { height: auto; }
-  .wc2-whitein-sticky { position: static; height: auto; background: #e8e9eb; padding-block: 6rem; }
-  .wc2-stripes span { transform: none !important; }
+  .wc2-pin-sticky { position: static; height: auto; display: block; }
+  .wc2-marquee--pin { position: static; margin-bottom: 3rem; }
+  .wc2-stripes { display: none; }
+  .wc2-whitein-head { position: static; display: block; margin-top: 5rem; }
+  .wc2-whitein-head .wc2-label { color: var(--wc2-ink-mute); }
+  .wc2-whitein-head .wc2-h2 { color: var(--wc2-ink); }
   .wc2-marquee-track, .wc2-hl--grad > span, .wc2-talk-main em,
   .wc2-hero-scroll i::after { animation: none !important; }
   .wc2-cover-art { transition: none !important; }
