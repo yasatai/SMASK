@@ -212,16 +212,18 @@ export default function WebContentV2() {
         const up = seg(p, 0.56, 0.66) * window.innerHeight * 0.32;   // 上へ 32vh
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
-      /* カードのトラック：タイトルが上がった後（62%〜）に、下段で横スクロールして流れる。
-         開始時は先頭カードを画面右端に置き、スクロールで左へ送って 01→04 を順に通す */
+      /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
+         開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
+         （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
-        const prog = seg(p, 0.62, 1.0);
+        const prog = seg(p, 0.62, 0.95);
         const first = track.querySelector<HTMLElement>(".wc2-work");
+        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
         const cardW = first ? first.getBoundingClientRect().width : 380;
         const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
         const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
-        const maxT = Math.max(0, track.scrollWidth - track.clientWidth);    // 末尾カードが右端に来る位置
-        const x = startX + (-maxT - startX) * prog;
+        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
+        const x = startX + (endX - startX) * prog;
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
