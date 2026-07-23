@@ -437,19 +437,22 @@ export default function Scene3D() {
       const k = sampleKeys(KEYS, pSmooth);
       const sp = k.space;
 
-      /* --- Hero内のダイブ進行度（0=開始, 1=靄の中心＝暗転点） --- */
+      /* --- Hero内の進行度 ---
+         前半35%は「文字の立ち上がり」専用でカメラは動かない（WebContentV2.tsx の
+         文字タイムラインと対応）。ダイブは文字が揃った後＝35%から始まる */
       const heroP = Math.min(1, Math.max(0, window.scrollY / heroLen));
+      const diveP = Math.min(1, Math.max(0, (heroP - 0.35) / 0.65));
 
       /* オープニングは露出そのものを落として全体を暗く（代表指示）。
          ダイブで中心に近づくにつれて少し戻す＝吸い込まれる際の増光は残す */
-      renderer.toneMappingExposure = (1.1 - 0.42 * sp) + 0.18 * heroP * sp;
+      renderer.toneMappingExposure = (1.1 - 0.42 * sp) + 0.18 * diveP * sp;
 
       /* --- PS2空間 --- */
       space.visible = sp > 0.01;
       if (space.visible) {
         /* 靄：ダイブで濃く・明るく（中心に近づく感覚） */
         nebulaMats.forEach((m, i) => {
-          m.opacity = nebulaBase[i] * sp * (1 + heroP * 1.4);
+          m.opacity = nebulaBase[i] * sp * (1 + diveP * 1.4);
           m.rotation += dt * 0.02 * (i % 2 ? 1 : -1);
         });
 
@@ -517,9 +520,9 @@ export default function Scene3D() {
       dust.rotation.x = my * 0.04;
 
       /* --- カメラ ---
-         Hero中：z=7 から靄の中心(z≈-4)の先へ、スクロールで加速しながらダイブ。
+         Hero前半：定位置（文字の時間）。後半：z=7 から靄の中心の先へ加速ダイブ。
          以降：キーの camZ に戻る（spaceでブレンド） */
-      const diveZ = 7 - Math.pow(heroP, 1.5) * 10.2;   // 7 → -3.2（靄を突き抜ける）
+      const diveZ = 7 - Math.pow(diveP, 1.5) * 10.2;   // 7 → -3.2（靄を突き抜ける）
       camera.position.z = k.camZ * (1 - sp) + diveZ * sp;
       camera.position.x = mx * 0.35 + Math.sin(t * 0.06) * 0.3 * sp;
       camera.position.y = -my * 0.3 + Math.sin(t * 0.045) * 0.15 * sp;

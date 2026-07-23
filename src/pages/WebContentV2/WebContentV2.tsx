@@ -167,7 +167,9 @@ export default function WebContentV2() {
       const p = Math.min(1, Math.max(0, window.scrollY / len));
 
       if (!reduced) {
-        /* 文字はスクロールに同期して段階的に立ち上がる（スクラブ＝戻すと逆再生） */
+        /* 文字はスクロールに同期して段階的に立ち上がる（スクラブ＝戻すと逆再生）。
+           〜30%で文字が完成 → 35%からダイブ開始（Scene3D の diveP=0.35 と対応）。
+           前半はカメラが動かない「文字だけのスクロール」になる */
         const out = 1 - seg(p, 0.56, 0.72);          // ダイブ終盤の退場
         if (tag) tag.style.opacity = (seg(p, 0.05, 0.14) * out).toFixed(3);
         if (h1) h1.style.opacity = out.toFixed(3);
