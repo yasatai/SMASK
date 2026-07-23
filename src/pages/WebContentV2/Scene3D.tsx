@@ -169,13 +169,14 @@ export default function Scene3D() {
 
     /* --- 青い靄（星雲）：加算合成の雲スプライト群を中心に --- */
     const cloudTex = makeCloudTexture();
-    const NEB = 22;
+    const NEB = 28;
     const nebulaMats: THREE.SpriteMaterial[] = [];
     const nebulaBase: number[] = [];
     const NEB_COLORS = [0x2a4b9b, 0x3a6fd8, 0x274b8f, 0x4b3fae, 0x2f5fc0]; // 青〜わずかに紫
     for (let i = 0; i < NEB; i++) {
       /* 加算合成は枚数分明るさが積み上がる。1枚あたりはかなり薄くしないと
-         重なりで白飛びし、ブルームが全画面に流れる（実測済み） */
+         重なりで白飛びし、ブルームが全画面に流れる（実測済み）。
+         枚数と大きさで「靄の量」を稼ぎ、1枚は薄いまま＝輪郭のないぼんやりした塊にする */
       const m = new THREE.SpriteMaterial({
         map: cloudTex,
         color: NEB_COLORS[i % NEB_COLORS.length],
@@ -190,11 +191,11 @@ export default function Scene3D() {
       const sp = new THREE.Sprite(m);
       const r = Math.random();
       sp.position.set(
-        (Math.random() - 0.5) * 3.2 * (0.4 + r),
-        (Math.random() - 0.5) * 2.2 * (0.4 + r),
-        -4 + (Math.random() - 0.5) * 2.4
+        (Math.random() - 0.5) * 4.6 * (0.4 + r),
+        (Math.random() - 0.5) * 3.4 * (0.4 + r),
+        -4 + (Math.random() - 0.5) * 3.2
       );
-      const sc = 2.6 + Math.random() * 4.2;
+      const sc = 3.4 + Math.random() * 5.4;   // 大きめ＝境界が画面外に溶けて霞む
       sp.scale.set(sc, sc * (0.7 + Math.random() * 0.5), 1);
       space.add(sp);
     }
@@ -204,15 +205,16 @@ export default function Scene3D() {
     const orbMeshes: THREE.Mesh[] = [];
     const orbTrails: { line: THREE.Line; positions: Float32Array }[] = [];
     ORBS.forEach(o => {
+      /* 光点は「小さく・控えめに」。強い発光はブルーム任せにせず抑える（代表指示） */
       const core = new THREE.Mesh(
-        new THREE.SphereGeometry(0.055, 16, 16),
+        new THREE.SphereGeometry(0.035, 16, 16),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
       );
       const halo = new THREE.Sprite(new THREE.SpriteMaterial({
-        map: glowTex, color: o.color, transparent: true, opacity: .9,
+        map: glowTex, color: o.color, transparent: true, opacity: .5,
         blending: THREE.AdditiveBlending, depthWrite: false,
       }));
-      halo.scale.setScalar(0.85);
+      halo.scale.setScalar(0.45);
       core.add(halo);
       space.add(core);
       orbMeshes.push(core);
@@ -229,7 +231,7 @@ export default function Scene3D() {
       g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
       const line = new THREE.Line(g, new THREE.LineBasicMaterial({
-        vertexColors: true, transparent: true, opacity: .85,
+        vertexColors: true, transparent: true, opacity: .45,
         blending: THREE.AdditiveBlending, depthWrite: false,
       }));
       line.frustumCulled = false;
@@ -240,8 +242,10 @@ export default function Scene3D() {
     /* --- 黒いサイコロ：ぎりぎり見える暗さでぷかぷか --- */
     const CUBES = 7;
     const cubeGeo = new THREE.BoxGeometry(1, 1, 1);
+    /* キューブは「ぎりぎり見えるかどうか」まで沈める：
+       素材はほぼ黒・低反射、置き場所も靄と同じ深さ（霧とスプライトに呑まれる） */
     const cubeMat = new THREE.MeshStandardMaterial({
-      color: 0x090b12, roughness: 0.55, metalness: 0.3, envMapIntensity: 0.4,
+      color: 0x06070c, roughness: 0.72, metalness: 0.15, envMapIntensity: 0.16,
     });
     const cubes: { m: THREE.Mesh; p0: THREE.Vector3; rs: THREE.Vector3; bob: number }[] = [];
     for (let i = 0; i < CUBES; i++) {
@@ -249,7 +253,7 @@ export default function Scene3D() {
       const p0 = new THREE.Vector3(
         (Math.random() - 0.5) * 9,
         (Math.random() - 0.5) * 4.5,
-        -2.5 + (Math.random() - 0.5) * 5
+        -4.5 + (Math.random() - 0.5) * 4
       );
       m.position.copy(p0);
       m.scale.setScalar(0.35 + Math.random() * 0.5);
@@ -357,8 +361,8 @@ export default function Scene3D() {
 
       KEYS = [
         /* HERO：PS2空間。ブロブは潜伏。カメラはダイブ制御（camZはspaceで無効化される） */
-        { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .6,  bloomS: .65, camZ: 7,   space: 1 },
-        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .3,  bloomS: .5,  camZ: 6.2, space: 1 },
+        { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .3,  bloomS: .42, camZ: 7,   space: 1 },
+        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .2,  bloomS: .38, camZ: 6.2, space: 1 },
         /* APPROACH：暗転明け。PS2空間は消え、ブロブが左に浮上 */
         { at: f(approach - vh * .35),   x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, space: 0 },
         /* WORKS：画面下へ退場（光の間） */
@@ -403,6 +407,10 @@ export default function Scene3D() {
     const ro = new ResizeObserver(resize);
     ro.observe(host);
     resize();
+    /* マウント直後は host のサイズが 0 のことがあり（その場合バッファが 1x1 になる）、
+       環境によっては ResizeObserver も当てにならない。少し遅らせてもう一度測る */
+    const lateResize = window.setTimeout(resize, 80);
+    window.addEventListener("resize", resize);
 
     /* 開発時のみ：コンソールから切り分けるためのハンドル */
     if (import.meta.env.DEV) {
@@ -417,6 +425,10 @@ export default function Scene3D() {
     let spinAcc = 0.6;
     let lastT = 0;
     const renderFrame = () => {
+      /* 自己修復：バッファと実サイズがずれていたら測り直す（1x1バッファ対策） */
+      const bw = Math.round((host.clientWidth || 1) * renderer.getPixelRatio());
+      if (Math.abs(renderer.domElement.width - bw) > 2) resize();
+
       const t = prefersReduced ? 0.8 : clock.getElapsedTime();
       const dt = Math.min(0.05, t - lastT); lastT = t;
       uniforms.uTime.value = t;
@@ -443,16 +455,16 @@ export default function Scene3D() {
           p.set(
             Math.sin(t * o.fx + o.px) * o.ax,
             Math.sin(t * o.fy + o.py) * o.ay,
-            0.4 + Math.sin(t * o.fz + o.pz) * o.az
+            -1.4 + Math.sin(t * o.fz + o.pz) * o.az   // 靄の手前〜中を漂う＝霞に少し呑まれる
           );
           /* 尾：過去位置を1つずつ後ろへ送る */
           const tr = orbTrails[i];
           tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
           tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
           (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
-          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.85 * sp;
-          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.9 * sp;
-          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(sp);
+          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.45 * sp;
+          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.5 * sp;
+          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.8 * sp);
         });
 
         /* 黒サイコロ：ぷかぷか＋ゆっくり回転 */
@@ -518,11 +530,16 @@ export default function Scene3D() {
     };
     renderFrame();
     if (!prefersReduced) raf = requestAnimationFrame(loop);
+    if (import.meta.env.DEV) {
+      Object.assign((window as unknown as Record<string, object>).__wc2dbg, { renderFrame, resize });
+    }
 
     /* ---- 後片付け ---- */
     return () => {
       disposed = true;
       cancelAnimationFrame(raf);
+      window.clearTimeout(lateResize);
+      window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", onMouse);
       ro.disconnect();
       roDoc.disconnect();
