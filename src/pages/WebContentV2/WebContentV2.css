@@ -102,6 +102,19 @@
 .wc2-sec { padding-block: clamp(5rem, 11vw, 9.5rem); }
 /* 見出しのスクロール染色：JSが1文字ずつ opacity を駆動（灰→白） */
 .wc2-fc { will-change: opacity; }
+
+/* Hero〜APPROACHピンの演出中はヘッダー（ロゴ・ナビ・バー・トグル）を隠す。
+   JSが html.wc2-chrome-off を出し入れする。演出の没入を妨げないためのフェード */
+.wc2-chrome-off .site-logo,
+.wc2-chrome-off .site-headerbar,
+.wc2-chrome-off .nav--bar,
+.wc2-chrome-off .nav-toggle {
+  opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+  transition: opacity .5s var(--ease-out), visibility 0s .5s !important;
+}
+.site-logo, .nav--bar, .nav-toggle {
+  transition: opacity .5s var(--ease-out);
+}
 .wc2-page p { color: var(--wc2-ink-soft); font-size: .93rem; line-height: 2.05; letter-spacing: .02em; }
 .wc2-lead { color: var(--wc2-ink); font-weight: 500; font-size: 1.02rem; }
 

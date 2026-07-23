@@ -104,6 +104,36 @@ export default function WebContentV2() {
     return () => { document.documentElement.classList.remove("is-fp-dark"); };
   }, []);
 
+  /* Hero〜APPROACHピンの演出中はヘッダー（ロゴ・ナビ・バー）を隠す。
+     白の転調でWORKSが立ち上がる頃（ピン終盤）に現れる */
+  useEffect(() => {
+    const root = document.documentElement;
+    const ap = () => document.querySelector<HTMLElement>(".wc2-approach-sec");
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const el = ap();
+      if (!el) return;
+      const vh = window.innerHeight;
+      const len = Math.max(1, el.offsetHeight - vh);
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      const pinP = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+      /* Hero区間（ピン開始前）は常に隠す。ピンは終盤85%で解禁 */
+      const hide = top - window.scrollY > vh * 0.4 ? true : pinP < 0.85;
+      root.classList.toggle("wc2-chrome-off", hide);
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+      root.classList.remove("wc2-chrome-off");
+    };
+  }, []);
+
   /* ローダー表示中はスクロールを止める */
   useEffect(() => {
     document.body.style.overflow = loaded ? "" : "hidden";
