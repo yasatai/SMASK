@@ -11,8 +11,9 @@ import { prefersReduced } from "../../motion";
  *
  * 液体クロームのブロブ＋衛星球＋粒子場＋ブルーム。
  * セクションごとに「別の動き」をする振り付けエンジン：
- *   HERO      … 右で大きく、ゆったり自転
- *   APPROACH  … 左へ退き、軸が傾いて速い自転
+ *   HERO      … PS2起動画面のオマージュ：霧の中に半透明のタワー群が立ち並ぶ
+ *               （ブロブは画面下に潜伏。カメラはゆっくり漂う）
+ *   APPROACH  … タワーが沈み、入れ替わりにブロブが左に浮上・軸が傾いて速い自転
  *   WORKS     … 画面下へ完全退場（作品セクション＝光の間を邪魔しない）
  *   SERVICES  … 左から再入場して8の字浮遊、衛星は近く速く
  *   STRENGTHS … 右へスイッチして逆回転
@@ -90,6 +91,7 @@ type Key = {
   dust: number;     // 粒子の濃さ
   bloomS: number;   // ブルーム強度
   camZ: number;     // カメラ距離
+  towers: number;   // タワー都市の存在感（1=Hero、0=退場。透明度と沈み込みに効く）
 };
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -199,6 +201,40 @@ export default function Scene3D() {
     rim.position.set(-3, 4, 2);
     scene.add(rim);
 
+    /* ---- PS2起動画面オマージュ：半透明タワー都市（Hero専用・InstancedMeshで1ドロー） ---- */
+    const T = 64;
+    const towerGeo = new THREE.BoxGeometry(0.22, 1, 0.22);
+    towerGeo.translate(0, 0.5, 0);          // 原点＝柱の根元（高さはY方向スケールで可変）
+    /* PS2の柱は「白い壁」ではなく、霧に沈む薄暗い青灰色の燐光。
+       重なりで白飛びしないよう、素材は暗め・低反射・低透明度に抑え、
+       発光級の明るさは instanceColor でごく数本にだけ与える（ブルームが拾う）。 */
+    const towerMat = new THREE.MeshPhysicalMaterial({
+      color: 0x9fb0cc, roughness: 0.45, metalness: 0,
+      transparent: true, opacity: 0.26, envMapIntensity: 0.22,
+      depthWrite: false,                    // 半透明同士の重なりを柔らかく
+    });
+    const towers = new THREE.InstancedMesh(towerGeo, towerMat, T);
+    {
+      const d = new THREE.Object3D();
+      const c = new THREE.Color();
+      for (let i = 0; i < T; i++) {
+        /* Heroの文字は左にあるので、柱は右寄りに密集させる。手前(z>0)には置かない */
+        const gx = Math.pow(Math.random(), 1.35) * 13 - 3.5;  // -3.5 .. +9.5（右に偏る）
+        const gz = -9 + Math.random() * 9;                    // 奥 -9 .. 0（霧で奥が霞む）
+        const h = 0.6 + Math.pow(Math.random(), 2) * 4.2;     // 低い柱が多く、たまに高い
+        d.position.set(gx + (Math.random() - 0.5) * 0.6, -2.6, gz);
+        d.rotation.y = (Math.random() - 0.5) * 0.12;
+        d.scale.set(1, h, 1);
+        d.updateMatrix();
+        towers.setMatrixAt(i, d.matrix);
+        /* 基本は暗く（0.3〜0.65）、ごく数本だけ明るい「光の柱」 */
+        const b = Math.random() < 0.06 ? 1.05 : 0.3 + Math.random() * 0.35;
+        towers.setColorAt(i, c.setRGB(b * 0.88, b * 0.95, b));
+      }
+      towers.instanceColor!.needsUpdate = true;
+    }
+    scene.add(towers);
+
     /* ---- ブルーム ---- */
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
@@ -223,20 +259,20 @@ export default function Scene3D() {
       const contact   = topOf(".wc2-contact");
 
       KEYS = [
-        /* HERO：右で大きく・ゆったり */
-        { at: 0,                        x: 1.55, y: -.05, z: 0,   s: 1,    amp: .34, iri: 1,  rough: .16, spin: .12, rotX: 0,    lis: .06, satR: 1,   satS: 1,   dust: .55, bloomS: .5,  camZ: 6 },
-        /* APPROACH：左へ退いて軸が傾き、自転が速まる */
-        { at: f(approach - vh * .6),    x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6 },
+        /* HERO：PS2式タワー都市。ブロブは画面下に潜伏、粒子は濃いめ */
+        { at: 0,                        x: 0,    y: -3.8, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .75, bloomS: .48, camZ: 6,   towers: 1 },
+        /* APPROACH：タワーが沈み、ブロブが左に浮上・軸が傾いて自転が速まる */
+        { at: f(approach - vh * .6),    x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, towers: 0 },
         /* WORKS：画面下へ完全退場（光の間に主役を譲る） */
-        { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2 },
-        { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6 },
+        { at: f(works - vh * .3),       x: 0,    y: -3.6, z: -.8, s: .3,   amp: .15, iri: .4, rough: .3,  spin: .5,  rotX: .6,   lis: 0,   satR: 2.8, satS: .35, dust: .12, bloomS: .28, camZ: 6.2, towers: 0 },
+        { at: f(worksEnd - vh * .8),    x: 0,    y: -3.3, z: -.8, s: .3,   amp: .2,  iri: .5, rough: .28, spin: .5,  rotX: .45,  lis: 0,   satR: 2.4, satS: .45, dust: .18, bloomS: .3,  camZ: 6,   towers: 0 },
         /* SERVICES：左から再入場、8の字浮遊・衛星は近く速く */
-        { at: f(services - vh * .25),   x: -1.5, y: .05,  z: -.3, s: .62,  amp: .34, iri: .9, rough: .18, spin: .26, rotX: -.25, lis: .38, satR: .75, satS: 2.3, dust: .5,  bloomS: .5,  camZ: 5.5 },
+        { at: f(services - vh * .25),   x: -1.5, y: .05,  z: -.3, s: .62,  amp: .34, iri: .9, rough: .18, spin: .26, rotX: -.25, lis: .38, satR: .75, satS: 2.3, dust: .5,  bloomS: .5,  camZ: 5.5, towers: 0 },
         /* STRENGTHS：右へスイッチして逆回転 */
-        { at: f(strengths - vh * .25),  x: 1.7,  y: -.1,  z: -.6, s: .55,  amp: .26, iri: .8, rough: .2,  spin: -.3, rotX: .2,   lis: .2,  satR: 1.25, satS: 1.4, dust: .45, bloomS: .45, camZ: 5.8 },
+        { at: f(strengths - vh * .25),  x: 1.7,  y: -.1,  z: -.6, s: .55,  amp: .26, iri: .8, rough: .2,  spin: -.3, rotX: .2,   lis: .2,  satR: 1.25, satS: 1.4, dust: .45, bloomS: .45, camZ: 5.8, towers: 0 },
         /* CONTACT：中央で最大化のフィナーレ */
-        { at: f(contact - vh * .45),    x: 0,    y: .02,  z: .6,  s: 1.28, amp: .5,  iri: 1,  rough: .12, spin: .4,  rotX: 0,    lis: .08, satR: 1.1, satS: 1.8, dust: .6,  bloomS: .8,  camZ: 5.1 },
-        { at: 1,                        x: 0,    y: 0,    z: .7,  s: 1.32, amp: .54, iri: 1,  rough: .12, spin: .42, rotX: 0,    lis: .08, satR: 1.1, satS: 1.9, dust: .6,  bloomS: .85, camZ: 5 },
+        { at: f(contact - vh * .45),    x: 0,    y: .02,  z: .6,  s: 1.28, amp: .5,  iri: 1,  rough: .12, spin: .4,  rotX: 0,    lis: .08, satR: 1.1, satS: 1.8, dust: .6,  bloomS: .8,  camZ: 5.1, towers: 0 },
+        { at: 1,                        x: 0,    y: 0,    z: .7,  s: 1.32, amp: .54, iri: 1,  rough: .12, spin: .42, rotX: 0,    lis: .08, satR: 1.1, satS: 1.9, dust: .6,  bloomS: .85, camZ: 5,   towers: 0 },
       ].sort((a, b) => a.at - b.at);
     };
     buildKeys();
@@ -272,6 +308,11 @@ export default function Scene3D() {
     resize();
 
     /* ---- ループ ---- */
+    /* 開発時のみ：コンソールから各要素をON/OFFして問題を切り分けるためのハンドル */
+    if (import.meta.env.DEV) {
+      (window as unknown as Record<string, unknown>).__wc2dbg = { bloom, towers, blob, dust, sat1, sat2, composer, renderer, scene };
+    }
+
     const clock = new THREE.Clock();
     let raf = 0;
     let disposed = false;
@@ -319,9 +360,16 @@ export default function Scene3D() {
       dust.rotation.y = t * 0.012 + mx * 0.06;
       dust.rotation.x = my * 0.04;
 
-      camera.position.x = mx * 0.35;
-      camera.position.y = -my * 0.3;
-      camera.position.z = k.camZ;
+      /* タワー都市：Heroでのみ現れ、離れると沈みながら消える */
+      const tv = k.towers;
+      towers.visible = tv > 0.01;
+      towerMat.opacity = 0.26 * tv;
+      towers.position.y = (tv - 1) * 3;
+
+      /* カメラ：Heroの間はPS2的にゆっくり漂う（tv=タワー存在感で減衰） */
+      camera.position.x = mx * 0.35 + Math.sin(t * 0.07) * 0.45 * tv;
+      camera.position.y = -my * 0.3 + Math.sin(t * 0.045) * 0.2 * tv;
+      camera.position.z = k.camZ + Math.sin(t * 0.05) * 0.3 * tv;
       camera.lookAt(0, 0, 0);
 
       composer.render();
@@ -342,6 +390,7 @@ export default function Scene3D() {
       ro.disconnect();
       roDoc.disconnect();
       blobGeo.dispose(); blobMat.dispose();
+      towerGeo.dispose(); towerMat.dispose(); towers.dispose();
       sat1.geometry.dispose(); sat2.geometry.dispose(); satMat.dispose();
       pGeo.dispose(); pMat.dispose();
       envTex.dispose(); pmrem.dispose();
