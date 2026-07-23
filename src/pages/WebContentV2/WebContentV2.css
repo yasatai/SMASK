@@ -234,27 +234,25 @@
 }
 
 /* ============ WORKS リビール層（白の上・z3。trionn 準拠） ============
-   タイトルは左に固定でフェードイン、カードは右で横スクロールして流れる。全てJS駆動 */
+   タイトルは中央→上へ移動（文字は上）、カードは下段で横スクロールして左→右に流れる。JS駆動 */
 .wc2-worksreveal { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
 
-/* 左：タイトル固定（他セクションと左端を揃える） */
-.wc2-worksreveal-side {
-  position: absolute; left: 0; top: 0; bottom: 0; z-index: 2;
-  width: clamp(20rem, 44vw, 40rem);
-  display: flex; flex-direction: column; justify-content: center;
-  padding-left: clamp(4.5rem, calc((100vw - 1240px) / 2 + 4.5rem), 30rem);
-  padding-right: 2rem;
-  opacity: 0; will-change: opacity;
+/* タイトル：縦中央から JS の transform で上へ移動 */
+.wc2-worksreveal-head {
+  position: absolute; left: 0; right: 0; top: 50%;
+  transform: translateY(-50%);
+  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
+  opacity: 0; will-change: transform, opacity;
 }
-.wc2-worksreveal-side .wc2-label { color: #7c808a; }
-.wc2-worksreveal-side .wc2-h2 { color: #101318; margin-bottom: 0; }
+.wc2-worksreveal-head .wc2-label { color: #7c808a; }
+.wc2-worksreveal-head .wc2-h2 { color: #101318; margin-bottom: 0; }
 .wc2-amp {
   margin-inline: .22em;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .wc2-viewall {
   display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
-  margin-top: 2.2rem; padding-bottom: .55rem;
+  margin-top: 1.6rem; padding-bottom: .55rem;
   font-family: var(--wc2-display); font-size: .68rem; letter-spacing: .24em;
   color: #3a3d45; border-bottom: 1px solid rgb(9 11 16 / .28);
   pointer-events: auto;
@@ -262,18 +260,16 @@
 }
 .wc2-viewall:hover { gap: 1.3rem; color: #101318; }
 .wc2-viewall span { font-size: .9rem; }
-.wc2-worksreveal-side .wc2-works-note {
-  margin-top: 2.4rem; font-size: .72rem; color: #6a6e78;
-}
 
-/* 右：カードの横トラック（JSが translateX で左へ送る＝01→04 を順に通す） */
+/* カードの横トラック：下段。JSが translateX で左へ送る＝01→04 を順に通す */
 .wc2-worksreveal-track {
-  position: absolute; top: 0; bottom: 0; right: 0; left: 48vw;
+  position: absolute; left: 0; right: 0;
+  top: 40vh; bottom: 6vh;
   display: flex; align-items: center; gap: clamp(1.5rem, 3vw, 3rem);
-  padding-right: 6vw;
+  padding-left: 4.5rem; padding-right: 6vw;
   opacity: 0; will-change: transform, opacity;
 }
-.wc2-worksreveal-track .wc2-work { flex: 0 0 auto; width: clamp(300px, 34vw, 560px); }
+.wc2-worksreveal-track .wc2-work { flex: 0 0 auto; width: clamp(300px, 30vw, 500px); }
 
 .wc2-work-cover {
   aspect-ratio: 670 / 460;
@@ -473,7 +469,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 @media (prefers-reduced-motion: reduce) {
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
   .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub,
-  .wc2-approach-cols, .wc2-worksreveal-side, .wc2-worksreveal-track,
+  .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work { opacity: 1 !important; transform: none !important; transition: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
@@ -482,9 +478,9 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-stripes { display: none; }
   /* WORKS リビール層を通常フローの白セクションとして読ませる（縦積み） */
   .wc2-worksreveal { position: static; overflow: visible; background: #eceded; margin-top: 4rem; padding: 4rem 0; }
-  .wc2-worksreveal-side { position: static; width: auto; display: block; margin-bottom: 3rem; }
-  .wc2-worksreveal-side .wc2-label { color: #7c808a; }
-  .wc2-worksreveal-side .wc2-h2 { color: #101318; }
+  .wc2-worksreveal-head { position: static; width: auto; display: block; margin-bottom: 3rem; }
+  .wc2-worksreveal-head .wc2-label { color: #7c808a; }
+  .wc2-worksreveal-head .wc2-h2 { color: #101318; }
   .wc2-worksreveal-track {
     position: static; display: grid; grid-template-columns: 1fr 1fr;
     left: auto; padding: 0; gap: 2.5rem;

@@ -186,7 +186,7 @@ export default function WebContentV2() {
     if (!ap) return;
     const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
     const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
-    const side = ap.querySelector<HTMLElement>(".wc2-worksreveal-side");
+    const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -206,15 +206,19 @@ export default function WebContentV2() {
         const order = stripes.length - 1 - i;   // 下の帯ほど先
         s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
       });
-      /* WORKS：タイトルは左に固定のままフェードインして留まる（trionn 準拠） */
-      if (side) side.style.opacity = seg(p, 0.46, 0.58).toFixed(3);
-      /* カードのトラック：白が出来た後（58%〜）に、右側で横スクロールして流れる。
-         トラックを左へ送り、カードを 01→04 の順に右側ビューへ通す */
+      /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上） */
+      if (head) {
+        head.style.opacity = seg(p, 0.46, 0.56).toFixed(3);
+        const up = seg(p, 0.56, 0.66) * window.innerHeight * 0.32;   // 上へ 32vh
+        head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
+      }
+      /* カードのトラック：タイトルが上がった後（62%〜）に、下段で横スクロールして流れる。
+         トラックを左へ送り、カードを 01→04 の順に通す（左→右の流れ） */
       if (track) {
-        const prog = seg(p, 0.58, 1.0);
+        const prog = seg(p, 0.62, 1.0);
         const maxT = Math.max(0, track.scrollWidth - track.clientWidth);
         track.style.transform = `translateX(${(-maxT * prog).toFixed(1)}px)`;
-        track.style.opacity = seg(p, 0.5, 0.6).toFixed(3);
+        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -385,14 +389,13 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* WORKS（trionn 準拠）：タイトルは左に固定、カードは右で横スクロールして流れる。
-               全てスクロール同期（白の転調のあと連続で進む） */}
+            {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
+               左→右に流れる（trionn 準拠）。全てスクロール同期 */}
             <div className="wc2-worksreveal">
-              <div className="wc2-worksreveal-side">
+              <div className="wc2-worksreveal-head">
                 <span className="wc2-label">( 02 ) — WORKS</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
                 <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
-                <p className="wc2-works-note">※ 掲載内容はサンプルです（実案件へ差し替え予定）</p>
               </div>
               <div className="wc2-worksreveal-track">
                 {WORKS.map(w => (
