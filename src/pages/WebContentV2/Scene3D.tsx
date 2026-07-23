@@ -181,7 +181,7 @@ export default function Scene3D() {
         map: cloudTex,
         color: NEB_COLORS[i % NEB_COLORS.length],
         transparent: true,
-        opacity: 0.05 + Math.random() * 0.07,
+        opacity: 0.032 + Math.random() * 0.05,
         blending: THREE.AdditiveBlending,
         depthWrite: false,
         rotation: Math.random() * Math.PI * 2,
@@ -245,7 +245,7 @@ export default function Scene3D() {
     /* キューブは「ぎりぎり見えるかどうか」まで沈める：
        素材はほぼ黒・低反射、置き場所も靄と同じ深さ（霧とスプライトに呑まれる） */
     const cubeMat = new THREE.MeshStandardMaterial({
-      color: 0x06070c, roughness: 0.72, metalness: 0.15, envMapIntensity: 0.16,
+      color: 0x05060a, roughness: 0.75, metalness: 0.12, envMapIntensity: 0.1,
     });
     const cubes: { m: THREE.Mesh; p0: THREE.Vector3; rs: THREE.Vector3; bob: number }[] = [];
     for (let i = 0; i < CUBES; i++) {
@@ -361,8 +361,8 @@ export default function Scene3D() {
 
       KEYS = [
         /* HERO：PS2空間。ブロブは潜伏。カメラはダイブ制御（camZはspaceで無効化される） */
-        { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .3,  bloomS: .42, camZ: 7,   space: 1 },
-        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .2,  bloomS: .38, camZ: 6.2, space: 1 },
+        { at: 0,                        x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .12, rotX: 0,    lis: 0,   satR: 2.6, satS: .4,  dust: .18, bloomS: .32, camZ: 7,   space: 1 },
+        { at: f(approach - vh * .9),    x: 0,    y: -4.2, z: -.5, s: .3,   amp: .3,  iri: .8, rough: .2,  spin: .2,  rotX: .2,   lis: 0,   satR: 2.2, satS: .5,  dust: .12, bloomS: .3,  camZ: 6.2, space: 1 },
         /* APPROACH：暗転明け。PS2空間は消え、ブロブが左に浮上 */
         { at: f(approach - vh * .35),   x: -1.9, y: .25,  z: -.5, s: .6,   amp: .2,  iri: .7, rough: .22, spin: .38, rotX: .38,  lis: .14, satR: 1.7, satS: .55, dust: .4,  bloomS: .42, camZ: 5.6, space: 0 },
         /* WORKS：画面下へ退場（光の間） */
@@ -440,6 +440,10 @@ export default function Scene3D() {
       /* --- Hero内のダイブ進行度（0=開始, 1=靄の中心＝暗転点） --- */
       const heroP = Math.min(1, Math.max(0, window.scrollY / heroLen));
 
+      /* オープニングは露出そのものを落として全体を暗く（代表指示）。
+         ダイブで中心に近づくにつれて少し戻す＝吸い込まれる際の増光は残す */
+      renderer.toneMappingExposure = (1.1 - 0.42 * sp) + 0.18 * heroP * sp;
+
       /* --- PS2空間 --- */
       space.visible = sp > 0.01;
       if (space.visible) {
@@ -462,9 +466,9 @@ export default function Scene3D() {
           tr.positions.copyWithin(3, 0, (TRAIL - 1) * 3);
           tr.positions[0] = p.x; tr.positions[1] = p.y; tr.positions[2] = p.z;
           (tr.line.geometry.getAttribute("position") as THREE.BufferAttribute).needsUpdate = true;
-          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.45 * sp;
-          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.5 * sp;
-          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.8 * sp);
+          (tr.line.material as THREE.LineBasicMaterial).opacity = 0.32 * sp;
+          (orbMeshes[i].children[0] as THREE.Sprite).material.opacity = 0.38 * sp;
+          (orbMeshes[i].material as THREE.MeshBasicMaterial).color.setScalar(0.65 * sp);
         });
 
         /* 黒サイコロ：ぷかぷか＋ゆっくり回転 */
