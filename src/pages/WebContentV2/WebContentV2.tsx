@@ -397,35 +397,23 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- SERVICES：見出しが画面中央から拡大して現れる（ヘッダーピンの進行度で駆動）
-     ＋各行の区切り線が左→右に引かれる（スクロール同期） ---- */
+  /* ---- SERVICES：見出し＋行の全体が、画面中央に留まったまま拡大して現れる（ピン進行度で駆動） ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const rules = Array.from(document.querySelectorAll<HTMLElement>(".wc2-row-rule"));
-    const headPin = document.querySelector<HTMLElement>(".wc2-services-head-pin");
-    const emerge = headPin?.querySelector<HTMLElement>(".wc2-c2s-emerge") ?? null;
-    if (!rules.length && !emerge) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-services-pin");
+    const emerge = pin?.querySelector<HTMLElement>(".wc2-c2s-emerge") ?? null;
+    if (!pin || !emerge) return;
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const tick = () => {
       raf = 0;
       const vh = window.innerHeight;
-      rules.forEach(rule => {
-        const r = rule.getBoundingClientRect();
-        if (r.top > vh + 40 || r.top < -40) { return; }
-        /* 行の上辺が画面下85%に入ってから35%の高さぶんで引かれきる */
-        const prog = ss(Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (vh * 0.35))));
-        rule.style.transform = `scaleX(${prog.toFixed(3)})`;
-      });
-      /* 見出し：ヘッダーピンの間、中央に留まったまま 0.5→1 に拡大しながら現れる */
-      if (headPin && emerge) {
-        const len = Math.max(1, headPin.offsetHeight - vh);
-        const top = headPin.getBoundingClientRect().top + window.scrollY;
-        const pinP = Math.min(1, Math.max(0, (window.scrollY - top) / len));
-        const prog = ss(Math.min(1, Math.max(0, (pinP - 0.05) / 0.4)));
-        emerge.style.transform = `scale(${(0.5 + 0.5 * prog).toFixed(3)})`;
-        emerge.style.opacity = prog.toFixed(3);
-      }
+      const len = Math.max(1, pin.offsetHeight - vh);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const pinP = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+      const prog = ss(Math.min(1, Math.max(0, (pinP - 0.05) / 0.42)));
+      emerge.style.transform = `scale(${(0.5 + 0.5 * prog).toFixed(3)})`;
+      emerge.style.opacity = prog.toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -685,28 +673,29 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ SERVICES：白背景。見出しが画面中央から拡大して現れる（ピン留め） ============ */}
+        {/* ============ SERVICES：白背景。見出し＋行の全体が画面中央から拡大して現れる（ピン留め） ============ */}
         <section className="wc2-sec wc2-services-sec">
-          <div className="wc2-services-head-pin">
-            <div className="wc2-services-head">
-              <div className="wc2-wrap wc2-c2s-emerge">
-                <span className="wc2-label">( 04 ) — SERVICES</span>
-                <h2 className="wc2-h2">SMASKが提供できること</h2>
-              </div>
-            </div>
-          </div>
-          <div className="wc2-rows">
-            {SERVICES.map(([num, title, body]) => (
-              <div className="wc2-row" key={num} data-reveal>
-                {/* 設計図の線：行の上辺が左→右に引かれる（スクロール同期） */}
-                <span className="wc2-row-rule" aria-hidden="true"></span>
-                <div className="wc2-wrap wc2-row-in">
-                  <span className="wc2-row-num">SV-{num}</span>
-                  <h3>{title}</h3>
-                  <p>{body}</p>
+          <div className="wc2-services-pin">
+            <div className="wc2-services-stage">
+              <div className="wc2-c2s-emerge">
+                <div className="wc2-wrap wc2-services-headwrap">
+                  <span className="wc2-label">( 04 ) — SERVICES</span>
+                  <h2 className="wc2-h2">SMASKが提供できること</h2>
+                </div>
+                <div className="wc2-rows">
+                  {SERVICES.map(([num, title, body]) => (
+                    <div className="wc2-row" key={num}>
+                      <span className="wc2-row-rule" aria-hidden="true"></span>
+                      <div className="wc2-wrap wc2-row-in">
+                        <span className="wc2-row-num">SV-{num}</span>
+                        <h3>{title}</h3>
+                        <p>{body}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
