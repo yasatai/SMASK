@@ -191,6 +191,7 @@ export default function WebContentV2() {
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
     const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
     const bpDraw = ap.querySelector<HTMLElement>(".wc2-bp-draw");
+    const bpDots = ap.querySelector<HTMLElement>(".wc2-bp-dots");
     const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -243,6 +244,8 @@ export default function WebContentV2() {
         const dp = seg(p, 0.82, 0.94);
         bpDraw.style.clipPath = `inset(0 ${((1 - dp) * 100).toFixed(1)}% 0 0)`;
       }
+      /* 線を描き終えたあと、白い点をフェードイン */
+      if (bpDots) bpDots.style.opacity = seg(p, 0.92, 1.0).toFixed(3);
       if (wipeInner) {
         const tp = seg(p, 0.86, 0.98);
         wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
@@ -362,6 +365,89 @@ export default function WebContentV2() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- 設計図の白い点：グリッド線の上を、交点で進路を変えながら自由に動く ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = document.querySelector<HTMLCanvasElement>(".wc2-bp-dots");
+    const host = cv?.parentElement;
+    if (!cv || !host) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+    const G = 170;                         // 太グリッドの間隔（線の網と一致）
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    const resize = () => {
+      const r = host.getBoundingClientRect();
+      W = r.width; H = r.height;
+      cv.width = Math.max(1, Math.round(W * dpr));
+      cv.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(host);
+    resize();
+    /* マウント直後はレイアウト未確定で 0 を拾うことがある（canvas が 1x1 になる）。
+       少し遅らせて測り直し＋窓リサイズにも追従 */
+    const lateResize = window.setTimeout(resize, 120);
+    window.addEventListener("resize", resize);
+
+    const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const cols = () => Math.floor(W / G);
+    const rows = () => Math.floor(H / G);
+    const ri = (n: number) => Math.floor(Math.random() * n);
+    type Dot = { x: number; y: number; dx: number; dy: number; tx: number; ty: number; spd: number };
+    /* 交点に着いたら、後戻り以外・画面内に収まる方向からランダムに次の目標を選ぶ */
+    const retarget = (o: Dot) => {
+      const opts = DIRS
+        .filter(d => !(d[0] === -o.dx && d[1] === -o.dy))
+        .filter(d => {
+          const nx = o.x + d[0] * G, ny = o.y + d[1] * G;
+          return nx >= 0 && nx <= cols() * G && ny >= 0 && ny <= rows() * G;
+        });
+      const d = opts.length ? opts[ri(opts.length)] : [-o.dx, -o.dy];
+      o.dx = d[0]; o.dy = d[1];
+      o.tx = o.x + d[0] * G; o.ty = o.y + d[1] * G;
+    };
+    const N = 14;                          // 控えめな数
+    const dots: Dot[] = [];
+    for (let i = 0; i < N; i++) {
+      const gx = ri(cols() + 1) * G, gy = ri(rows() + 1) * G;
+      const d0 = DIRS[ri(4)];
+      const o: Dot = { x: gx, y: gy, dx: d0[0], dy: d0[1], tx: gx, ty: gy, spd: 34 + Math.random() * 46 };
+      retarget(o);
+      dots.push(o);
+    }
+
+    let raf = 0, last = 0, disposed = false;
+    const frame = (t: number) => {
+      if (disposed) return;
+      /* 自己修復：バッファと実サイズがずれていたら測り直す（1x1 対策） */
+      const needW = Math.round((host.clientWidth || 0) * dpr);
+      if (host.clientWidth > 0 && Math.abs(cv.width - needW) > 2) resize();
+      const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#eef2ff";
+      ctx.shadowColor = "rgba(170,205,255,.9)";
+      ctx.shadowBlur = 7;
+      dots.forEach(o => {
+        const mx = o.tx - o.x, my = o.ty - o.y;
+        const dist = Math.hypot(mx, my);
+        const step = o.spd * dt;
+        if (dist <= step || dist === 0) { o.x = o.tx; o.y = o.ty; retarget(o); }
+        else { o.x += (mx / dist) * step; o.y += (my / dist) * step; }
+        ctx.beginPath(); ctx.arc(o.x, o.y, 1.6, 0, Math.PI * 2); ctx.fill();
+      });
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    frame(0);                              // 凍結環境でも1枚は描く
+    return () => {
+      disposed = true; cancelAnimationFrame(raf);
+      window.clearTimeout(lateResize); window.removeEventListener("resize", resize);
+      ro.disconnect();
     };
   }, []);
 
@@ -502,6 +588,8 @@ export default function WebContentV2() {
                   <div><span>REV</span><span>A — 2026.07</span></div>
                 </div>
               </div>
+              {/* 線を描き終わったあと、グリッド線の上を白い点が自由に動く（数は控えめ） */}
+              <canvas className="wc2-bp-dots" aria-hidden="true"></canvas>
               <div className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>

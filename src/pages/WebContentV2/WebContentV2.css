@@ -304,6 +304,9 @@
   box-shadow: -40px 0 80px -20px rgb(0 0 0 / .55);
 }
 
+/* 白い点が動く canvas（グリッドの上・文字の下）。opacity は JS が線の描画後に 0→1 */
+.wc2-bp-dots { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; }
+
 /* ===== 設計図の“描画”レイヤー：左→右に clip で引かれていく ===== */
 .wc2-bp-draw {
   position: absolute; inset: 0; z-index: 0; pointer-events: none;
@@ -563,6 +566,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-aurora { opacity: 1; }
   .wc2-bp-draw { clip-path: none !important; }
+  .wc2-bp-dots { display: none; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
