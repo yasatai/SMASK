@@ -210,15 +210,15 @@ export default function WebContentV2() {
       });
       /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上） */
       if (head) {
-        head.style.opacity = seg(p, 0.46, 0.56).toFixed(3);
-        const up = seg(p, 0.56, 0.66) * window.innerHeight * 0.32;   // 上へ 32vh
+        head.style.opacity = seg(p, 0.46, 0.55).toFixed(3);
+        const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
       /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
          開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
          （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
-        const prog = seg(p, 0.60, 0.84);
+        const prog = seg(p, 0.58, 0.72);
         const first = track.querySelector<HTMLElement>(".wc2-work");
         const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
         const cardW = first ? first.getBoundingClientRect().width : 380;
@@ -229,16 +229,16 @@ export default function WebContentV2() {
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
-      /* 次セクションへの転換：暗色面が右から左へ捲れて暗転。
-         86%〜100% で暗い面が右端から左へ広がり、固定解除時には全面が暗色＝CONCERNSと地続き */
+      /* 次セクションへの転換＝CONCERNS：暗色オーロラの面が右から左へ捲れて、
+         その面に載った文字も一緒に revealed される（74%〜87%）。以降は静止して読ませる */
       if (wipe) {
-        const wp = seg(p, 0.86, 1.0);
+        const wp = seg(p, 0.74, 0.87);
         const l = 100 - wp * 112;                 // 左辺が右端(100%)から左端外(-12%)へ
         /* 左辺を斜めにして「捲れ」感を出す（上が先行） */
         wipe.style.clipPath = `polygon(${l.toFixed(1)}% 0, 100% 0, 100% 100%, ${(l + 9).toFixed(1)}% 100%)`;
       }
       /* 捲れと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
-      if (aurora) aurora.style.opacity = seg(p, 0.86, 1.0).toFixed(3);
+      if (aurora) aurora.style.opacity = seg(p, 0.74, 0.90).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -476,22 +476,20 @@ export default function WebContentV2() {
                 ))}
               </div>
             </div>
-            {/* 次セクションへの転換：白背景が左から捲れて暗転していく（JSがclip-path駆動） */}
-            <div className="wc2-wipe" aria-hidden="true"></div>
-          </div>
-        </section>
-
-        {/* ============ CONCERNS（オーロラ背景・文字は右→左スライドイン） ============ */}
-        <section className="wc2-sec wc2-concerns-sec">
-          <div className="wc2-wrap">
-            <span className="wc2-label wc2-inright">( 03 ) — CONCERNS</span>
-            <h2 className="wc2-h2 wc2-inright">こんなお悩みに対応します</h2>
-            <ul className="wc2-chips" data-reveal-stagger>
-              {CONCERNS.map(text => <li key={text}>{text}</li>)}
-            </ul>
-            <p className="wc2-note" data-reveal>
-              このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
-            </p>
+            {/* 次セクションへの転換＝CONCERNS：暗色オーロラが右から捲れ、
+               その面に載った文字（見出し・チップ）も一緒に revealed される（clip-path が両方を切り出す） */}
+            <div className="wc2-wipe">
+              <div className="wc2-wipe-inner">
+                <span className="wc2-label">( 03 ) — CONCERNS</span>
+                <h2 className="wc2-h2">こんなお悩みに対応します</h2>
+                <ul className="wc2-chips">
+                  {CONCERNS.map(text => <li key={text}>{text}</li>)}
+                </ul>
+                <p className="wc2-note">
+                  このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
