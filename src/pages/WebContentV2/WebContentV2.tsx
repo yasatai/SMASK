@@ -484,6 +484,8 @@ export default function WebContentV2() {
             {/* 次セクションへの転換＝CONCERNS：暗色オーロラが右から捲れ、
                その面に載った文字（見出し・チップ）も一緒に revealed される（clip-path が両方を切り出す） */}
             <div className="wc2-wipe">
+              {/* パネル自身にも動くもやもや（覆っている間もオーロラが漂う） */}
+              <i></i><i></i><i></i>
               <div className="wc2-wipe-inner">
                 <span className="wc2-label">( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>

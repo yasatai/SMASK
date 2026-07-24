@@ -41,44 +41,45 @@
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   opacity: 0; will-change: opacity; overflow: hidden;
 }
-/* 3層それぞれ別の虹の塊。inset をはみ出させて動いても端が見えないように */
-.wc2-aurora i { position: absolute; inset: -35%; display: block; background-repeat: no-repeat; will-change: transform; }
-.wc2-aurora i:nth-child(1) {
+/* 3層それぞれ別の虹の塊。inset をはみ出させて動いても端が見えないように。
+   固定オーロラ層(.wc2-aurora)と、覆っているパネル(.wc2-wipe)の両方に効かせる */
+.wc2-aurora i, .wc2-wipe > i { position: absolute; inset: -35%; display: block; background-repeat: no-repeat; will-change: transform; }
+.wc2-aurora i:nth-child(1), .wc2-wipe > i:nth-child(1) {
   background:
-    radial-gradient(40% 36% at 30% 32%, oklch(58% 0.16 265 / .28), transparent 70%),
-    radial-gradient(34% 30% at 72% 26%, oklch(56% 0.17 322 / .20), transparent 70%);
-  animation: wc2Drift1 23s ease-in-out infinite;
+    radial-gradient(40% 36% at 30% 32%, oklch(60% 0.17 265 / .32), transparent 68%),
+    radial-gradient(34% 30% at 72% 26%, oklch(58% 0.18 322 / .24), transparent 68%);
+  animation: wc2Drift1 15s ease-in-out infinite;
 }
-.wc2-aurora i:nth-child(2) {
+.wc2-aurora i:nth-child(2), .wc2-wipe > i:nth-child(2) {
   background:
-    radial-gradient(38% 42% at 64% 78%, oklch(60% 0.15 32 / .18), transparent 72%),
-    radial-gradient(30% 34% at 20% 72%, oklch(58% 0.16 192 / .16), transparent 72%);
-  animation: wc2Drift2 31s ease-in-out infinite;
+    radial-gradient(38% 42% at 64% 78%, oklch(62% 0.16 32 / .22), transparent 70%),
+    radial-gradient(30% 34% at 20% 72%, oklch(60% 0.17 192 / .20), transparent 70%);
+  animation: wc2Drift2 21s ease-in-out infinite;
 }
-.wc2-aurora i:nth-child(3) {
+.wc2-aurora i:nth-child(3), .wc2-wipe > i:nth-child(3) {
   background:
-    radial-gradient(30% 32% at 48% 52%, oklch(62% 0.14 300 / .15), transparent 72%);
-  animation: wc2Drift3 41s ease-in-out infinite;
+    radial-gradient(30% 32% at 48% 52%, oklch(64% 0.15 300 / .18), transparent 70%);
+  animation: wc2Drift3 27s ease-in-out infinite;
 }
-/* 各層とも非対称な経由点＋別の長さ（23/31/41s は約数を持たない）で周期が揃わない＝不規則に見える */
+/* 大きめの振れ幅＋非対称な経由点。別の長さ（15/21/27s）で周期が揃わない＝不規則に漂う */
 @keyframes wc2Drift1 {
   0%   { transform: translate(0, 0) scale(1); }
-  30%  { transform: translate(6%, -4%) scale(1.1); }
-  55%  { transform: translate(-4%, 5%) scale(.95); }
-  80%  { transform: translate(3%, 3%) scale(1.06); }
+  28%  { transform: translate(14%, -10%) scale(1.18); }
+  54%  { transform: translate(-11%, 12%) scale(.88); }
+  78%  { transform: translate(9%, 7%) scale(1.12); }
   100% { transform: translate(0, 0) scale(1); }
 }
 @keyframes wc2Drift2 {
-  0%   { transform: translate(0, 0) scale(1.05); }
-  25%  { transform: translate(-5%, 4%) scale(.98); }
-  50%  { transform: translate(4%, 6%) scale(1.12); }
-  75%  { transform: translate(-6%, -3%) scale(1); }
-  100% { transform: translate(0, 0) scale(1.05); }
+  0%   { transform: translate(0, 0) scale(1.1); }
+  24%  { transform: translate(-13%, 9%) scale(.92); }
+  50%  { transform: translate(11%, 14%) scale(1.24); }
+  76%  { transform: translate(-14%, -8%) scale(1); }
+  100% { transform: translate(0, 0) scale(1.1); }
 }
 @keyframes wc2Drift3 {
   0%   { transform: translate(0, 0) scale(1); }
-  40%  { transform: translate(5%, 5%) scale(1.15); }
-  70%  { transform: translate(-5%, 2%) scale(.9); }
+  38%  { transform: translate(13%, 12%) scale(1.28); }
+  68%  { transform: translate(-12%, 6%) scale(.85); }
   100% { transform: translate(0, 0) scale(1); }
 }
 .wc2-scene canvas { width: 100% !important; height: 100% !important; display: block; }
@@ -326,12 +327,8 @@
    背景＋文字ごと1枚で右から左へスライドインし WORKS を覆う（JSが translateX 100%→0 を駆動）。
    ベースは不透明（var(--wc2-bg)）なので下の白を確実に覆う */
 .wc2-wipe {
-  position: absolute; inset: 0; z-index: 4;
-  background:
-    radial-gradient(70% 60% at 18% 26%, oklch(58% 0.16 265 / .24), transparent 68%),
-    radial-gradient(62% 55% at 82% 20%, oklch(56% 0.17 322 / .19), transparent 66%),
-    radial-gradient(58% 55% at 64% 84%, oklch(60% 0.15 32 / .15), transparent 70%),
-    var(--wc2-bg);
+  position: absolute; inset: 0; z-index: 4; overflow: hidden;
+  background: var(--wc2-bg);   /* 不透明ベース。もやもやは中の <i> 3層が動かす */
   pointer-events: none;
   transform: translateX(100%);   /* 初期は画面右外 */
   will-change: transform;
@@ -550,7 +547,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-aurora { opacity: 1; }
-  .wc2-aurora i { animation: none !important; transform: none !important; }
+  .wc2-aurora i, .wc2-wipe > i { animation: none !important; transform: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
