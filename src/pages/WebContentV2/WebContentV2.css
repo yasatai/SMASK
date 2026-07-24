@@ -317,6 +317,8 @@
   padding-left: 4.5rem;
   display: flex; flex-direction: column; justify-content: center;
   z-index: 1;
+  transform: translateX(22vw);   /* 初期は右に退避。JSが捲れに合わせて0へ流す */
+  will-change: transform;
 }
 
 .wc2-work-cover {
@@ -525,7 +527,14 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-pin-sticky { position: static; height: auto; display: block; }
   .wc2-marquee--pin { position: static; margin-bottom: 3rem; }
   .wc2-stripes { display: none; }
-  .wc2-wipe { display: none; }
+  /* 捲れ演出は無効化：CONCERNS を通常フローの読みものとして表示 */
+  .wc2-wipe { position: static; clip-path: none !important; background: transparent; }
+  .wc2-wipe::after { display: none; }
+  .wc2-wipe-inner {
+    position: static; transform: none !important;
+    width: min(100% - 3rem, 1240px); margin-inline: auto;
+    padding: 4rem 0 4rem 4.5rem; display: block;
+  }
   /* WORKS リビール層を通常フローの白セクションとして読ませる（縦積み） */
   .wc2-worksreveal { position: static; overflow: visible; background: #eceded; margin-top: 4rem; padding: 4rem 0; }
   .wc2-worksreveal-head { position: static; width: auto; display: block; margin-bottom: 3rem; }
