@@ -276,13 +276,13 @@
   position: absolute; inset: 0; z-index: 4;
   background: var(--wc2-bg);
   pointer-events: none;
-  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);   /* 初期は幅0＝不可視 */
+  clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);   /* 初期は幅0（右端）＝不可視 */
   will-change: clip-path;
 }
-/* 捲れの先頭に淡い光の縁（紙の端が起きるニュアンス） */
+/* 捲れの先頭（左辺）に淡い光の縁（紙の端が起きるニュアンス） */
 .wc2-wipe::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(100deg, transparent 0%, transparent calc(100% - 2px), rgb(230 231 234 / .12) 100%);
+  background: linear-gradient(260deg, transparent 0%, transparent calc(100% - 2px), rgb(230 231 234 / .12) 100%);
 }
 
 .wc2-work-cover {

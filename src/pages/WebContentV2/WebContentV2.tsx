@@ -228,13 +228,13 @@ export default function WebContentV2() {
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
-      /* 次セクションへの転換：白背景が左から捲れて暗転（カードが左に流れたのと同じ左方向）。
-         86%〜100% で暗い面が左端から右へ広がり、固定解除時には全面が暗色＝CONCERNSと地続き */
+      /* 次セクションへの転換：暗色面が右から左へ捲れて暗転。
+         86%〜100% で暗い面が右端から左へ広がり、固定解除時には全面が暗色＝CONCERNSと地続き */
       if (wipe) {
         const wp = seg(p, 0.86, 1.0);
-        const w = wp * 112;                       // 右へ 112%（確実に覆いきる）
-        /* 右辺を斜めにして「捲れ」感を出す（上が先行） */
-        wipe.style.clipPath = `polygon(0 0, ${w.toFixed(1)}% 0, ${(w - 9).toFixed(1)}% 100%, 0 100%)`;
+        const l = 100 - wp * 112;                 // 左辺が右端(100%)から左端外(-12%)へ
+        /* 左辺を斜めにして「捲れ」感を出す（上が先行） */
+        wipe.style.clipPath = `polygon(${l.toFixed(1)}% 0, 100% 0, 100% 100%, ${(l + 9).toFixed(1)}% 100%)`;
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
