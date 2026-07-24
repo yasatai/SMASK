@@ -189,6 +189,7 @@ export default function WebContentV2() {
     const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
+    const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
     const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -229,15 +230,20 @@ export default function WebContentV2() {
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
-      /* 次セクションへの転換＝CONCERNS（trionn の Selected work→OUR SERVICES 準拠）：
-         暗色オーロラの面が「背景＋文字ごと1枚のパネル」で右から左へスライドインし、
-         WORKS を覆う。文字はパネルの一部なので一緒に右→左へ流れる（74%〜90%）。以降は静止 */
+      /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
+         ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
+         ② 覆いきってから、文字だけが右→左へ流れて現れる（84%〜96%）。以降は静止して読ませる */
       if (wipe) {
-        const wp = seg(p, 0.74, 0.90);
+        const wp = seg(p, 0.70, 0.82);
         wipe.style.transform = `translateX(${((1 - wp) * 100).toFixed(2)}%)`;
       }
-      /* パネルが覆うのと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
-      if (aurora) aurora.style.opacity = seg(p, 0.78, 0.94).toFixed(3);
+      if (wipeInner) {
+        const tp = seg(p, 0.84, 0.96);
+        wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
+        wipeInner.style.opacity = tp.toFixed(3);
+      }
+      /* 背景パネルが覆うのと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
+      if (aurora) aurora.style.opacity = seg(p, 0.72, 0.86).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });

@@ -309,13 +309,15 @@
   /* スライドしてくる先頭（左辺）に奥行きの影 */
   box-shadow: -40px 0 80px -20px rgb(0 0 0 / .55);
 }
-/* パネルに載る CONCERNS 本体（パネルの一部として一緒に流れる） */
+/* パネルに載る CONCERNS 本体（背景パネルが覆ったあと、右→左に流れて現れる） */
 .wc2-wipe-inner {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0;
   margin-inline: auto; width: min(100% - 3rem, 1240px);
   padding-left: 4.5rem;
   display: flex; flex-direction: column; justify-content: center;
   z-index: 1;
+  opacity: 0; transform: translateX(20vw);   /* 初期は右に退避・透明。JSが背景のあとに流す */
+  will-change: transform, opacity;
 }
 
 .wc2-work-cover {
@@ -527,7 +529,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   /* スライド演出は無効化：CONCERNS を通常フローの読みものとして表示 */
   .wc2-wipe { position: static; transform: none !important; background: transparent; box-shadow: none; }
   .wc2-wipe-inner {
-    position: static; transform: none !important;
+    position: static; transform: none !important; opacity: 1 !important;
     width: min(100% - 3rem, 1240px); margin-inline: auto;
     padding: 4rem 0 4rem 4.5rem; display: block;
   }
