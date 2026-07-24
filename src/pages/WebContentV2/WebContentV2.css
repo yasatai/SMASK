@@ -39,18 +39,47 @@
    opacity は JS が捲れと同時に 0→1（以降ずっと表示） */
 .wc2-aurora {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  opacity: 0; will-change: opacity;
-  background:
-    radial-gradient(70% 60% at 18% 26%, oklch(58% 0.16 265 / .24), transparent 68%),
-    radial-gradient(62% 55% at 82% 20%, oklch(56% 0.17 322 / .19), transparent 66%),
-    radial-gradient(58% 55% at 64% 84%, oklch(60% 0.15 32 / .15), transparent 70%),
-    radial-gradient(56% 46% at 28% 80%, oklch(58% 0.16 192 / .14), transparent 70%);
-  background-size: 190% 190%;
-  animation: wc2Aurora 26s ease-in-out infinite alternate;
+  opacity: 0; will-change: opacity; overflow: hidden;
 }
-@keyframes wc2Aurora {
-  from { background-position: 0% 0%; }
-  to   { background-position: 100% 100%; }
+/* 3層それぞれ別の虹の塊。inset をはみ出させて動いても端が見えないように */
+.wc2-aurora i { position: absolute; inset: -35%; display: block; background-repeat: no-repeat; will-change: transform; }
+.wc2-aurora i:nth-child(1) {
+  background:
+    radial-gradient(40% 36% at 30% 32%, oklch(58% 0.16 265 / .28), transparent 70%),
+    radial-gradient(34% 30% at 72% 26%, oklch(56% 0.17 322 / .20), transparent 70%);
+  animation: wc2Drift1 23s ease-in-out infinite;
+}
+.wc2-aurora i:nth-child(2) {
+  background:
+    radial-gradient(38% 42% at 64% 78%, oklch(60% 0.15 32 / .18), transparent 72%),
+    radial-gradient(30% 34% at 20% 72%, oklch(58% 0.16 192 / .16), transparent 72%);
+  animation: wc2Drift2 31s ease-in-out infinite;
+}
+.wc2-aurora i:nth-child(3) {
+  background:
+    radial-gradient(30% 32% at 48% 52%, oklch(62% 0.14 300 / .15), transparent 72%);
+  animation: wc2Drift3 41s ease-in-out infinite;
+}
+/* 各層とも非対称な経由点＋別の長さ（23/31/41s は約数を持たない）で周期が揃わない＝不規則に見える */
+@keyframes wc2Drift1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  30%  { transform: translate(6%, -4%) scale(1.1); }
+  55%  { transform: translate(-4%, 5%) scale(.95); }
+  80%  { transform: translate(3%, 3%) scale(1.06); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes wc2Drift2 {
+  0%   { transform: translate(0, 0) scale(1.05); }
+  25%  { transform: translate(-5%, 4%) scale(.98); }
+  50%  { transform: translate(4%, 6%) scale(1.12); }
+  75%  { transform: translate(-6%, -3%) scale(1); }
+  100% { transform: translate(0, 0) scale(1.05); }
+}
+@keyframes wc2Drift3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(5%, 5%) scale(1.15); }
+  70%  { transform: translate(-5%, 2%) scale(.9); }
+  100% { transform: translate(0, 0) scale(1); }
 }
 .wc2-scene canvas { width: 100% !important; height: 100% !important; display: block; }
 /* コンテンツはシーンの上に */
@@ -520,7 +549,8 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub,
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .wc2-aurora { opacity: 1; animation: none; }
+  .wc2-aurora { opacity: 1; }
+  .wc2-aurora i { animation: none !important; transform: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }

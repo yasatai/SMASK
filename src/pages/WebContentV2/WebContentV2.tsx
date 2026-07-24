@@ -392,8 +392,8 @@ export default function WebContentV2() {
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
         <Scene3D />
         {/* 白のあとの暗色セクション用：イリデッセンス（薄膜の虹）のオーロラ背景。
-           捲れと同時にフェードインし以降ずっと漂う（JSがopacityを駆動） */}
-        <div className="wc2-aurora" aria-hidden="true"></div>
+           3層を別々の速度・軌道で漂わせ、周期を揃えないことで不規則に揺らぐ（JSがopacityを駆動） */}
+        <div className="wc2-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
         <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
