@@ -190,6 +190,7 @@ export default function WebContentV2() {
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
     const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
+    const bpDraw = ap.querySelector<HTMLElement>(".wc2-bp-draw");
     const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -237,12 +238,17 @@ export default function WebContentV2() {
         const wp = seg(p, 0.70, 0.82);
         wipe.style.transform = `translateX(${((1 - wp) * 100).toFixed(2)}%)`;
       }
+      /* 設計図の線が左→右に引かれていく（見当・寸法・表題欄も一緒に描かれる） */
+      if (bpDraw) {
+        const dp = seg(p, 0.82, 0.94);
+        bpDraw.style.clipPath = `inset(0 ${((1 - dp) * 100).toFixed(1)}% 0 0)`;
+      }
       if (wipeInner) {
-        const tp = seg(p, 0.84, 0.96);
+        const tp = seg(p, 0.86, 0.98);
         wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
         wipeInner.style.opacity = tp.toFixed(3);
       }
-      /* 背景パネルが覆うのと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
+      /* 背景パネルが覆うのと同時に設計図グリッド背景がフェードイン（以降の暗色セクションの世界） */
       if (aurora) aurora.style.opacity = seg(p, 0.72, 0.86).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -391,9 +397,9 @@ export default function WebContentV2() {
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
         <Scene3D />
-        {/* 白のあとの暗色セクション用：イリデッセンス（薄膜の虹）のオーロラ背景。
-           3層を別々の速度・軌道で漂わせ、周期を揃えないことで不規則に揺らぐ（JSがopacityを駆動） */}
-        <div className="wc2-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+        {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
+           以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}
+        <div className="wc2-aurora" aria-hidden="true"></div>
         <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
@@ -484,13 +490,23 @@ export default function WebContentV2() {
             {/* 次セクションへの転換＝CONCERNS：暗色オーロラが右から捲れ、
                その面に載った文字（見出し・チップ）も一緒に revealed される（clip-path が両方を切り出す） */}
             <div className="wc2-wipe">
-              {/* パネル自身にも動くもやもや（覆っている間もオーロラが漂う） */}
-              <i></i><i></i><i></i>
+              {/* 設計図の“描画”レイヤー：太グリッド・見当・寸法・表題欄。
+                  clip-path で左→右に「線が引かれていく」（JS駆動） */}
+              <div className="wc2-bp-draw" aria-hidden="true">
+                <span className="wc2-bp-reg tl"></span><span className="wc2-bp-reg tr"></span>
+                <span className="wc2-bp-reg bl"></span><span className="wc2-bp-reg br"></span>
+                <div className="wc2-bp-dim"><b>W 1440</b></div>
+                <div className="wc2-bp-title">
+                  <div><span>SHEET</span><span>03 / CONCERNS</span></div>
+                  <div><span>SCALE</span><span>1 : 1</span></div>
+                  <div><span>REV</span><span>A — 2026.07</span></div>
+                </div>
+              </div>
               <div className="wc2-wipe-inner">
-                <span className="wc2-label">( 03 ) — CONCERNS</span>
+                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
                 <ul className="wc2-chips">
-                  {CONCERNS.map(text => <li key={text}>{text}</li>)}
+                  {CONCERNS.map((text, i) => <li key={text} data-n={`C-0${i + 1}`}>{text}</li>)}
                 </ul>
                 <p className="wc2-note">
                   このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。

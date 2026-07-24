@@ -34,53 +34,17 @@
 /* ============ 3Dシーン（全面固定・最背面） ============ */
 .wc2-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-/* ============ オーロラ背景（白のあとの暗色セクションの世界） ============
-   薄膜の虹（青→紫→桃→金）が漂う。ベースは透過なので 3D の星屑も透ける。
+/* ============ 設計図グリッド背景（白のあとの暗色セクションの世界） ============
+   製図台の方眼（細＋太）。ベースは透過なので 3D の星屑も透ける。
    opacity は JS が捲れと同時に 0→1（以降ずっと表示） */
 .wc2-aurora {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  opacity: 0; will-change: opacity; overflow: hidden;
-}
-/* 3層それぞれ別の虹の塊。inset をはみ出させて動いても端が見えないように。
-   固定オーロラ層(.wc2-aurora)と、覆っているパネル(.wc2-wipe)の両方に効かせる */
-.wc2-aurora i, .wc2-wipe > i { position: absolute; inset: -35%; display: block; background-repeat: no-repeat; will-change: transform; }
-.wc2-aurora i:nth-child(1), .wc2-wipe > i:nth-child(1) {
+  opacity: 0; will-change: opacity;
   background:
-    radial-gradient(40% 36% at 30% 32%, oklch(60% 0.17 265 / .32), transparent 68%),
-    radial-gradient(34% 30% at 72% 26%, oklch(58% 0.18 322 / .24), transparent 68%);
-  animation: wc2Drift1 15s ease-in-out infinite;
-}
-.wc2-aurora i:nth-child(2), .wc2-wipe > i:nth-child(2) {
-  background:
-    radial-gradient(38% 42% at 64% 78%, oklch(62% 0.16 32 / .22), transparent 70%),
-    radial-gradient(30% 34% at 20% 72%, oklch(60% 0.17 192 / .20), transparent 70%);
-  animation: wc2Drift2 21s ease-in-out infinite;
-}
-.wc2-aurora i:nth-child(3), .wc2-wipe > i:nth-child(3) {
-  background:
-    radial-gradient(30% 32% at 48% 52%, oklch(64% 0.15 300 / .18), transparent 70%);
-  animation: wc2Drift3 27s ease-in-out infinite;
-}
-/* 大きめの振れ幅＋非対称な経由点。別の長さ（15/21/27s）で周期が揃わない＝不規則に漂う */
-@keyframes wc2Drift1 {
-  0%   { transform: translate(0, 0) scale(1); }
-  28%  { transform: translate(14%, -10%) scale(1.18); }
-  54%  { transform: translate(-11%, 12%) scale(.88); }
-  78%  { transform: translate(9%, 7%) scale(1.12); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-@keyframes wc2Drift2 {
-  0%   { transform: translate(0, 0) scale(1.1); }
-  24%  { transform: translate(-13%, 9%) scale(.92); }
-  50%  { transform: translate(11%, 14%) scale(1.24); }
-  76%  { transform: translate(-14%, -8%) scale(1); }
-  100% { transform: translate(0, 0) scale(1.1); }
-}
-@keyframes wc2Drift3 {
-  0%   { transform: translate(0, 0) scale(1); }
-  38%  { transform: translate(13%, 12%) scale(1.28); }
-  68%  { transform: translate(-12%, 6%) scale(.85); }
-  100% { transform: translate(0, 0) scale(1); }
+    repeating-linear-gradient(0deg,  rgb(120 160 220 / .05) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgb(120 160 220 / .05) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg,  rgb(120 160 220 / .10) 0 1px, transparent 1px 170px),
+    repeating-linear-gradient(90deg, rgb(120 160 220 / .10) 0 1px, transparent 1px 170px);
 }
 .wc2-scene canvas { width: 100% !important; height: 100% !important; display: block; }
 /* コンテンツはシーンの上に */
@@ -328,13 +292,53 @@
    ベースは不透明（var(--wc2-bg)）なので下の白を確実に覆う */
 .wc2-wipe {
   position: absolute; inset: 0; z-index: 4; overflow: hidden;
-  background: var(--wc2-bg);   /* 不透明ベース。もやもやは中の <i> 3層が動かす */
+  /* 不透明ベース＋設計図の細グリッド（薄）。太グリッド・寸法等は .wc2-bp-draw が左→右に描く */
+  background:
+    repeating-linear-gradient(0deg,  rgb(120 160 220 / .06) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgb(120 160 220 / .06) 0 1px, transparent 1px 34px),
+    var(--wc2-bg);
   pointer-events: none;
   transform: translateX(100%);   /* 初期は画面右外 */
   will-change: transform;
   /* スライドしてくる先頭（左辺）に奥行きの影 */
   box-shadow: -40px 0 80px -20px rgb(0 0 0 / .55);
 }
+
+/* ===== 設計図の“描画”レイヤー：左→右に clip で引かれていく ===== */
+.wc2-bp-draw {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  clip-path: inset(0 100% 0 0);   /* 初期は未描画（左端0幅） */
+  will-change: clip-path;
+  /* 太グリッド（5マスごと） */
+  background:
+    repeating-linear-gradient(0deg,  rgb(120 170 230 / .16) 0 1px, transparent 1px 170px),
+    repeating-linear-gradient(90deg, rgb(120 170 230 / .16) 0 1px, transparent 1px 170px);
+  --bp-key: rgb(120 190 255 / .5);
+  font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
+}
+/* 隅の見当（レジストレーション）マーク */
+.wc2-bp-reg { position: absolute; width: 26px; height: 26px; }
+.wc2-bp-reg::before, .wc2-bp-reg::after { content: ""; position: absolute; background: var(--bp-key); }
+.wc2-bp-reg::before { left: 50%; top: 0; width: 1px; height: 100%; transform: translateX(-.5px); }
+.wc2-bp-reg::after  { top: 50%; left: 0; height: 1px; width: 100%; transform: translateY(-.5px); }
+.wc2-bp-reg.tl { top: 26px; left: 26px; } .wc2-bp-reg.tr { top: 26px; right: 26px; }
+.wc2-bp-reg.bl { bottom: 26px; left: 26px; } .wc2-bp-reg.br { bottom: 26px; right: 26px; }
+/* 寸法線（下部） */
+.wc2-bp-dim { position: absolute; left: 92px; right: 92px; bottom: 74px; height: 1px; background: var(--bp-key); }
+.wc2-bp-dim::before, .wc2-bp-dim::after { content: ""; position: absolute; top: -5px; width: 1px; height: 11px; background: var(--bp-key); }
+.wc2-bp-dim::before { left: 0; } .wc2-bp-dim::after { right: 0; }
+.wc2-bp-dim b { position: absolute; left: 50%; top: -22px; transform: translateX(-50%);
+  font-size: 10px; letter-spacing: .2em; color: rgb(150 190 240 / .8); background: var(--wc2-bg); padding: 0 8px; font-weight: 400; }
+/* 図面表題欄（右下） */
+.wc2-bp-title {
+  position: absolute; right: 30px; bottom: 100px; width: 232px;
+  border: 1px solid rgb(120 170 230 / .18); font-size: 10px; color: rgb(150 165 190 / .85);
+  background: rgb(10 13 23 / .5);
+}
+.wc2-bp-title > div { display: flex; border-top: 1px solid rgb(120 160 220 / .1); }
+.wc2-bp-title > div:first-child { border-top: 0; }
+.wc2-bp-title span { padding: 5px 8px; letter-spacing: .08em; }
+.wc2-bp-title span:first-child { width: 78px; color: rgb(120 135 160 / .8); letter-spacing: .12em; border-right: 1px solid rgb(120 160 220 / .1); }
 /* パネルに載る CONCERNS 本体（背景パネルが覆ったあと、右→左に流れて現れる） */
 .wc2-wipe-inner {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0;
@@ -344,6 +348,17 @@
   z-index: 1;
   opacity: 0; transform: translateX(20vw);   /* 初期は右に退避・透明。JSが背景のあとに流す */
   will-change: transform, opacity;
+}
+/* 設計図トーンの見出しティック（ブランドの虹を1本だけ） */
+.wc2-eyebrow-iri { display: inline-flex; align-items: center; gap: .7rem; }
+.wc2-eyebrow-iri i { width: 26px; height: 2px; background: var(--wc2-iri); display: inline-block; }
+/* チップに部品番号（図面の部品符号） */
+.wc2-wipe-inner .wc2-chips li { position: relative; }
+.wc2-wipe-inner .wc2-chips li[data-n]::before {
+  content: attr(data-n); position: absolute; top: -8px; left: 10px;
+  font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
+  font-size: 9px; letter-spacing: .12em; color: rgb(120 190 255 / .55);
+  background: var(--wc2-bg); padding: 0 5px;
 }
 
 .wc2-work-cover {
@@ -547,7 +562,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-aurora { opacity: 1; }
-  .wc2-aurora i, .wc2-wipe > i { animation: none !important; transform: none !important; }
+  .wc2-bp-draw { clip-path: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
