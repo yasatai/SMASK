@@ -225,7 +225,7 @@
 /* ============ ピン留め画面（APPROACH＋白の転調） ============
    セクションを縦に長く取り、中身は sticky で1画面に固定したまま
    「文字の染色 → 本文 → 白帯が下から上へ → WORKS見出し」を進める */
-.wc2-pin { height: 760svh; padding-block: 0; }
+.wc2-pin { height: 1180svh; padding-block: 0; }
 .wc2-pin-sticky {
   position: sticky; top: 0; height: 100svh;
   display: flex; align-items: center;
@@ -306,6 +306,20 @@
 
 /* 白い点が動く canvas（グリッドの上・文字の下）。opacity は JS が線の描画後に 0→1 */
 .wc2-bp-dots { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; }
+
+/* CONCERNS→SERVICES 転換：種の白点（左から中央へ）と、そこから広がる白い円 */
+.wc2-c2s-seed {
+  position: absolute; top: 50%; left: 50%; z-index: 5;
+  width: 9px; height: 9px; border-radius: 50%; background: #fff;
+  box-shadow: 0 0 14px 3px rgb(200 225 255 / .85);
+  opacity: 0; transform: translate(-50%, -50%); pointer-events: none;
+  will-change: transform, opacity;
+}
+.wc2-c2s-white {
+  position: absolute; inset: 0; z-index: 6; background: #eceded; pointer-events: none;
+  clip-path: circle(0 at 50% 50%);   /* 初期は半径0＝不可視 */
+  will-change: clip-path;
+}
 
 /* ===== 設計図の“描画”レイヤー：左→右に clip で引かれていく ===== */
 .wc2-bp-draw {
@@ -432,6 +446,22 @@
 .wc2-note { margin-top: 2.4rem; max-width: 46rem; }
 
 /* ============ SERVICES（大きな行） ============ */
+/* ===== SERVICES：設計図→白へ転換した先の白セクション ===== */
+.wc2-services-sec {
+  background: linear-gradient(180deg, #eceded 0%, #e6e7ea 84%, transparent 100%);
+  padding-bottom: clamp(6rem, 12vw, 10rem);
+}
+.wc2-services-sec .wc2-label { color: #6b7686; }
+.wc2-services-sec .wc2-h2 { color: #14161c; }
+.wc2-services-sec .wc2-row h3 { color: #16181e; }
+.wc2-services-sec .wc2-row p { color: #4c5260; }
+.wc2-services-sec .wc2-row:hover { background: rgb(20 30 50 / .03); }
+.wc2-services-sec .wc2-row { border-bottom-color: rgb(20 40 70 / .1); }
+.wc2-services-sec .wc2-row-num { color: rgb(40 110 200 / .8); }
+.wc2-services-sec .wc2-row-rule { background: rgb(40 110 200 / .5); }
+/* 見出しが中央から拡大しながら現れる（JSが scale/opacity を駆動） */
+.wc2-c2s-emerge { opacity: 0; transform: scale(0.86); transform-origin: center; will-change: transform, opacity; }
+
 .wc2-rows { margin-top: clamp(2.4rem, 5vw, 3.6rem); }
 .wc2-row {
   position: relative;
@@ -576,7 +606,9 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-aurora { opacity: 1; }
   .wc2-bp-draw { clip-path: none !important; }
   .wc2-bp-dots { display: none; }
+  .wc2-c2s-seed, .wc2-c2s-white { display: none; }
   .wc2-row-rule { transform: none !important; }
+  .wc2-c2s-emerge { opacity: 1 !important; transform: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }

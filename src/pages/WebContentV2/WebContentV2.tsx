@@ -120,6 +120,8 @@ export default function WebContentV2() {
      ヒーローを抜けて半画面ぶんで幕が明け、次セクションが始まる */
   const heroCopyRef = useRef<HTMLDivElement>(null);
   const blackoutRef = useRef<HTMLDivElement>(null);
+  /* CONCERNS→SERVICES 転換：白い点への吸い込み進行度（ピン効果が書き、点キャンバスが読む） */
+  const convergeRef = useRef(0);
   useEffect(() => {
     const hero = document.querySelector<HTMLElement>(".wc2-hero");
     const black = blackoutRef.current;
@@ -202,9 +204,14 @@ export default function WebContentV2() {
       const top = el.getBoundingClientRect().top + window.scrollY;
       return Math.min(1, Math.max(0, (window.scrollY - top) / len));
     };
+    const seed = ap.querySelector<HTMLElement>(".wc2-c2s-seed");
+    const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
     const tick = () => {
       raf = 0;
-      const p = pinP(ap);
+      const praw = pinP(ap);
+      /* 既存コンテンツ（〜CONCERNS表示）は前半 0〜56% に圧縮。後半 56〜100% を転換に使う */
+      const p = Math.min(1, praw / 0.56);
+      const pT = Math.max(0, (praw - 0.56) / 0.44);
       if (apCols) apCols.style.opacity = seg(p, 0.20, 0.30).toFixed(3);
       /* 白帯：一番下（i=5）から順に立ち上がる。各帯は自分の下辺から伸びる */
       stripes.forEach((s, i) => {
@@ -253,6 +260,27 @@ export default function WebContentV2() {
       }
       /* 背景パネルが覆うのと同時に設計図グリッド背景がフェードイン（以降の暗色セクションの世界） */
       if (aurora) aurora.style.opacity = seg(p, 0.72, 0.86).toFixed(3);
+
+      /* ===== CONCERNS → SERVICES 転換（後半 pT 0〜1）===== */
+      /* ① 文字がはける（左へ流れて消える） */
+      if (wipeInner && pT > 0) {
+        const ex = seg(pT, 0.0, 0.16);
+        wipeInner.style.transform = `translateX(${(-ex * 26).toFixed(1)}vw)`;
+        wipeInner.style.opacity = (1 - ex).toFixed(3);
+      }
+      /* ② 左から白い「種」の点がスッと現れて中央へ */
+      if (seed) {
+        const s = seg(pT, 0.12, 0.34);
+        seed.style.opacity = s.toFixed(3);
+        seed.style.transform = `translate(-50%,-50%) translateX(${((1 - s) * -46).toFixed(1)}vw)`;
+      }
+      /* ③ 動いていた白い点が、その種にどんどん吸い込まれていく（点キャンバスが読む） */
+      convergeRef.current = seg(pT, 0.30, 0.62);
+      /* ④ 種から白い円が広がって背景が白に */
+      if (white) {
+        const w = seg(pT, 0.58, 0.86);
+        white.style.clipPath = `circle(${(w * 80).toFixed(1)}vmax at 50% 50%)`;
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -309,11 +337,12 @@ export default function WebContentV2() {
         const pin = head.closest<HTMLElement>(".wc2-pin");
         let p: number;
         if (pin) {
-          /* 統合ピンの前半（3〜20%）で染まりきる。以降は白の転調→WORKSが使う */
+          /* 統合ピン：コンテンツは前半56%に圧縮（転換に後半を空ける）。その中の3〜20%で染まる */
           const len = Math.max(1, pin.offsetHeight - vh);
           const top = pin.getBoundingClientRect().top + window.scrollY;
           const pp = Math.min(1, Math.max(0, (window.scrollY - top) / len));
-          p = Math.min(1, Math.max(0, (pp - 0.03) / 0.17));
+          const pC = Math.min(1, pp / 0.56);
+          p = Math.min(1, Math.max(0, (pC - 0.03) / 0.17));
         } else {
           /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
           p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
@@ -368,11 +397,12 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- SERVICES：各行の区切り線が左→右に引かれる（スクロール同期） ---- */
+  /* ---- SERVICES：各行の区切り線が左→右に引かれる／見出しが中心から現れる（スクロール同期） ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rules = Array.from(document.querySelectorAll<HTMLElement>(".wc2-row-rule"));
-    if (!rules.length) return;
+    const emerges = Array.from(document.querySelectorAll<HTMLElement>(".wc2-c2s-emerge"));
+    if (!rules.length && !emerges.length) return;
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const tick = () => {
@@ -384,6 +414,14 @@ export default function WebContentV2() {
         /* 行の上辺が画面下85%に入ってから35%の高さぶんで引かれきる */
         const prog = ss(Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (vh * 0.35))));
         rule.style.transform = `scaleX(${prog.toFixed(3)})`;
+      });
+      /* 見出しが中央から拡大しながら現れる */
+      emerges.forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top > vh + 60 || r.bottom < -60) return;
+        const prog = ss(Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.42))));
+        el.style.transform = `scale(${(0.86 + 0.14 * prog).toFixed(3)})`;
+        el.style.opacity = prog.toFixed(3);
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -464,13 +502,18 @@ export default function WebContentV2() {
       ctx.fillStyle = "#eef2ff";
       ctx.shadowColor = "rgba(170,205,255,.9)";
       ctx.shadowBlur = 7;
+      const cvg = convergeRef.current;          // 0=通常, 1=完全に中央へ吸い込み
+      const cx = W / 2, cy = H / 2;
       dots.forEach(o => {
         const mx = o.tx - o.x, my = o.ty - o.y;
         const dist = Math.hypot(mx, my);
         const step = o.spd * dt;
         if (dist <= step || dist === 0) { o.x = o.tx; o.y = o.ty; retarget(o); }
         else { o.x += (mx / dist) * step; o.y += (my / dist) * step; }
-        ctx.beginPath(); ctx.arc(o.x, o.y, 1.6, 0, Math.PI * 2); ctx.fill();
+        /* 吸い込み：描画位置を中央へ寄せる（論理位置＝線上は保ったまま見た目だけ収束） */
+        const dx = cvg > 0 ? o.x + (cx - o.x) * cvg : o.x;
+        const dy = cvg > 0 ? o.y + (cy - o.y) * cvg : o.y;
+        ctx.beginPath(); ctx.arc(dx, dy, 1.6, 0, Math.PI * 2); ctx.fill();
       });
       raf = requestAnimationFrame(frame);
     };
@@ -622,6 +665,9 @@ export default function WebContentV2() {
               </div>
               {/* 線を描き終わったあと、グリッド線の上を白い点が自由に動く（数は控えめ） */}
               <canvas className="wc2-bp-dots" aria-hidden="true"></canvas>
+              {/* CONCERNS→SERVICES 転換：左から現れる「種」の白点と、そこから広がる白い円 */}
+              <span className="wc2-c2s-seed" aria-hidden="true"></span>
+              <div className="wc2-c2s-white" aria-hidden="true"></div>
               <div className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
@@ -636,10 +682,10 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ SERVICES：大きな行（trionnのサービス列の引用） ============ */}
+        {/* ============ SERVICES：白背景。内容が中心から現れる（設計図→白へ転換した先） ============ */}
         <section className="wc2-sec wc2-services-sec">
-          <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 04 ) — SERVICES</span>
+          <div className="wc2-wrap wc2-c2s-emerge">
+            <span className="wc2-label">( 04 ) — SERVICES</span>
             <h2 className="wc2-h2 wc2-fill">SMASKが提供できること</h2>
           </div>
           <div className="wc2-rows">
