@@ -189,6 +189,7 @@ export default function WebContentV2() {
     const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
+    const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -236,6 +237,8 @@ export default function WebContentV2() {
         /* 左辺を斜めにして「捲れ」感を出す（上が先行） */
         wipe.style.clipPath = `polygon(${l.toFixed(1)}% 0, 100% 0, 100% 100%, ${(l + 9).toFixed(1)}% 100%)`;
       }
+      /* 捲れと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
+      if (aurora) aurora.style.opacity = seg(p, 0.86, 1.0).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -320,6 +323,37 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- 右→左スライドイン（.wc2-inright） ----
+     捲れで暗転したあとの次セクションの文字が、スクロールに同期して右から入ってくる */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".wc2-inright"));
+    if (!items.length) return;
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      items.forEach((el, i) => {
+        const r = el.getBoundingClientRect();
+        if (r.top > vh + 60 || r.bottom < -60) return;
+        /* 画面下86%に入ってから42%の高さぶんで着地。要素ごとに少し時間差 */
+        const prog = ss(Math.min(1, Math.max(0, (vh * 0.86 - r.top) / (vh * 0.42) - i * 0.08)));
+        el.style.transform = `translateX(${((1 - prog) * 16).toFixed(2)}vw)`;
+        el.style.opacity = prog.toFixed(3);
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* カスタムカーソル（ドット＋遅れて追う輪）。タッチ環境・reduced-motion では出さない */
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
@@ -352,6 +386,9 @@ export default function WebContentV2() {
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
         <Scene3D />
+        {/* 白のあとの暗色セクション用：イリデッセンス（薄膜の虹）のオーロラ背景。
+           捲れと同時にフェードインし以降ずっと漂う（JSがopacityを駆動） */}
+        <div className="wc2-aurora" aria-hidden="true"></div>
         <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
@@ -444,11 +481,11 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ CONCERNS ============ */}
-        <section className="wc2-sec">
+        {/* ============ CONCERNS（オーロラ背景・文字は右→左スライドイン） ============ */}
+        <section className="wc2-sec wc2-concerns-sec">
           <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 03 ) — CONCERNS</span>
-            <h2 className="wc2-h2 wc2-fill">こんなお悩みに対応します</h2>
+            <span className="wc2-label wc2-inright">( 03 ) — CONCERNS</span>
+            <h2 className="wc2-h2 wc2-inright">こんなお悩みに対応します</h2>
             <ul className="wc2-chips" data-reveal-stagger>
               {CONCERNS.map(text => <li key={text}>{text}</li>)}
             </ul>

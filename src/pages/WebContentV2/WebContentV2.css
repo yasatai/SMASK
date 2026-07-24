@@ -33,6 +33,25 @@
 
 /* ============ 3Dシーン（全面固定・最背面） ============ */
 .wc2-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+/* ============ オーロラ背景（白のあとの暗色セクションの世界） ============
+   薄膜の虹（青→紫→桃→金）が漂う。ベースは透過なので 3D の星屑も透ける。
+   opacity は JS が捲れと同時に 0→1（以降ずっと表示） */
+.wc2-aurora {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  opacity: 0; will-change: opacity;
+  background:
+    radial-gradient(70% 60% at 18% 26%, oklch(58% 0.16 265 / .24), transparent 68%),
+    radial-gradient(62% 55% at 82% 20%, oklch(56% 0.17 322 / .19), transparent 66%),
+    radial-gradient(58% 55% at 64% 84%, oklch(60% 0.15 32 / .15), transparent 70%),
+    radial-gradient(56% 46% at 28% 80%, oklch(58% 0.16 192 / .14), transparent 70%);
+  background-size: 190% 190%;
+  animation: wc2Aurora 26s ease-in-out infinite alternate;
+}
+@keyframes wc2Aurora {
+  from { background-position: 0% 0%; }
+  to   { background-position: 100% 100%; }
+}
 .wc2-scene canvas { width: 100% !important; height: 100% !important; display: block; }
 /* コンテンツはシーンの上に */
 .wc2-page > section, .wc2-page > .wc2-marquee { position: relative; z-index: 1; }
@@ -102,6 +121,8 @@
 .wc2-sec { padding-block: clamp(5rem, 11vw, 9.5rem); }
 /* 見出しのスクロール染色：JSが1文字ずつ opacity を駆動（灰→白） */
 .wc2-fc { will-change: opacity; }
+/* 右→左スライドイン：JSが transform/opacity を駆動（初期は右に退避） */
+.wc2-inright { opacity: 0; transform: translateX(16vw); will-change: transform, opacity; }
 
 /* Hero〜APPROACHピンの演出中はヘッダー（ロゴ・ナビ・バー・トグル）を隠す。
    JSが html.wc2-chrome-off を出し入れする。演出の没入を妨げないためのフェード */
@@ -274,7 +295,12 @@
 /* 次セクションへの転換ワイプ：暗色面が左から捲れて広がる（clip-path は JS 駆動） */
 .wc2-wipe {
   position: absolute; inset: 0; z-index: 4;
-  background: var(--wc2-bg);
+  /* 捲れが出す面＝これから続くオーロラの世界（暗色ベース＋薄膜の虹） */
+  background:
+    radial-gradient(70% 60% at 18% 26%, oklch(58% 0.16 265 / .24), transparent 68%),
+    radial-gradient(62% 55% at 82% 20%, oklch(56% 0.17 322 / .19), transparent 66%),
+    radial-gradient(58% 55% at 64% 84%, oklch(60% 0.15 32 / .15), transparent 70%),
+    var(--wc2-bg);
   pointer-events: none;
   clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);   /* 初期は幅0（右端）＝不可視 */
   will-change: clip-path;
@@ -484,7 +510,8 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
   .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub,
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
-  .wc2-work { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .wc2-aurora { opacity: 1; animation: none; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
