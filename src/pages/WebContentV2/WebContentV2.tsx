@@ -189,7 +189,6 @@ export default function WebContentV2() {
     const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
     const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
-    const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
     const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -230,18 +229,15 @@ export default function WebContentV2() {
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
         track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
-      /* 次セクションへの転換＝CONCERNS：暗色オーロラの面が右から左へ捲れて、
-         その面に載った文字も一緒に revealed される（74%〜87%）。以降は静止して読ませる */
+      /* 次セクションへの転換＝CONCERNS（trionn の Selected work→OUR SERVICES 準拠）：
+         暗色オーロラの面が「背景＋文字ごと1枚のパネル」で右から左へスライドインし、
+         WORKS を覆う。文字はパネルの一部なので一緒に右→左へ流れる（74%〜90%）。以降は静止 */
       if (wipe) {
-        const wp = seg(p, 0.74, 0.87);
-        const l = 100 - wp * 112;                 // 左辺が右端(100%)から左端外(-12%)へ
-        /* 左辺を斜めにして「捲れ」感を出す（上が先行） */
-        wipe.style.clipPath = `polygon(${l.toFixed(1)}% 0, 100% 0, 100% 100%, ${(l + 9).toFixed(1)}% 100%)`;
-        /* 文字も捲れと同じく右→左へ流れて入ってくる（中身を右からスライド） */
-        if (wipeInner) wipeInner.style.transform = `translateX(${((1 - wp) * 22).toFixed(1)}vw)`;
+        const wp = seg(p, 0.74, 0.90);
+        wipe.style.transform = `translateX(${((1 - wp) * 100).toFixed(2)}%)`;
       }
-      /* 捲れと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
-      if (aurora) aurora.style.opacity = seg(p, 0.74, 0.90).toFixed(3);
+      /* パネルが覆うのと同時にオーロラ背景がフェードイン（以降の暗色セクションの世界） */
+      if (aurora) aurora.style.opacity = seg(p, 0.78, 0.94).toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });

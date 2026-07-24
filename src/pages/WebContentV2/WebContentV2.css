@@ -293,32 +293,29 @@
 .wc2-worksreveal-track .wc2-work { flex: 0 0 auto; width: clamp(300px, 30vw, 500px); }
 
 /* 次セクションへの転換ワイプ：暗色面が左から捲れて広がる（clip-path は JS 駆動） */
+/* 次セクションのパネル（trionn: OUR SERVICES と同じく absolute inset-0 のオーバーレイ）。
+   背景＋文字ごと1枚で右から左へスライドインし WORKS を覆う（JSが translateX 100%→0 を駆動）。
+   ベースは不透明（var(--wc2-bg)）なので下の白を確実に覆う */
 .wc2-wipe {
   position: absolute; inset: 0; z-index: 4;
-  /* 捲れが出す面＝これから続くオーロラの世界（暗色ベース＋薄膜の虹） */
   background:
     radial-gradient(70% 60% at 18% 26%, oklch(58% 0.16 265 / .24), transparent 68%),
     radial-gradient(62% 55% at 82% 20%, oklch(56% 0.17 322 / .19), transparent 66%),
     radial-gradient(58% 55% at 64% 84%, oklch(60% 0.15 32 / .15), transparent 70%),
     var(--wc2-bg);
   pointer-events: none;
-  clip-path: polygon(100% 0, 100% 0, 100% 100%, 100% 100%);   /* 初期は幅0（右端）＝不可視 */
-  will-change: clip-path;
+  transform: translateX(100%);   /* 初期は画面右外 */
+  will-change: transform;
+  /* スライドしてくる先頭（左辺）に奥行きの影 */
+  box-shadow: -40px 0 80px -20px rgb(0 0 0 / .55);
 }
-/* 捲れの先頭（左辺）に淡い光の縁（紙の端が起きるニュアンス） */
-.wc2-wipe::after {
-  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
-  background: linear-gradient(260deg, transparent 0%, transparent calc(100% - 2px), rgb(230 231 234 / .12) 100%);
-}
-/* 捲れの面に載る CONCERNS 本体（clip-path が背景ごと切り出すので文字も一緒に現れる） */
+/* パネルに載る CONCERNS 本体（パネルの一部として一緒に流れる） */
 .wc2-wipe-inner {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0;
   margin-inline: auto; width: min(100% - 3rem, 1240px);
   padding-left: 4.5rem;
   display: flex; flex-direction: column; justify-content: center;
   z-index: 1;
-  transform: translateX(22vw);   /* 初期は右に退避。JSが捲れに合わせて0へ流す */
-  will-change: transform;
 }
 
 .wc2-work-cover {
@@ -527,9 +524,8 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-pin-sticky { position: static; height: auto; display: block; }
   .wc2-marquee--pin { position: static; margin-bottom: 3rem; }
   .wc2-stripes { display: none; }
-  /* 捲れ演出は無効化：CONCERNS を通常フローの読みものとして表示 */
-  .wc2-wipe { position: static; clip-path: none !important; background: transparent; }
-  .wc2-wipe::after { display: none; }
+  /* スライド演出は無効化：CONCERNS を通常フローの読みものとして表示 */
+  .wc2-wipe { position: static; transform: none !important; background: transparent; box-shadow: none; }
   .wc2-wipe-inner {
     position: static; transform: none !important;
     width: min(100% - 3rem, 1240px); margin-inline: auto;
