@@ -1,0 +1,83 @@
+/* ColumnPost.css — コラム記事 詳細ページ専用
+ * 本サイトのトーン（紙色・明朝）を流用。Column / MetalDetail のトークン・余白感に合わせる。
+ * 記事本文は可読性重視（適切な行長・行間）。派手な新演出は付けない。
+ */
+.cp-page {
+  --cp-line: oklch(90% 0.006 70);
+  --cp-mute: oklch(60% 0.008 65);
+  background: var(--color-paper);
+  padding-bottom: clamp(3.5rem, 7vw, 6rem);
+}
+
+/* 記事本文は読みやすい行長（約44rem）に絞る */
+.cp-wrap { width: min(100% - 2.5rem, 44rem); margin-inline: auto; }
+
+/* ============ 記事ヘッダー ============ */
+.cp-head { text-align: center; padding: clamp(6rem, 13vh, 8.5rem) 0 0; }
+.cp-eyebrow {
+  display: block;
+  font-family: var(--font-body); font-size: .68rem; font-weight: 500;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--cp-mute);
+}
+.cp-title {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem); line-height: 1.5; letter-spacing: .06em;
+  color: var(--color-ink); margin-top: 1rem;
+}
+.cp-meta {
+  display: inline-flex; align-items: center; gap: .9rem;
+  justify-content: center; margin-top: 1.2rem;
+}
+.cp-meta time {
+  font-family: var(--font-display); font-size: .82rem; letter-spacing: .1em;
+  color: var(--cp-mute);
+}
+.cp-cat {
+  font-size: .68rem; letter-spacing: .1em; color: var(--color-gold-deep);
+  border: 1px solid color-mix(in oklch, var(--color-gold-line) 70%, transparent);
+  border-radius: 2px; padding: .18rem .6rem;
+}
+.cp-dash {
+  display: block; width: 1.1rem; height: 1px;
+  background: var(--color-ink-mute); opacity: .6; margin: 1.6rem auto 0;
+}
+
+/* ============ 本文 ============ */
+.cp-body { margin-top: clamp(2.4rem, 5vw, 3.4rem); }
+.cp-p {
+  font-family: var(--font-jp); font-size: .95rem; line-height: 2.2;
+  letter-spacing: .04em; color: var(--color-ink); margin-top: 1.3rem;
+}
+.cp-p:first-child { margin-top: 0; }
+.cp-body-empty { color: var(--color-ink-soft); }
+
+/* ============ 一覧へ戻る ============ */
+.cp-back { display: flex; justify-content: center; margin-top: clamp(2.8rem, 5vw, 4rem); }
+.cp-back-btn {
+  display: inline-block; padding: .95rem 2.6rem;
+  background: var(--color-ink); color: var(--color-paper);
+  border-radius: 4px; font-size: .88rem; letter-spacing: .08em;
+  transition: opacity var(--dur-fast) var(--ease-out);
+}
+.cp-back-btn:hover, .cp-back-btn:focus-visible { opacity: .78; }
+
+/* ============ 読み込み中 / 見つからない ============ */
+.cp-loading {
+  padding: 5rem 0; text-align: center;
+  font-size: .86rem; letter-spacing: .06em; color: var(--cp-mute);
+}
+.cp-notfound { text-align: center; padding: clamp(6rem, 14vh, 9rem) 0 clamp(3rem, 6vw, 4rem); }
+.cp-nf-title {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.4rem, 3vw, 1.9rem); letter-spacing: .06em; color: var(--color-ink);
+}
+.cp-nf-text {
+  max-width: 32rem; margin: 1.2rem auto 2rem;
+  font-size: .86rem; line-height: 2.1; letter-spacing: .05em; color: var(--color-ink-soft);
+}
+
+/* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす（Columnと同じ） ============ */
+@media (min-width: 761px) {
+  .cp-page .cp-wrap { padding-left: 6.3rem; }
+}

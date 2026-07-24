@@ -368,6 +368,35 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- SERVICES：各行の区切り線が左→右に引かれる（スクロール同期） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rules = Array.from(document.querySelectorAll<HTMLElement>(".wc2-row-rule"));
+    if (!rules.length) return;
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      rules.forEach(rule => {
+        const r = rule.getBoundingClientRect();
+        if (r.top > vh + 40 || r.top < -40) { return; }
+        /* 行の上辺が画面下85%に入ってから35%の高さぶんで引かれきる */
+        const prog = ss(Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (vh * 0.35))));
+        rule.style.transform = `scaleX(${prog.toFixed(3)})`;
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* ---- 設計図の白い点：グリッド線の上を、交点で進路を変えながら自由に動く ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -616,8 +645,10 @@ export default function WebContentV2() {
           <div className="wc2-rows">
             {SERVICES.map(([num, title, body]) => (
               <div className="wc2-row" key={num} data-reveal>
+                {/* 設計図の線：行の上辺が左→右に引かれる（スクロール同期） */}
+                <span className="wc2-row-rule" aria-hidden="true"></span>
                 <div className="wc2-wrap wc2-row-in">
-                  <span className="wc2-row-num">{num}</span>
+                  <span className="wc2-row-num">SV-{num}</span>
                   <h3>{title}</h3>
                   <p>{body}</p>
                 </div>

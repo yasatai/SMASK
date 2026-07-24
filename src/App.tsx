@@ -10,6 +10,7 @@ import WebContent from "./pages/WebContent/WebContent";
 /* V2試作（3D入り）。three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
 const WebContentV2 = lazy(() => import("./pages/WebContentV2/WebContentV2"));
 import Column from "./pages/Column/Column";
+import ColumnPost from "./pages/Column/ColumnPost";
 import Company from "./pages/Company/Company";
 import Contact from "./pages/Contact/Contact";
 import Privacy from "./pages/Privacy/Privacy";
@@ -127,6 +128,7 @@ export default function App() {
         {/* V2試作：メニュー非掲載・URL直打ちのみ */}
         <Route path="/business-web-v2" element={<Suspense fallback={null}><WebContentV2 /></Suspense>} />
         <Route path="/column" element={<Column />} />
+        <Route path="/column/:slug" element={<ColumnPost />} />
         <Route path="/company" element={<Company />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<Privacy />} />

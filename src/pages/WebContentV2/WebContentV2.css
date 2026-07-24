@@ -432,21 +432,30 @@
 .wc2-note { margin-top: 2.4rem; max-width: 46rem; }
 
 /* ============ SERVICES（大きな行） ============ */
-.wc2-rows { margin-top: clamp(2.4rem, 5vw, 3.6rem); border-top: 1px solid var(--wc2-line); }
+.wc2-rows { margin-top: clamp(2.4rem, 5vw, 3.6rem); }
 .wc2-row {
-  border-bottom: 1px solid var(--wc2-line);
+  position: relative;
+  border-bottom: 1px solid rgb(120 160 220 / .08);   /* 静的枠は薄く。主役は下の描画線 */
   transition: background .6s var(--ease-out);
 }
-.wc2-row:hover { background: rgb(230 231 234 / .035); }
+.wc2-row:hover { background: rgb(120 190 255 / .04); }
+/* 設計図の線：行の上辺。スクロールで左→右に引かれる（JSが scaleX を駆動） */
+.wc2-row-rule {
+  position: absolute; top: -1px; left: 0; right: 0; height: 1px;
+  background: rgb(120 190 255 / .38);
+  transform: scaleX(0); transform-origin: left center;
+  will-change: transform;
+}
 .wc2-row-in {
   display: grid; grid-template-columns: 5rem 1fr 1.2fr; gap: 2.5rem;
   align-items: start;
   padding-block: 2.6rem;
 }
 .wc2-row-num {
-  font-family: var(--wc2-display); font-weight: 400;
-  font-size: .8rem; letter-spacing: .2em; color: var(--wc2-ink-mute);
-  padding-top: .6rem;
+  font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
+  font-weight: 400; font-size: .74rem; letter-spacing: .14em;
+  color: rgb(120 190 255 / .7);   /* 図面の部品符号トーン */
+  padding-top: .7rem;
 }
 .wc2-row h3 {
   font-family: var(--wc2-display); font-weight: 500;
@@ -567,6 +576,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-aurora { opacity: 1; }
   .wc2-bp-draw { clip-path: none !important; }
   .wc2-bp-dots { display: none; }
+  .wc2-row-rule { transform: none !important; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }
