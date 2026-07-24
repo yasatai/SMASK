@@ -376,7 +376,7 @@ export default function WebContentV2() {
     if (!cv || !host) return;
     const ctx = cv.getContext("2d");
     if (!ctx) return;
-    const G = 170;                         // 太グリッドの間隔（線の網と一致）
+    const G = 34;                          // 細方眼の間隔（見えている方眼の網と一致＝必ず線の上）
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let W = 0, H = 0;
     const resize = () => {
@@ -399,14 +399,17 @@ export default function WebContentV2() {
     const rows = () => Math.floor(H / G);
     const ri = (n: number) => Math.floor(Math.random() * n);
     type Dot = { x: number; y: number; dx: number; dy: number; tx: number; ty: number; spd: number };
-    /* 交点に着いたら、後戻り以外・画面内に収まる方向からランダムに次の目標を選ぶ */
+    const inB = (x: number, y: number) => x >= 0 && x <= cols() * G && y >= 0 && y <= rows() * G;
+    /* 交点に着いたら次の目標へ。細方眼だと毎マス曲がるとガタつくので、
+       基本は直進（85%）、たまに交点で90°曲がる。必ず線の上を辿る */
     const retarget = (o: Dot) => {
+      if ((o.dx !== 0 || o.dy !== 0) && Math.random() < 0.85 && inB(o.x + o.dx * G, o.y + o.dy * G)) {
+        o.tx = o.x + o.dx * G; o.ty = o.y + o.dy * G;   // 直進
+        return;
+      }
       const opts = DIRS
         .filter(d => !(d[0] === -o.dx && d[1] === -o.dy))
-        .filter(d => {
-          const nx = o.x + d[0] * G, ny = o.y + d[1] * G;
-          return nx >= 0 && nx <= cols() * G && ny >= 0 && ny <= rows() * G;
-        });
+        .filter(d => inB(o.x + d[0] * G, o.y + d[1] * G));
       const d = opts.length ? opts[ri(opts.length)] : [-o.dx, -o.dy];
       o.dx = d[0]; o.dy = d[1];
       o.tx = o.x + d[0] * G; o.ty = o.y + d[1] * G;
