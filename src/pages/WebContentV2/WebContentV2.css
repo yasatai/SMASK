@@ -459,8 +459,14 @@
 .wc2-services-sec .wc2-row { border-bottom-color: rgb(20 40 70 / .1); }
 .wc2-services-sec .wc2-row-num { color: rgb(40 110 200 / .8); }
 .wc2-services-sec .wc2-row-rule { background: rgb(40 110 200 / .5); }
-/* 見出しが中央から拡大しながら現れる（JSが scale/opacity を駆動） */
-.wc2-c2s-emerge { opacity: 0; transform: scale(0.86); transform-origin: center; will-change: transform, opacity; }
+/* 見出しを画面中央に固定したまま拡大して現れる（下からのスクロールに見えないように） */
+.wc2-services-head-pin { height: 210svh; }
+.wc2-services-head {
+  position: sticky; top: 0; height: 100svh;
+  display: flex; align-items: center;
+}
+/* JSが scale 0.5→1 / opacity を駆動。原点は中央＝中心から現れる */
+.wc2-c2s-emerge { opacity: 0; transform: scale(0.5); transform-origin: center; will-change: transform, opacity; }
 
 .wc2-rows { margin-top: clamp(2.4rem, 5vw, 3.6rem); }
 .wc2-row {
@@ -609,6 +615,8 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-c2s-seed, .wc2-c2s-white { display: none; }
   .wc2-row-rule { transform: none !important; }
   .wc2-c2s-emerge { opacity: 1 !important; transform: none !important; }
+  .wc2-services-head-pin { height: auto; }
+  .wc2-services-head { position: static; height: auto; padding: 4rem 0; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
   .wc2-pin-sticky { position: static; height: auto; display: block; }

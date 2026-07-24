@@ -397,12 +397,14 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- SERVICES：各行の区切り線が左→右に引かれる／見出しが中心から現れる（スクロール同期） ---- */
+  /* ---- SERVICES：見出しが画面中央から拡大して現れる（ヘッダーピンの進行度で駆動）
+     ＋各行の区切り線が左→右に引かれる（スクロール同期） ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rules = Array.from(document.querySelectorAll<HTMLElement>(".wc2-row-rule"));
-    const emerges = Array.from(document.querySelectorAll<HTMLElement>(".wc2-c2s-emerge"));
-    if (!rules.length && !emerges.length) return;
+    const headPin = document.querySelector<HTMLElement>(".wc2-services-head-pin");
+    const emerge = headPin?.querySelector<HTMLElement>(".wc2-c2s-emerge") ?? null;
+    if (!rules.length && !emerge) return;
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const tick = () => {
@@ -415,14 +417,15 @@ export default function WebContentV2() {
         const prog = ss(Math.min(1, Math.max(0, (vh * 0.85 - r.top) / (vh * 0.35))));
         rule.style.transform = `scaleX(${prog.toFixed(3)})`;
       });
-      /* 見出しが中央から拡大しながら現れる */
-      emerges.forEach(el => {
-        const r = el.getBoundingClientRect();
-        if (r.top > vh + 60 || r.bottom < -60) return;
-        const prog = ss(Math.min(1, Math.max(0, (vh * 0.9 - r.top) / (vh * 0.42))));
-        el.style.transform = `scale(${(0.86 + 0.14 * prog).toFixed(3)})`;
-        el.style.opacity = prog.toFixed(3);
-      });
+      /* 見出し：ヘッダーピンの間、中央に留まったまま 0.5→1 に拡大しながら現れる */
+      if (headPin && emerge) {
+        const len = Math.max(1, headPin.offsetHeight - vh);
+        const top = headPin.getBoundingClientRect().top + window.scrollY;
+        const pinP = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+        const prog = ss(Math.min(1, Math.max(0, (pinP - 0.05) / 0.4)));
+        emerge.style.transform = `scale(${(0.5 + 0.5 * prog).toFixed(3)})`;
+        emerge.style.opacity = prog.toFixed(3);
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -682,11 +685,15 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ SERVICES：白背景。内容が中心から現れる（設計図→白へ転換した先） ============ */}
+        {/* ============ SERVICES：白背景。見出しが画面中央から拡大して現れる（ピン留め） ============ */}
         <section className="wc2-sec wc2-services-sec">
-          <div className="wc2-wrap wc2-c2s-emerge">
-            <span className="wc2-label">( 04 ) — SERVICES</span>
-            <h2 className="wc2-h2 wc2-fill">SMASKが提供できること</h2>
+          <div className="wc2-services-head-pin">
+            <div className="wc2-services-head">
+              <div className="wc2-wrap wc2-c2s-emerge">
+                <span className="wc2-label">( 04 ) — SERVICES</span>
+                <h2 className="wc2-h2">SMASKが提供できること</h2>
+              </div>
+            </div>
           </div>
           <div className="wc2-rows">
             {SERVICES.map(([num, title, body]) => (
