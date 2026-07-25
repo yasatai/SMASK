@@ -233,23 +233,20 @@ export default function WebContentV2() {
         const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
-      /* カードの遠近ホイール（trionn DESIGN IN MOTION）：カードを角度で弧に配置し、
-         傾きは控えめ（接線の4割）、手前（角度0付近）ほど大きく＝奥行き。スクロールで全体角度が回って流れる */
+      /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
+         開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
+         （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
-        const prog = seg(p, 0.58, 0.74);
-        const spin = 20 - prog * 40;                        // 全体角度：+20°→-20°（カードが弧を流れる）
-        const worksEls = track.querySelectorAll<HTMLElement>(".wc2-work");
-        const N = worksEls.length;
-        const STEP = 13;                                    // カード間の角度
-        worksEls.forEach((w, i) => {
-          const ang = (i - (N - 1) / 2) * STEP + spin;      // このカードの現在角度（deg, 0=手前中央）
-          const rad = (ang * Math.PI) / 180;
-          w.style.setProperty("--ang", `${ang.toFixed(2)}deg`);
-          w.style.setProperty("--tilt", `${(ang * 0.4).toFixed(2)}deg`);  // 少しだけ接線に傾く
-          w.style.setProperty("--sc", (0.68 + 0.32 * Math.cos(rad)).toFixed(3)); // 手前ほど拡大
-          w.style.zIndex = String(200 + Math.round(Math.cos(rad) * 100));         // 手前を前面に
-        });
-        track.style.opacity = seg(p, 0.58, 0.66).toFixed(3);
+        const prog = seg(p, 0.58, 0.72);
+        const first = track.querySelector<HTMLElement>(".wc2-work");
+        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
+        const cardW = first ? first.getBoundingClientRect().width : 380;
+        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
+        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
+        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
+        const x = startX + (endX - startX) * prog;
+        track.style.transform = `translateX(${x.toFixed(1)}px)`;
+        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
       }
       /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
          ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
@@ -895,39 +892,36 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* DESIGN IN MOTION（trionn 準拠）：巨大な分割見出し＋サブ文。カードは大きな円弧に沿って並び、
-               スクロールでホイールが回転して流れる。出現・回転の駆動JSは大ピン側のまま＝他は崩さない */}
+            {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
+               左→右に流れる（trionn 準拠）。全てスクロール同期 */}
             <div className="wc2-worksreveal">
               <div className="wc2-worksreveal-head">
-                <h2 className="wc2-dim-big" aria-label="DESIGN IN MOTION">
-                  <span className="wc2-dim-big1">DESIGN IN</span>
-                  <span className="wc2-dim-big2">MOTION</span>
-                </h2>
-                <p className="wc2-dim-sub">EXPLORING IDEAS THROUGH<br />DAILY DESIGN PRACTICE.</p>
-                <a className="wc2-viewall wc2-dim-viewall" href="#works">VIEW ON DRIBBBLE <span aria-hidden="true">→</span></a>
+                <span className="wc2-label">( 02 ) — WORKS</span>
+                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
               </div>
-              <div className="wc2-worksreveal-track" style={{ "--n": WORKS.length } as React.CSSProperties}>
-                {WORKS.map((w, i) => (
-                  <article className="wc2-work" key={w.num} style={{ "--i": i, "--hue": w.hue } as React.CSSProperties}>
-                    <a className="wc2-work-inner" href="#works">
+              <div className="wc2-worksreveal-track">
+                {WORKS.map(w => (
+                  <article className="wc2-work" key={w.num}>
+                    <div className="wc2-work-inner">
                       <div className="wc2-work-cover">
                         {w.img ? (
                           <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
                         ) : (
-                          <div className="wc2-cover-art wc2-cover-art--type">
+                          <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
+                            <span className="wc2-cover-num">{w.num}</span>
                             <span className="wc2-cover-en">{w.en}</span>
                           </div>
                         )}
                       </div>
                       <div className="wc2-work-meta">
-                        <span className="wc2-cover-num">{w.num}</span>
                         <h3>{w.title}</h3>
                         <p>
                           {w.tags.map(t => <span key={t}>{t}</span>)}
                           <time>{w.year}</time>
                         </p>
                       </div>
-                    </a>
+                    </div>
                   </article>
                 ))}
               </div>
