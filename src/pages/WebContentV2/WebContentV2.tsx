@@ -206,6 +206,9 @@ export default function WebContentV2() {
     };
     const seed = ap.querySelector<HTMLElement>(".wc2-c2s-seed");
     const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
+    const svcEmerge = ap.querySelector<HTMLElement>(".wc2-c2s-services .wc2-c2s-emerge");
+    /* 爆発的な拡大：オーバーシュートして落ち着く（back-ease-out） */
+    const backOut = (t: number) => { const c1 = 2.4, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
     const tick = () => {
       raf = 0;
       const praw = pinP(ap);
@@ -270,16 +273,22 @@ export default function WebContentV2() {
       }
       /* ② 左から白い「種」の点がスッと現れて中央へ */
       if (seed) {
-        const s = seg(pT, 0.12, 0.34);
+        const s = seg(pT, 0.10, 0.28);
         seed.style.opacity = s.toFixed(3);
         seed.style.transform = `translate(-50%,-50%) translateX(${((1 - s) * -46).toFixed(1)}vw)`;
       }
       /* ③ 動いていた白い点が、その種にどんどん吸い込まれていく（点キャンバスが読む） */
-      convergeRef.current = seg(pT, 0.30, 0.62);
-      /* ④ 種から白い円が広がって背景が白に */
+      convergeRef.current = seg(pT, 0.24, 0.48);
+      /* ④ 種から白い円が広がって背景が白に（早めに完了させる） */
       if (white) {
-        const w = seg(pT, 0.58, 0.86);
+        const w = seg(pT, 0.46, 0.62);
         white.style.clipPath = `circle(${(w * 80).toFixed(1)}vmax at 50% 50%)`;
+      }
+      /* ⑤ 白の直後、SERVICES 全体が中央から爆発的に拡大して現れる → 以降は静止して読ませる */
+      if (svcEmerge) {
+        const e = Math.min(1, Math.max(0, (pT - 0.60) / 0.14));   // 0.60〜0.74 で一気に
+        svcEmerge.style.opacity = seg(pT, 0.60, 0.68).toFixed(3);
+        svcEmerge.style.transform = `scale(${(0.2 + 0.8 * backOut(e)).toFixed(3)})`;
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -385,35 +394,6 @@ export default function WebContentV2() {
         el.style.transform = `translateX(${((1 - prog) * 16).toFixed(2)}vw)`;
         el.style.opacity = prog.toFixed(3);
       });
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    tick();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
-  /* ---- SERVICES：見出し＋行の全体が、画面中央に留まったまま拡大して現れる（ピン進行度で駆動） ---- */
-  useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const pin = document.querySelector<HTMLElement>(".wc2-services-pin");
-    const emerge = pin?.querySelector<HTMLElement>(".wc2-c2s-emerge") ?? null;
-    if (!pin || !emerge) return;
-    let raf = 0;
-    const ss = (t: number) => t * t * (3 - 2 * t);
-    const tick = () => {
-      raf = 0;
-      const vh = window.innerHeight;
-      const len = Math.max(1, pin.offsetHeight - vh);
-      const top = pin.getBoundingClientRect().top + window.scrollY;
-      const pinP = Math.min(1, Math.max(0, (window.scrollY - top) / len));
-      const prog = ss(Math.min(1, Math.max(0, (pinP - 0.05) / 0.42)));
-      emerge.style.transform = `scale(${(0.5 + 0.5 * prog).toFixed(3)})`;
-      emerge.style.opacity = prog.toFixed(3);
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -659,6 +639,27 @@ export default function WebContentV2() {
               {/* CONCERNS→SERVICES 転換：左から現れる「種」の白点と、そこから広がる白い円 */}
               <span className="wc2-c2s-seed" aria-hidden="true"></span>
               <div className="wc2-c2s-white" aria-hidden="true"></div>
+              {/* 白が弾けた直後、SERVICES 全体が中央から爆発的に現れる（白の上） */}
+              <div className="wc2-c2s-services">
+                <div className="wc2-c2s-emerge">
+                  <div className="wc2-wrap wc2-services-headwrap">
+                    <span className="wc2-label">( 04 ) — SERVICES</span>
+                    <h2 className="wc2-h2">SMASKが提供できること</h2>
+                  </div>
+                  <div className="wc2-rows">
+                    {SERVICES.map(([num, title, body]) => (
+                      <div className="wc2-row" key={num}>
+                        <span className="wc2-row-rule" aria-hidden="true"></span>
+                        <div className="wc2-wrap wc2-row-in">
+                          <span className="wc2-row-num">SV-{num}</span>
+                          <h3>{title}</h3>
+                          <p>{body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
               <div className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
@@ -668,32 +669,6 @@ export default function WebContentV2() {
                 <p className="wc2-note">
                   このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
                 </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ============ SERVICES：白背景。見出し＋行の全体が画面中央から拡大して現れる（ピン留め） ============ */}
-        <section className="wc2-sec wc2-services-sec">
-          <div className="wc2-services-pin">
-            <div className="wc2-services-stage">
-              <div className="wc2-c2s-emerge">
-                <div className="wc2-wrap wc2-services-headwrap">
-                  <span className="wc2-label">( 04 ) — SERVICES</span>
-                  <h2 className="wc2-h2">SMASKが提供できること</h2>
-                </div>
-                <div className="wc2-rows">
-                  {SERVICES.map(([num, title, body]) => (
-                    <div className="wc2-row" key={num}>
-                      <span className="wc2-row-rule" aria-hidden="true"></span>
-                      <div className="wc2-wrap wc2-row-in">
-                        <span className="wc2-row-num">SV-{num}</span>
-                        <h3>{title}</h3>
-                        <p>{body}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
