@@ -8,7 +8,8 @@ import MetalDetail from "./pages/MetalDetail/MetalDetail";
 import Jewelry from "./pages/Jewelry/Jewelry";
 /* Webコンテンツ制作は 3D 版を本採用。three.js ごと遅延読み込みし、他ページのバンドルに影響させない
    （旧 2D 版 pages/WebContent は未使用のまま保管） */
-const WebContentV2 = lazy(() => import("./pages/WebContentV2/WebContentV2"));
+import { importWebContentV2 } from "./pages/WebContentV2/lazy";
+const WebContentV2 = lazy(importWebContentV2);
 import Column from "./pages/Column/Column";
 import ColumnPost from "./pages/Column/ColumnPost";
 import Company from "./pages/Company/Company";
@@ -130,8 +131,16 @@ export default function App() {
         <Route path="/business-precious-metals" element={<PreciousMetals />} />
         <Route path="/business-precious-metals/:metal" element={<MetalDetail />} />
         <Route path="/business-jewelry" element={<Jewelry />} />
-        {/* Webコンテンツ制作＝3D版を /business-web で提供 */}
-        <Route path="/business-web" element={<Suspense fallback={null}><WebContentV2 /></Suspense>} />
+        {/* Webコンテンツ制作＝3D版を /business-web で提供。
+            チャンク読み込み中は黒地を敷く（出発側の暗転から白へ戻らないように） */}
+        <Route
+          path="/business-web"
+          element={
+            <Suspense fallback={<div className="wc2-boot" aria-hidden="true"></div>}>
+              <WebContentV2 />
+            </Suspense>
+          }
+        />
         <Route path="/column" element={<Column />} />
         <Route path="/column/:slug" element={<ColumnPost />} />
         <Route path="/company" element={<Company />} />

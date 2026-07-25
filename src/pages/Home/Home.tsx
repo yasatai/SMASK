@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import SplitLn from "../../components/SplitLn";
 import { prefersReduced } from "../../motion";
 import { setBizArrival, type BizGem } from "../../bizTransition";
+import { importWebContentV2 } from "../WebContentV2/lazy";
 import { takeHomeSection } from "../../homeNav";
 import "./Home.css";
 
@@ -77,7 +78,9 @@ export default function Home() {
       biz.classList.add("is-departing");
       setBizArrival(gem);                               // 到着側へ「どこから来たか」を渡す
       /* Webコンテンツ制作（sapphire）は 3D ページへ。寄り続けて暗転しきってから遷移する
-         （遷移先は黒背景のローダーで始まるため、暗転から途切れずに繋がる） */
+         （遷移先は黒背景のローダーで始まるため、暗転から途切れずに繋がる）。
+         3Dページは遅延読み込みなので、演出中に先読みして遷移時の待ち＝白い一瞬を無くす */
+      if (gem === "sapphire") void importWebContentV2();
       const delay = gem === "sapphire" ? 1850 : 1400;
       const t = window.setTimeout(() => navigate(a.getAttribute("href")!), delay);
       cleanups.push(() => clearTimeout(t));
