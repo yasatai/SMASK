@@ -55,10 +55,10 @@ const PROCESS: [string, string, string][] = [
   ["05", "公開・運用開始", "公開後の運用を見据えた状態で、無理なくスタートできるよう整えます。"],
   ["06", "必要に応じた改善", "公開して終わりではなく、必要に応じて見直しや改善につなげます。"],
 ];
-/* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。x<50 の点はカードを右、x>=50 は左へ出す */
+/* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。カードは中心から外側へ出す（重なり回避） */
 const ROUTE_POS: { x: number; y: number }[] = [
-  { x: 40, y: 15 }, { x: 66, y: 29 }, { x: 42, y: 45 },
-  { x: 70, y: 61 }, { x: 44, y: 77 }, { x: 65, y: 90 },
+  { x: 40, y: 14 }, { x: 62, y: 29 }, { x: 42, y: 44 },
+  { x: 64, y: 60 }, { x: 43, y: 76 }, { x: 61, y: 90 },
 ];
 
 /* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え） ---- */
@@ -267,8 +267,8 @@ export default function WebContentV2() {
         wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
         wipeInner.style.opacity = tp.toFixed(3);
       }
-      /* 背景パネルが覆うのと同時に設計図グリッド背景がフェードイン（以降の暗色セクションの世界） */
-      if (aurora) aurora.style.opacity = seg(p, 0.72, 0.86).toFixed(3);
+      /* 設計図グリッド背景：CONCERNSでフェードイン → SERVICES転換の完了とともにフェードアウト（以降のセクションでは消す） */
+      if (aurora) aurora.style.opacity = (seg(p, 0.72, 0.86) * (1 - seg(pT, 0.6, 1.0))).toFixed(3);
 
       /* ===== CONCERNS → SERVICES 転換（後半 pT 0〜1）===== */
       /* ① 文字がはける（左へ流れて消える） */
@@ -505,23 +505,25 @@ export default function WebContentV2() {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const pin = document.querySelector<HTMLElement>(".wc2-route-pin");
     if (!pin) return;
+    const world = pin.querySelector<HTMLElement>(".wc2-route-world");
     const stations = Array.from(pin.querySelectorAll<HTMLElement>(".wc2-station"));
     const comet = pin.querySelector<HTMLElement>(".wc2-comet");
     const base = pin.querySelector<SVGPolylineElement>(".wc2-route-base");
     const trail = pin.querySelector<SVGPolylineElement>(".wc2-route-trail");
     const N = ROUTE_POS.length;
 
-    /* 寄港地を座標に配置（カードは中心側へ出す） */
+    /* 寄港地を座標に配置（カードは中心から外側へ出す＝隣同士が重ならない） */
     stations.forEach((el, i) => {
       el.style.left = `${ROUTE_POS[i].x}%`;
       el.style.top = `${ROUTE_POS[i].y}%`;
-      el.dataset.side = ROUTE_POS[i].x < 50 ? "r" : "l";
+      el.dataset.side = ROUTE_POS[i].x < 50 ? "l" : "r";
     });
     /* 全体の薄い航路線（固定） */
     if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
 
     let raf = 0;
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    const ss = (t: number) => t * t * (3 - 2 * t);
     const tick = () => {
       raf = 0;
       const vh = window.innerHeight;
@@ -529,7 +531,19 @@ export default function WebContentV2() {
       const top = pin.getBoundingClientRect().top + window.scrollY;
       const p = clamp01((window.scrollY - top) / len);
 
-      const seg = p * (N - 1);                                  // 進行度（0〜N-1）
+      /* ★ セクション転換：先頭で暗転→星雲へワープイン、末尾で次セクションへズームアウト */
+      const intro = ss(clamp01(p / 0.12));
+      const outro = ss(clamp01((p - 0.92) / 0.08));
+      if (world) {
+        world.style.opacity = (intro * (1 - outro)).toFixed(3);
+        const scale = 0.9 + 0.1 * intro + 0.12 * outro;        // 0.9→1（イン）→1.12（アウト）
+        const rise = (1 - intro) * 5;                          // 少し下から迫り上がる
+        world.style.transform = `scale(${scale.toFixed(3)}) translateY(${rise.toFixed(1)}vh)`;
+      }
+
+      /* 彗星の航行は中盤（0.12〜0.90）に割り当て、イン/アウトの余白を確保 */
+      const travel = clamp01((p - 0.12) / 0.78);
+      const seg = travel * (N - 1);                             // 進行度（0〜N-1）
       const ci = Math.min(N - 1, Math.floor(seg));
       const cf = seg - ci;
       const a = ROUTE_POS[ci];
@@ -545,14 +559,14 @@ export default function WebContentV2() {
         pts.push(`${cx.toFixed(2)},${cy.toFixed(2)}`);
         trail.setAttribute("points", pts.join(" "));
       }
-      /* 各寄港地：接近で点灯（以降は点灯維持）。カードは“今いる寄港地”だけ濃く出す（重なり回避） */
+      /* 各寄港地：接近で点灯し、以降は点灯・カードとも維持（文言を消さない） */
       stations.forEach((el, i) => {
-        const reveal = clamp01((seg - (i - 0.6)) / 0.6);       // i の0.6手前から点灯 →到達で1（＝点＋走破線）
+        const reveal = clamp01((seg - (i - 0.6)) / 0.6);       // i の0.6手前から点灯 →到達で1
         el.style.setProperty("--op", (0.14 + 0.86 * reveal).toFixed(3));
         const pulse = Math.max(0, 1 - Math.abs(seg - i) / 0.5); // 到達付近だけ波紋
         el.style.setProperty("--pulse", pulse.toFixed(3));
-        const focus = clamp01(1 - Math.abs(seg - i) / 0.7);    // 近い寄港地のカードだけ表示
-        el.style.setProperty("--card", Math.pow(focus, 1.6).toFixed(3));  // 中間はごく淡く→カードの重なりを防ぐ
+        const cardR = clamp01((seg - (i - 0.5)) / 0.5);        // 到達手前で1→以降ずっと表示維持
+        el.style.setProperty("--card", cardR.toFixed(3));
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -881,29 +895,32 @@ export default function WebContentV2() {
         <section className="wc2-sec wc2-route-sec">
           <div className="wc2-route-pin">
             <div className="wc2-route-stage">
-              <div className="wc2-route-head">
-                <span className="wc2-label">( 06 ) — PROCESS</span>
-                <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
-                <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
-              </div>
-              {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}
-              <svg className="wc2-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-                <polyline className="wc2-route-base" points="" fill="none" />
-                <polyline className="wc2-route-trail" points="" fill="none" />
-              </svg>
-              {/* 6つの寄港地（JSで座標・点灯を駆動） */}
-              {PROCESS.map(([num, title, body], i) => (
-                <div className="wc2-station" data-i={i} key={num}>
-                  <span className="wc2-st-node" aria-hidden="true"><i></i></span>
-                  <div className="wc2-st-card">
-                    <span className="wc2-st-num">{num}</span>
-                    <h3>{title}</h3>
-                    <p>{body}</p>
-                  </div>
+              {/* ワープイン/アウト用ラッパ（ピン先頭で暗転→出現、末尾でズームアウト） */}
+              <div className="wc2-route-world">
+                <div className="wc2-route-head">
+                  <span className="wc2-label">( 06 ) — PROCESS</span>
+                  <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
+                  <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
                 </div>
-              ))}
-              {/* 走る彗星 */}
-              <div className="wc2-comet" aria-hidden="true"><span className="wc2-comet-tail"></span></div>
+                {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}
+                <svg className="wc2-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline className="wc2-route-base" points="" fill="none" />
+                  <polyline className="wc2-route-trail" points="" fill="none" />
+                </svg>
+                {/* 6つの寄港地（JSで座標・点灯を駆動） */}
+                {PROCESS.map(([num, title, body], i) => (
+                  <div className="wc2-station" data-i={i} key={num}>
+                    <span className="wc2-st-node" aria-hidden="true"><i></i></span>
+                    <div className="wc2-st-card">
+                      <span className="wc2-st-num">{num}</span>
+                      <h3>{title}</h3>
+                      <p>{body}</p>
+                    </div>
+                  </div>
+                ))}
+                {/* 走る彗星 */}
+                <div className="wc2-comet" aria-hidden="true"><span className="wc2-comet-tail"></span></div>
+              </div>
               {/* reduced-motion フォールバック：通常のステップ一覧 */}
               <ol className="wc2-steps wc2-steps--fb">
                 {PROCESS.map(([num, title, body]) => (

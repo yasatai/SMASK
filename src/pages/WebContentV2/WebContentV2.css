@@ -595,6 +595,8 @@
   /* 奥行きを出す薄いビネット（星雲の上に重ねる） */
   background: radial-gradient(120% 90% at 50% 42%, rgb(18 26 52 / .28), transparent 68%);
 }
+/* ワープイン/アウト用ラッパ（JSで opacity/scale を駆動） */
+.wc2-route-world { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: opacity, transform; }
 .wc2-route-head {
   position: absolute; top: clamp(2rem, 8vh, 5.5rem); left: clamp(1.5rem, 6vw, 7rem);
   z-index: 6; max-width: 20rem;
@@ -633,7 +635,7 @@
 }
 /* カード（星雲の上に浮かぶ暗ガラス）。今いる寄港地だけ濃く出す（--cardで制御） */
 .wc2-st-card {
-  position: absolute; top: 50%; transform: translateY(-50%); width: min(19rem, 30vw);
+  position: absolute; top: 50%; transform: translateY(-50%); width: min(17.5rem, 26vw);
   opacity: var(--card, 0);
   padding: 1rem 1.2rem; border-radius: 12px;
   background: linear-gradient(180deg, rgb(14 20 38 / .78), rgb(10 14 28 / .74));
