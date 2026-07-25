@@ -128,8 +128,8 @@ export default function WebContentV2() {
     let raf = 0;
     const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
     const loop = () => {
-      current += (target - current) * 0.085;                 // なめらかさ（小さいほど滑らか/重い）
-      if (Math.abs(target - current) < 0.4) {
+      current += (target - current) * 0.22;                  // 追従の速さ（大きいほどキビキビ反応）
+      if (Math.abs(target - current) < 0.5) {
         current = target;
         window.scrollTo(0, current);
         raf = 0;
