@@ -290,7 +290,8 @@ export default function Home() {
               <span className="eyebrow fade-up">SMASK</span>
               <h1>
                 <span className="hl">
-                  <SplitLn base={0.15} step={0.045} segments={[{ text: "価値を見極め、" }]} />
+                  {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
+                  <SplitLn base={0.15} step={0.045} segments={[{ text: "価値を見極め" }]} />
                 </span>
                 <span className="hl">
                   <SplitLn base={0.45} step={0.045} segments={[{ text: "かたち", accent: true }, { text: "にする。" }]} />

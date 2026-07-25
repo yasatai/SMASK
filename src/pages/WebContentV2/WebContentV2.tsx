@@ -897,7 +897,8 @@ export default function WebContentV2() {
             </div>
             <div className="wc2-wrap">
               <span className="wc2-label">( 01 ) — APPROACH</span>
-              <h2 className="wc2-h2 wc2-fill">Web制作を、<br /><em>見た目だけ</em>で終わらせない</h2>
+              {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
+              <h2 className="wc2-h2 wc2-fill">Web制作を<br /><em>見た目だけ</em>で終わらせない</h2>
               <div className="wc2-cols wc2-approach-cols">
                 <p className="wc2-lead">
                   Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。

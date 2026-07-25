@@ -31,11 +31,16 @@ function stripCommaBr(root: Element) {
   });
 }
 
+/* ルール①用：この文字の直前では改行させない（行頭に来させない）助詞 */
+const HEAD_NG = /[をがものにはでとへや]/;
+/* 束ねる相手として妥当な直前文字（日本語の字・閉じ括弧・英数字） */
+const JA_CHAR = /[ぁ-んァ-ヶー一-龠々」』）〕〉》0-9A-Za-z０-９Ａ-Ｚａ-ｚ]/;
+
 function processTextNode(node: Text) {
   const parent = node.parentElement;
   if (!parent) return;
   const text = node.data;
-  if (!/[。、]/.test(text)) return;
+  if (!/[。、をがものにはでとへや]/.test(text)) return;
 
   const frag = document.createDocumentFragment();
   let buf = "";
@@ -47,6 +52,23 @@ function processTextNode(node: Text) {
   };
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
+    if (HEAD_NG.test(ch)) {
+      // ルール①：助詞を行頭に来させない
+      if (buf.length && JA_CHAR.test(buf[buf.length - 1])) {
+        // 直前の1文字と nowrap で束ねる
+        const prev = buf[buf.length - 1];
+        buf = buf.slice(0, -1);
+        flush();
+        const span = document.createElement("span");
+        span.style.whiteSpace = "nowrap";
+        span.textContent = prev + ch;
+        frag.appendChild(span);
+      } else {
+        // 直前の文字が取れない（ノード先頭・スパン境界直後など）→ WORD JOINER で改行を禁止
+        buf += "\u2060" + ch;
+      }
+      continue;
+    }
     if (ch === "。") {
       buf += ch;
       flush();
@@ -90,7 +112,7 @@ export function useJaTypography(enabled: boolean) {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode(n) {
           const t = n as Text;
-          if (!t.data || !/[。、]/.test(t.data)) return NodeFilter.FILTER_REJECT;
+          if (!t.data || !/[。、をがものにはでとへや]/.test(t.data)) return NodeFilter.FILTER_REJECT;
           const p = t.parentElement;
           if (!p) return NodeFilter.FILTER_REJECT;
           const tag = p.tagName;

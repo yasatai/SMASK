@@ -1,9 +1,13 @@
-/* 日本語の文節改行（ルール①：変な位置での改行を防ぐ）。
-   useJaTypography が整形した本文（[data-ja-done]）に文節ベースの改行を適用する。
+/* 日本語の文節改行（ルール①：行頭に「を/が/も」等の助詞が来る変な改行を防ぐ）。
+   句読点の無い見出し等はヘルパー（useJaTypography）を通らないため、
+   [data-ja-done] 限定ではなく main 全体に適用して漏れを無くす。
    auto-phrase 非対応ブラウザ（Safari 等）は従来どおりにフォールバック（改悪はしない）。 */
-[data-ja-done] {
+main {
   word-break: auto-phrase;
   line-break: strict;
+}
+main :is(h1, h2, h3, h4, p, li, dt, dd, figcaption, blockquote),
+[data-ja-done] {
   text-wrap: pretty;   /* 最終行のオーファン（「こと。」だけ等）を避ける */
 }
 
