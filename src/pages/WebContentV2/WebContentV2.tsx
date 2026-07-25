@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
+import StrengthScene from "./StrengthScene";
 import "./WebContentV2.css";
 
 /**
@@ -406,52 +407,6 @@ export default function WebContentV2() {
     };
   }, []);
 
-  /* ---- STRENGTHS：構造フレームがスクロールで組み上がる（梁→柱→節点→本文） ---- */
-  useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const frame = document.querySelector<HTMLElement>(".wc2-frame");
-    if (!frame) return;
-    const topBeam = frame.querySelector<HTMLElement>(".wc2-frame-top");
-    const botBeam = frame.querySelector<HTMLElement>(".wc2-frame-bot");
-    const pillars = Array.from(frame.querySelectorAll<HTMLElement>(".wc2-pillar"));
-    let raf = 0;
-    const ss = (t: number) => t * t * (3 - 2 * t);
-    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
-    const tick = () => {
-      raf = 0;
-      const vh = window.innerHeight;
-      const r = frame.getBoundingClientRect();
-      if (r.top > vh + 60 || r.bottom < -60) return;
-      /* フレームが画面下88%に入ってから 60% の高さぶんで組み上がりきる */
-      const p = ss(Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.6))));
-      if (topBeam) topBeam.style.transform = `scaleX(${seg(p, 0.0, 0.22).toFixed(3)})`;
-      if (botBeam) botBeam.style.transform = `scaleX(${seg(p, 0.5, 0.72).toFixed(3)})`;
-      pillars.forEach((pil, i) => {
-        const t0 = 0.16 + i * 0.08;
-        const beam = pil.querySelector<HTMLElement>(".wc2-pillar-beam");
-        const nodes = pil.querySelectorAll<HTMLElement>(".wc2-pillar-node");
-        const body = pil.querySelector<HTMLElement>(".wc2-pillar-body");
-        if (beam) beam.style.transform = `scaleY(${seg(p, t0, t0 + 0.16).toFixed(3)})`;
-        const np = seg(p, t0 + 0.14, t0 + 0.24);
-        nodes.forEach(n => { n.style.transform = `scale(${np.toFixed(3)})`; });
-        if (body) {
-          const bp = seg(p, t0 + 0.2, t0 + 0.36);
-          body.style.opacity = bp.toFixed(3);
-          body.style.transform = `translateY(${((1 - bp) * 12).toFixed(1)}px)`;
-        }
-      });
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
-    tick();
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
-
   /* ---- 設計図の白い点：グリッド線の上を、交点で進路を変えながら自由に動く ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -728,24 +683,21 @@ export default function WebContentV2() {
             <p className="wc2-lead wc2-lead--solo" data-reveal>
               SMASKは、制作そのものを目的とせず、事業にとって本当に必要な形を整えることを重視しています。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
             </p>
-            {/* 構造フレーム：上下の梁と4本の柱がスクロールで組み上がり、節点が締結される */}
-            <div className="wc2-frame">
-              <span className="wc2-frame-beam wc2-frame-top" aria-hidden="true"></span>
-              <span className="wc2-frame-beam wc2-frame-bot" aria-hidden="true"></span>
-              <div className="wc2-frame-cols">
-                {STRENGTHS.map(([num, title, body]) => (
-                  <div className="wc2-pillar" key={num}>
-                    <span className="wc2-pillar-beam" aria-hidden="true"></span>
-                    <span className="wc2-pillar-node wc2-node-top" aria-hidden="true"></span>
-                    <span className="wc2-pillar-node wc2-node-bot" aria-hidden="true"></span>
-                    <div className="wc2-pillar-body">
-                      <span className="wc2-pillar-num">{num}</span>
-                      <h3>{title}</h3>
-                      <p>{body}</p>
-                    </div>
+            {/* 3D：鋼の構造体がスクロールで組み上がる */}
+            <div className="wc2-str3d-stage">
+              <StrengthScene />
+            </div>
+            {/* 4つの強み（3Dの柱に対応する4列） */}
+            <div className="wc2-frame-cols wc2-str-labels" data-reveal-stagger>
+              {STRENGTHS.map(([num, title, body]) => (
+                <div className="wc2-pillar" key={num}>
+                  <div className="wc2-pillar-body">
+                    <span className="wc2-pillar-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

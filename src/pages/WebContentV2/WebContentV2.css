@@ -504,7 +504,20 @@
 /* ============ STRENGTHS ============ */
 .wc2-lead--solo { margin-top: 2.4rem; max-width: 46rem; }
 
-/* ===== STRENGTHS：構造フレーム（4本の柱＝4つの強み）。JSが scaleX/scaleY/scale/opacity を駆動 ===== */
+/* ===== STRENGTHS：3D 鋼の構造体 ＋ 4つの強みラベル ===== */
+.wc2-str3d-stage {
+  margin-top: clamp(2rem, 4vw, 3.2rem);
+  height: clamp(340px, 52vh, 560px);
+  position: relative;
+}
+.wc2-str3d { position: absolute; inset: 0; }
+.wc2-str3d canvas { width: 100% !important; height: 100% !important; display: block; }
+.wc2-str-labels { margin-top: clamp(1.6rem, 3vw, 2.6rem); }
+.wc2-str-labels .wc2-pillar { padding-left: 0; }
+/* ラベルの本文は data-reveal-stagger 側で表示制御するので常時可視に戻す */
+.wc2-str-labels .wc2-pillar-body { opacity: 1; transform: none; will-change: auto; }
+
+/* ===== （旧）構造フレーム CSS：予備。JSが scaleX/scaleY/scale/opacity を駆動 ===== */
 .wc2-frame { position: relative; margin-top: clamp(2.6rem, 5vw, 4rem); padding: 2.4rem 0 0; --bp-bright: rgb(130 195 255 / .55); }
 /* 上下の横梁（左→右に引かれる） */
 .wc2-frame-beam {
