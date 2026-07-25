@@ -79,6 +79,13 @@ export default function Contact() {
     if (!person.trim()) e.push("担当者名を入力してください。");
     if (!email.trim()) e.push("メールアドレスを入力してください。");
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) e.push("メールアドレスの形式が正しくありません。");
+    // 電話番号は任意。入力がある場合のみ、数字（区切りのハイフン・空白・括弧は可）で
+    // 10〜11桁（固定電話10桁・携帯11桁）かをチェックする。
+    if (tel.trim()) {
+      const telDigits = tel.replace(/[-\s()]/g, "");
+      if (!/^\d+$/.test(telDigits)) e.push("電話番号は数字でご入力ください。");
+      else if (telDigits.length < 10 || telDigits.length > 11) e.push("電話番号は10〜11桁でご入力ください（固定電話10桁・携帯11桁）。");
+    }
     if (!inquiryType) e.push("お問い合わせ種別を選択してください。");
     if (!message.trim()) e.push("お問い合わせ内容を入力してください。");
     if (!agreed) e.push("プライバシーポリシーへの同意が必要です。");
@@ -161,6 +168,7 @@ export default function Contact() {
               <div className="ct-thanks" role="status">
                 <h3>送信が完了しました</h3>
                 <p>お問い合わせありがとうございます。担当者より順次ご連絡いたしますので、いましばらくお待ちください。</p>
+                <a href="/" className="ct-home-btn">ホームへ戻る</a>
               </div>
             ) : (
             <form className="ct-form" onSubmit={onSubmit} noValidate>
@@ -205,7 +213,8 @@ export default function Contact() {
                 <div className="ct-field">
                   <label htmlFor="tel">電話番号</label>
                   <input
-                    id="tel" name="tel" type="tel" autoComplete="tel"
+                    id="tel" name="tel" type="tel" autoComplete="tel" inputMode="tel"
+                    className={errors.length > 0 && tel.trim() !== "" && !/^\d{10,11}$/.test(tel.replace(/[-\s()]/g, "")) ? "is-error" : undefined}
                     placeholder="03-0000-0000"
                     value={tel} onChange={e => setTel(e.target.value)}
                   />
