@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
-import StrengthScene from "./StrengthScene";
 import "./WebContentV2.css";
 
 /**
@@ -208,6 +207,7 @@ export default function WebContentV2() {
     const seed = ap.querySelector<HTMLElement>(".wc2-c2s-seed");
     const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
     const svcEmerge = ap.querySelector<HTMLElement>(".wc2-c2s-services .wc2-c2s-emerge");
+    const svcRows = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-c2s-services .wc2-row"));
     /* 爆発的な拡大：オーバーシュートして落ち着く（back-ease-out） */
     const backOut = (t: number) => { const c1 = 2.4, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
     const tick = () => {
@@ -285,12 +285,19 @@ export default function WebContentV2() {
         const w = seg(pT, 0.46, 0.62);
         white.style.clipPath = `circle(${(w * 80).toFixed(1)}vmax at 50% 50%)`;
       }
-      /* ⑤ 白の直後、SERVICES 全体が中央から爆発的に拡大して現れる → 以降は静止して読ませる */
+      /* ⑤ 白の直後、SERVICES 全体が中央から爆発的に拡大して現れる → 静止して読ませる */
       if (svcEmerge) {
         const e = Math.min(1, Math.max(0, (pT - 0.60) / 0.14));   // 0.60〜0.74 で一気に
         svcEmerge.style.opacity = seg(pT, 0.60, 0.68).toFixed(3);
         svcEmerge.style.transform = `scale(${(0.2 + 0.8 * backOut(e)).toFixed(3)})`;
       }
+      /* ⑥ 次セクションへ：SERVICESの行が SV-03 から順に左へフェードアウト（85%〜100%）→ 真っ白 */
+      svcRows.forEach((row, i) => {
+        const order = svcRows.length - 1 - i;          // 最後(SV-03)から先に消す
+        const out = seg(pT, 0.85 + order * 0.04, 0.95 + order * 0.04);
+        row.style.transform = `translateX(${(-out * 30).toFixed(1)}vw)`;
+        row.style.opacity = (1 - out).toFixed(3);
+      });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -395,6 +402,58 @@ export default function WebContentV2() {
         el.style.transform = `translateX(${((1 - prog) * 16).toFixed(2)}vw)`;
         el.style.opacity = prog.toFixed(3);
       });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- STRENGTHS：白いキューブが上から落ちて転がり→展開→内容が現れる（ピン進行度で駆動） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-str-pin");
+    if (!pin) return;
+    const cube = pin.querySelector<HTMLElement>(".wc2-cube");
+    const cubeWrap = pin.querySelector<HTMLElement>(".wc2-cube-wrap");
+    const content = pin.querySelector<HTMLElement>(".wc2-str-content");
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);          // ease-out（落下）
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, pin.offsetHeight - vh);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+
+      /* ① 落下＋転がり（0.06〜0.40）：上から降りてきて回転しながら着地、着地で軽くバウンド */
+      if (cube && cubeWrap) {
+        const drop = seg(p, 0.06, 0.40);
+        const y = (1 - ease(drop)) * -80;                          // -80vh 上から
+        const settle = drop > 0.86 ? Math.sin((drop - 0.86) / 0.14 * Math.PI) * 6 : 0;  // 着地バウンド
+        cubeWrap.style.transform = `translateY(${(y + settle).toFixed(1)}vh)`;
+        const spin = drop * 540;                                   // 転がり（1.5回転）
+        /* ② 展開（0.44〜0.62）：正面を向き、拡大しながら溶けて開く */
+        const open = seg(p, 0.44, 0.62);
+        const rx = 18 + spin * (1 - open);
+        const ry = -24 + spin * (1 - open);
+        const scale = 1 + open * 6;                                // 拡大して画面を覆うように開く
+        cube.style.transform = `rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
+        cubeWrap.style.opacity = (1 - seg(p, 0.50, 0.62)).toFixed(3);   // 開ききると消える
+      }
+      /* ③ 展開の直後、内容（SMASKの強み）が中央から現れる（0.56〜0.74）→ 静止 */
+      if (content) {
+        const c = seg(p, 0.56, 0.74);
+        content.style.opacity = c.toFixed(3);
+        content.style.transform = `scale(${(0.7 + 0.3 * c).toFixed(3)})`;
+      }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -675,29 +734,38 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ STRENGTHS：構造フレーム（4本の柱が組み上がる＝強さを構造で表現） ============ */}
+        {/* ============ STRENGTHS：白いキューブが落ちて転がり→展開→内容が現れる ============ */}
         <section className="wc2-sec wc2-strengths-sec">
-          <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 05 ) — STRENGTHS</span>
-            <h2 className="wc2-h2 wc2-fill">SMASKの強み</h2>
-            <p className="wc2-lead wc2-lead--solo" data-reveal>
-              SMASKは、制作そのものを目的とせず、事業にとって本当に必要な形を整えることを重視しています。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
-            </p>
-            {/* 3D：鋼の構造体がスクロールで組み上がる */}
-            <div className="wc2-str3d-stage">
-              <StrengthScene />
-            </div>
-            {/* 4つの強み（3Dの柱に対応する4列） */}
-            <div className="wc2-frame-cols wc2-str-labels" data-reveal-stagger>
-              {STRENGTHS.map(([num, title, body]) => (
-                <div className="wc2-pillar" key={num}>
-                  <div className="wc2-pillar-body">
-                    <span className="wc2-pillar-num">{num}</span>
-                    <h3>{title}</h3>
-                    <p>{body}</p>
-                  </div>
+          <div className="wc2-str-pin">
+            <div className="wc2-str-stage">
+              {/* 上から落ちて転がってくる白いキューブ */}
+              <div className="wc2-cube-wrap" aria-hidden="true">
+                <div className="wc2-cube">
+                  <span className="wc2-face wc2-face-front"></span>
+                  <span className="wc2-face wc2-face-back"></span>
+                  <span className="wc2-face wc2-face-right"></span>
+                  <span className="wc2-face wc2-face-left"></span>
+                  <span className="wc2-face wc2-face-top"></span>
+                  <span className="wc2-face wc2-face-bottom"></span>
                 </div>
-              ))}
+              </div>
+              {/* キューブが展開されると現れる内容 */}
+              <div className="wc2-str-content">
+                <span className="wc2-label">( 05 ) — STRENGTHS</span>
+                <h2 className="wc2-h2">SMASKの強み</h2>
+                <p className="wc2-str-lead">
+                  制作そのものを目的とせず、事業にとって本当に必要な形を整える。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
+                </p>
+                <div className="wc2-str-grid">
+                  {STRENGTHS.map(([num, title, body]) => (
+                    <div className="wc2-str-item" key={num}>
+                      <span className="wc2-str-num">{num}</span>
+                      <h3>{title}</h3>
+                      <p>{body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>

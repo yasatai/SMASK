@@ -504,18 +504,48 @@
 /* ============ STRENGTHS ============ */
 .wc2-lead--solo { margin-top: 2.4rem; max-width: 46rem; }
 
-/* ===== STRENGTHS：3D 鋼の構造体 ＋ 4つの強みラベル ===== */
-.wc2-str3d-stage {
-  margin-top: clamp(2rem, 4vw, 3.2rem);
-  height: clamp(340px, 52vh, 560px);
-  position: relative;
+/* ===== STRENGTHS：白いキューブが落ちて展開→内容。白背景のピン留め ===== */
+.wc2-strengths-sec { background: #eceded; }
+.wc2-str-pin { height: 300svh; }
+.wc2-str-stage {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  perspective: 1100px;
 }
-.wc2-str3d { position: absolute; inset: 0; }
-.wc2-str3d canvas { width: 100% !important; height: 100% !important; display: block; }
-.wc2-str-labels { margin-top: clamp(1.6rem, 3vw, 2.6rem); }
-.wc2-str-labels .wc2-pillar { padding-left: 0; }
-/* ラベルの本文は data-reveal-stagger 側で表示制御するので常時可視に戻す */
-.wc2-str-labels .wc2-pillar-body { opacity: 1; transform: none; will-change: auto; }
+/* 白いキューブ（面ごとに陰影をつけて白背景でも立体に見せる） */
+.wc2-cube-wrap { position: absolute; width: 130px; height: 130px; will-change: transform, opacity; }
+.wc2-cube { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.wc2-face {
+  position: absolute; width: 130px; height: 130px;
+  border: 1px solid rgb(30 40 60 / .12);
+  box-shadow: inset 0 0 40px rgb(20 30 50 / .05);
+}
+.wc2-face-front  { background: #f6f7f8; transform: translateZ(65px); }
+.wc2-face-back   { background: #eceef0; transform: rotateY(180deg) translateZ(65px); }
+.wc2-face-right  { background: #e2e4e8; transform: rotateY(90deg) translateZ(65px); }
+.wc2-face-left   { background: #e6e8eb; transform: rotateY(-90deg) translateZ(65px); }
+.wc2-face-top    { background: #fbfcfc; transform: rotateX(90deg) translateZ(65px); }
+.wc2-face-bottom { background: #dcdee2; transform: rotateX(-90deg) translateZ(65px); }
+
+/* 展開後に現れる内容 */
+.wc2-str-content {
+  position: absolute; width: min(100% - 3rem, 1240px); padding-left: 4.5rem;
+  opacity: 0; transform: scale(0.7); transform-origin: center; will-change: transform, opacity;
+}
+.wc2-str-content .wc2-label { color: #6b7686; }
+.wc2-str-content .wc2-h2 { color: #14161c; margin-bottom: 0; }
+.wc2-str-lead { margin-top: 1.4rem; max-width: 44rem; color: #4c5260; font-size: .92rem; line-height: 2; }
+.wc2-str-grid {
+  margin-top: clamp(1.8rem, 4vw, 3rem);
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.2rem, 2.6vw, 2.2rem);
+}
+.wc2-str-item { border-top: 1px solid rgb(20 40 70 / .14); padding-top: 1rem; }
+.wc2-str-num {
+  font-family: var(--wc2-display); font-weight: 900; font-size: 1.9rem; line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgb(40 110 200 / .55);
+}
+.wc2-str-item h3 { margin-top: .7rem; font-family: var(--wc2-body); font-weight: 600; font-size: .98rem; color: #16181e; letter-spacing: .02em; }
+.wc2-str-item p { margin-top: .5rem; font-size: .82rem; line-height: 1.85; color: #4c5260; }
 
 /* ===== （旧）構造フレーム CSS：予備。JSが scaleX/scaleY/scale/opacity を駆動 ===== */
 .wc2-frame { position: relative; margin-top: clamp(2.6rem, 5vw, 4rem); padding: 2.4rem 0 0; --bp-bright: rgb(130 195 255 / .55); }
@@ -648,9 +678,12 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-bp-dots { display: none; }
   .wc2-c2s-seed, .wc2-c2s-white { display: none; }
   .wc2-row-rule { transform: none !important; }
-  .wc2-frame-beam, .wc2-pillar-beam, .wc2-pillar-node { transform: none !important; }
-  .wc2-pillar-body { opacity: 1 !important; transform: none !important; }
   .wc2-c2s-emerge { opacity: 1 !important; transform: none !important; }
+  /* STRENGTHS：キューブ演出を無効化し、内容を通常フローで読ませる */
+  .wc2-str-pin { height: auto; }
+  .wc2-str-stage { position: static; height: auto; overflow: visible; display: block; padding: 4rem 0; }
+  .wc2-cube-wrap { display: none; }
+  .wc2-str-content { position: static; opacity: 1 !important; transform: none !important; width: min(100% - 3rem, 1240px); margin-inline: auto; }
   .wc2-c2s-services { position: static; height: auto; overflow: visible; background: #eceded; padding: 4rem 0; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
