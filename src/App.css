@@ -4,6 +4,7 @@
 [data-ja-done] {
   word-break: auto-phrase;
   line-break: strict;
+  text-wrap: pretty;   /* 最終行のオーファン（「こと。」だけ等）を避ける */
 }
 
 /* App.css — ページ遷移時のカーテン演出（App.tsx が生成） */
