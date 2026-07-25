@@ -10,8 +10,6 @@
   align-items: center;
   gap: 0.6rem;
   padding: 0.7rem 1.2rem;
-  background: transparent;
-  border: 1px solid #fff;
   border-radius: 24px;
   color: #fff;
   font-family: var(--wc2-body);
@@ -19,9 +17,14 @@
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
-  /* 背景と逆の色にする（白セクションでは黒、暗色セクションでは白へ自動反転）
-     ＝ページのカスタムカーソルと同じ手法。文字色は純白にして反転を明確に */
-  mix-blend-mode: difference;
+  /* どのセクション（明/暗/グラデ）でも同化しないよう、背景を暗くすりガラス化して
+     白文字・白枠を常に読ませる。mix-blend-mode:difference は各セクションが
+     transform/sticky で別レイヤー化するため中間色で同化することがあり不採用。 */
+  background: rgb(10 12 18 / 0.42);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  backdrop-filter: blur(10px) brightness(0.55) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) brightness(0.55) saturate(115%);
+  box-shadow: 0 2px 14px rgb(0 0 0 / 0.18);
 }
 .wc2-menu-toggle:hover {
   opacity: 0.7;
@@ -163,8 +166,6 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.7rem 1.2rem;
-  background: transparent;
-  border: 1px solid #fff;
   border-radius: 24px;
   color: #fff;
   font-family: var(--wc2-body);
@@ -172,8 +173,12 @@
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
-  /* 背景と逆の色にする（白セクションでは黒、暗色セクションでは白へ自動反転） */
-  mix-blend-mode: difference;
+  /* MENUと同じく、どのセクションでも同化しないよう暗いすりガラスで白文字を常に読ませる */
+  background: rgb(10 12 18 / 0.42);
+  border: 1px solid rgb(255 255 255 / 0.55);
+  backdrop-filter: blur(10px) brightness(0.55) saturate(115%);
+  -webkit-backdrop-filter: blur(10px) brightness(0.55) saturate(115%);
+  box-shadow: 0 2px 14px rgb(0 0 0 / 0.18);
 }
 .wc2-home-button:hover {
   opacity: 0.7;
