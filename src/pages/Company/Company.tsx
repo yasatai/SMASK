@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import LoadCurtain from "../../components/LoadCurtain";
+import { useSiteSettings } from "../../data/SiteSettingsContext";
 import "./Company.css";
 
 /* VISION：目指しているかたち */
@@ -40,8 +41,11 @@ const PROFILE: [string, string | string[]][] = [
 ];
 
 export default function Company() {
+  const { company_name } = useSiteSettings();
   useEffect(() => { document.title = "会社概要 ｜ SMASK"; }, []);
   /* スクロール連動の演出は付けない（素直に読める状態） */
+  /* 会社名だけはサイト設定から差し替え（他項目はコピー扱いで対象外） */
+  const profile = PROFILE.map(([label, value]) => label === "会社名" ? [label, company_name] as const : [label, value] as const);
 
   return (
     <>
@@ -74,7 +78,7 @@ export default function Company() {
         <section className="cp-sec cp-sec--profile">
           <div className="cp-wrap">
             <dl className="cp-profile">
-              {PROFILE.map(([label, value]) => (
+              {profile.map(([label, value]) => (
                 <div className="cp-row" key={label}>
                   <dt>{label}</dt>
                   <dd>

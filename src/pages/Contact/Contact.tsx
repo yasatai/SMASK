@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import LoadCurtain from "../../components/LoadCurtain";
+import { useSiteSettings } from "../../data/SiteSettingsContext";
 import "./Contact.css";
 
 /* ---- 線画アイコン ---- */
@@ -48,6 +49,7 @@ const API_BASE = import.meta.env.VITE_PRICE_API_BASE ?? "";
 type Errors = string[];
 
 export default function Contact() {
+  const { email: contactEmail, business_hours: businessHours } = useSiteSettings();
   const [company, setCompany] = useState("");
   const [person, setPerson] = useState("");
   const [email, setEmail] = useState("");
@@ -133,7 +135,7 @@ export default function Contact() {
               <span className="ct-info-ic"><IconClock /></span>
               <div>
                 <h2>対応時間</h2>
-                <p>平日 9:00〜18:00</p>
+                <p>{businessHours}</p>
                 <p>土日祝日は翌営業日対応</p>
               </div>
             </div>
@@ -325,7 +327,7 @@ export default function Contact() {
             {/* メールアドレス */}
             <div className="ct-mail">
               <span className="ct-mail-label">メールアドレス</span>
-              <a href="mailto:contact@smask.co.jp">contact@smask.co.jp</a>
+              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
             </div>
           </div>
         </section>

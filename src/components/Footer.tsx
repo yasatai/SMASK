@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
+import { useSiteSettings } from "../data/SiteSettingsContext";
 import "./Footer.css";
 
 const WORD = "SMASK";
@@ -13,6 +14,7 @@ const WORD = "SMASK";
  */
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
+  const { company_name } = useSiteSettings();
 
   useEffect(() => {
     const el = ref.current;
@@ -59,7 +61,7 @@ export default function Footer() {
       <hr className="footer-rule" />
       {/* 著作権表記は登記上の社名。年はサイト公開年 */}
       <p className="footer-copy">
-        © 2026 <span className="footer-copy-name">株式会社スマスク</span> All Rights Reserved.
+        © 2026 <span className="footer-copy-name">{company_name}</span> All Rights Reserved.
       </p>
     </footer>
   );

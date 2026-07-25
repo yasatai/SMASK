@@ -113,7 +113,7 @@ export default function PreciousMetals() {
                   <span className="pm-price-rule" aria-hidden="true"></span>
                   <dl>
                     <div>
-                      <dt>小売価格（税込）</dt>
+                      <dt>小売価格（税込）<small className="pm-source-note">（田中貴金属 参考）</small></dt>
                       {/* 値が入るまでは data-count を付けない＝「—」のまま動かない */}
                       <dd {...(m.retail !== null && { "data-count": m.retail, "data-unit": "円" })}>—</dd>
                     </div>

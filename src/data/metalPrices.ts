@@ -47,8 +47,15 @@ export const EMPTY_PRICES: MetalPrice[] = [
 
 /** 公開API `/api/public/prices` のレスポンス形 */
 type ApiPurity = { name: string; price: string };
-type ApiMetal = { code: string; name: string; updated_at: string; prices: ApiPurity[] };
+type ApiMetal = { code: string; name: string; updated_at: string; retail: string | null; retail_diff: string | null; prices: ApiPurity[] };
 type ApiResponse = { data: ApiMetal[] };
+
+/** 文字列を有限数へ。数値化できなければ null（「—」表示） */
+const toFinite = (value: string | null | undefined): number | null => {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+};
 
 const API_BASE = import.meta.env.VITE_PRICE_API_BASE ?? "";
 
@@ -81,7 +88,10 @@ export async function fetchMetalPrices(): Promise<MetalPrice[]> {
       const purities: PurityPrice[] = (metal?.prices ?? [])
         .map(x => ({ name: x.name, price: Number(x.price) }))
         .filter(x => Number.isFinite(x.price));
-      return { ...p, buy: Number.isFinite(buy) ? buy : null, purities };
+      // 田中の店頭小売価格・前日比（無ければ null＝「—」）
+      const retail = toFinite(metal?.retail);
+      const diff = toFinite(metal?.retail_diff);
+      return { ...p, retail, buy: Number.isFinite(buy) ? buy : null, diff, purities };
     });
   } catch {
     return EMPTY_PRICES;

@@ -15,6 +15,7 @@ import Company from "./pages/Company/Company";
 import Contact from "./pages/Contact/Contact";
 import Privacy from "./pages/Privacy/Privacy";
 import { prefersReduced } from "./motion";
+import { SiteSettingsProvider } from "./data/SiteSettingsContext";
 import "./App.css";
 
 const ROUTES = new Set([
@@ -117,7 +118,7 @@ export default function App() {
   }, [pathname]);
 
   return (
-    <>
+    <SiteSettingsProvider>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -134,6 +135,6 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
       </Routes>
       <Footer />
-    </>
+    </SiteSettingsProvider>
   );
 }

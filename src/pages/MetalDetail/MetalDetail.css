@@ -72,6 +72,7 @@
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem;
 }
 .md-card dt { font-size: .78rem; color: var(--color-ink-soft); letter-spacing: .03em; }
+.md-source-note { margin-left: .35rem; font-size: .68rem; color: var(--color-ink-mute); }
 .md-card dd {
   margin: .5rem 0 0; font-size: 1.25rem; color: var(--color-ink);
   font-variant-numeric: tabular-nums;
