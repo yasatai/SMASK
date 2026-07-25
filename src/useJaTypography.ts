@@ -84,12 +84,9 @@ export function useJaTypography(enabled: boolean) {
   const { pathname } = useLocation();
   useEffect(() => {
     if (!enabled) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      // reduced-motion でも改行整形自体は有効にしてよいが、安全側で通常どおり実施
-    }
-    const id = window.setTimeout(() => {
+    const runPass = () => {
       const root = document.querySelector("main") || document.body;
-      stripCommaBr(root);   // 「、」直後の手書き改行を除去してから整形
+      stripCommaBr(root); // 「、」直後の手書き改行を除去してから整形
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode(n) {
           const t = n as Text;
@@ -106,8 +103,17 @@ export function useJaTypography(enabled: boolean) {
       const nodes: Text[] = [];
       let n: Node | null;
       while ((n = walker.nextNode())) nodes.push(n as Text);
-      nodes.forEach(processTextNode);
-    }, 80);
-    return () => window.clearTimeout(id);
+      const parents = new Set<HTMLElement>();
+      nodes.forEach((node) => {
+        const p = node.parentElement;
+        processTextNode(node);
+        if (p) parents.add(p);
+      });
+      // 処理済みの親を印し、再実行時の二重処理を防ぐ（遅延マウント分だけ新規処理される）
+      parents.forEach((p) => p.setAttribute("data-ja-done", "1"));
+    };
+    // ローダー／遅延読み込み（wc2 等）で後からマウントされる本文も拾うため複数回実行
+    const timers = [90, 500, 1300, 2600].map((d) => window.setTimeout(runPass, d));
+    return () => timers.forEach((t) => window.clearTimeout(t));
   }, [pathname, enabled]);
 }

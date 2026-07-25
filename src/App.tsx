@@ -49,8 +49,9 @@ export default function App() {
   }, [pathname]);
 
   /* 日本語のレスポンシブ改行整形（「。」後で改行／行末に「、」を残さない）。
-     wc2（3D演出）ページは per-char アニメがあるため対象外にして別途対応 */
-  useJaTypography(pathname !== "/business-web-v2");
+     全ページ有効。per-char アニメ見出し（.wc2-fill/.wc2-hl/.wc2-dim-big/.wc2-marquee）は
+     ヘルパー側の SKIP で除外しているので、本文テキストのみ整形される */
+  useJaTypography(true);
 
   /* ---- ページ遷移カーテン（元 main.js の leave-curtain を移植） ---- */
   useEffect(() => {
