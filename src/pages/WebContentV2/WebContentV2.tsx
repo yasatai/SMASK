@@ -450,7 +450,9 @@ export default function WebContentV2() {
         const rs = Math.max(0.6, Math.min(1, (window.innerWidth - 760) / 680 * 0.4 + 0.6));
         const drop = seg(p, 0.08, 0.36);
         const roll = ease(drop);                                      // 0→1
-        const x = 24 + (1 - roll) * 32;                               // 右上(56vw)→右側定位置(24vw・画面中央基準)
+        /* 着地位置：広い画面は中央寄り(18vw)、狭い画面は見出しと被らないよう右へ(最大26vw) */
+        const xEnd = Math.min(26, 18 + Math.max(0, (1280 - window.innerWidth) / 520) * 8);
+        const x = xEnd + (1 - roll) * 34;                            // 右上から中央寄りの定位置へ（画面中央基準）
         const y = (1 - roll) * -76;                                   // 上から
         const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
         cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
