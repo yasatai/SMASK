@@ -11,18 +11,20 @@
   gap: 0.6rem;
   padding: 0.7rem 1.2rem;
   background: transparent;
-  border: 1px solid var(--wc2-ink-soft);
+  border: 1px solid #fff;
   border-radius: 24px;
-  color: var(--wc2-ink);
+  color: #fff;
   font-family: var(--wc2-body);
   font-size: 0.88rem;
   letter-spacing: 0.08em;
   cursor: pointer;
-  transition: all 0.3s var(--ease-out);
+  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  /* 背景と逆の色にする（白セクションでは黒、暗色セクションでは白へ自動反転）
+     ＝ページのカスタムカーソルと同じ手法。文字色は純白にして反転を明確に */
+  mix-blend-mode: difference;
 }
 .wc2-menu-toggle:hover {
-  border-color: var(--wc2-ink);
-  color: var(--wc2-ink);
+  opacity: 0.7;
 }
 .wc2-menu-toggle:active {
   transform: scale(0.96);
@@ -162,18 +164,19 @@
   gap: 0.5rem;
   padding: 0.7rem 1.2rem;
   background: transparent;
-  border: 1px solid var(--wc2-ink-soft);
+  border: 1px solid #fff;
   border-radius: 24px;
-  color: var(--wc2-ink);
+  color: #fff;
   font-family: var(--wc2-body);
   font-size: 0.88rem;
   letter-spacing: 0.08em;
   cursor: pointer;
-  transition: all 0.3s var(--ease-out);
+  transition: opacity 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  /* 背景と逆の色にする（白セクションでは黒、暗色セクションでは白へ自動反転） */
+  mix-blend-mode: difference;
 }
 .wc2-home-button:hover {
-  border-color: var(--wc2-ink);
-  color: var(--wc2-ink);
+  opacity: 0.7;
 }
 .wc2-home-button:active {
   transform: scale(0.96);
