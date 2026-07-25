@@ -193,8 +193,6 @@ export default function WebContentV2() {
     if (!ap) return;
     const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
     const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
-    const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
-    const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
     const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
     const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
     const bpDraw = ap.querySelector<HTMLElement>(".wc2-bp-draw");
@@ -227,48 +225,28 @@ export default function WebContentV2() {
         const order = stripes.length - 1 - i;   // 下の帯ほど先
         s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
       });
-      /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上） */
-      if (head) {
-        head.style.opacity = seg(p, 0.46, 0.55).toFixed(3);
-        const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
-        head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
-      }
-      /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
-         開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
-         （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
-      if (track) {
-        const prog = seg(p, 0.58, 0.72);
-        const first = track.querySelector<HTMLElement>(".wc2-work");
-        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
-        const cardW = first ? first.getBoundingClientRect().width : 380;
-        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
-        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
-        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
-        const x = startX + (endX - startX) * prog;
-        track.style.transform = `translateX(${x.toFixed(1)}px)`;
-        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
-      }
-      /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
-         ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
-         ② 覆いきってから、文字だけが右→左へ流れて現れる（84%〜96%）。以降は静止して読ませる */
+      /* （WORKS は独立セクション「DESIGN IN MOTION」へ移設。白転調の直後に CONCERNS へ捲る） */
+      /* 次セクションへの転換＝CONCERNS（背景が先→あとで文字）：
+         ① 暗色パネルが右から左へスライドインして白い画面を覆う
+         ② 覆いきってから、文字が右→左へ流れて現れる。以降は静止して読ませる */
       if (wipe) {
-        const wp = seg(p, 0.70, 0.82);
+        const wp = seg(p, 0.52, 0.64);
         wipe.style.transform = `translateX(${((1 - wp) * 100).toFixed(2)}%)`;
       }
       /* 設計図の線が左→右に引かれていく（見当・寸法・表題欄も一緒に描かれる） */
       if (bpDraw) {
-        const dp = seg(p, 0.82, 0.94);
+        const dp = seg(p, 0.64, 0.78);
         bpDraw.style.clipPath = `inset(0 ${((1 - dp) * 100).toFixed(1)}% 0 0)`;
       }
       /* 線を描き終えたあと、白い点をフェードイン */
-      if (bpDots) bpDots.style.opacity = seg(p, 0.92, 1.0).toFixed(3);
+      if (bpDots) bpDots.style.opacity = seg(p, 0.82, 0.94).toFixed(3);
       if (wipeInner) {
-        const tp = seg(p, 0.86, 0.98);
+        const tp = seg(p, 0.70, 0.84);
         wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
         wipeInner.style.opacity = tp.toFixed(3);
       }
       /* 設計図グリッド背景：CONCERNSでフェードイン → SERVICES転換の完了とともにフェードアウト（以降のセクションでは消す） */
-      if (aurora) aurora.style.opacity = (seg(p, 0.72, 0.86) * (1 - seg(pT, 0.6, 1.0))).toFixed(3);
+      if (aurora) aurora.style.opacity = (seg(p, 0.56, 0.70) * (1 - seg(pT, 0.6, 1.0))).toFixed(3);
 
       /* ===== CONCERNS → SERVICES 転換（後半 pT 0〜1）===== */
       /* ① 文字がはける（左へ流れて消える） */
@@ -830,6 +808,42 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- DESIGN IN MOTION：各タイルがスクロールでせり出す＋メディアはパララックス ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const list = document.querySelector<HTMLElement>(".wc2-dim-list");
+    if (!list) return;
+    const tiles = Array.from(list.querySelectorAll<HTMLElement>(".wc2-dim-tile"));
+    let raf = 0;
+    const cl = (v: number) => Math.min(1, Math.max(0, v));
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight || 1;
+      tiles.forEach((tile) => {
+        const r = tile.getBoundingClientRect();
+        /* 出現：下から入ってきてスケールしながらフェードイン */
+        const rev = cl((vh * 0.92 - r.top) / (vh * 0.4));
+        tile.style.opacity = cl(rev * 1.25).toFixed(3);
+        tile.style.transform = `translateY(${((1 - rev) * 44).toFixed(1)}px) scale(${(0.94 + 0.06 * rev).toFixed(3)})`;
+        /* メディアはパララックス（枠内でゆっくり動く） */
+        const media = tile.querySelector<HTMLElement>(".wc2-dim-media");
+        if (media) {
+          const c = (r.top + r.height / 2) / vh;              // タイル中心の縦位置 0..1
+          media.style.transform = `translateY(${((c - 0.5) * -12).toFixed(1)}%) scale(1.16)`;
+        }
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <>
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
@@ -891,40 +905,7 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
-               左→右に流れる（trionn 準拠）。全てスクロール同期 */}
-            <div className="wc2-worksreveal">
-              <div className="wc2-worksreveal-head">
-                <span className="wc2-label">( 02 ) — WORKS</span>
-                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
-                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
-              </div>
-              <div className="wc2-worksreveal-track">
-                {WORKS.map(w => (
-                  <article className="wc2-work" key={w.num}>
-                    <div className="wc2-work-inner">
-                      <div className="wc2-work-cover">
-                        {w.img ? (
-                          <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
-                        ) : (
-                          <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
-                            <span className="wc2-cover-num">{w.num}</span>
-                            <span className="wc2-cover-en">{w.en}</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="wc2-work-meta">
-                        <h3>{w.title}</h3>
-                        <p>
-                          {w.tags.map(t => <span key={t}>{t}</span>)}
-                          <time>{w.year}</time>
-                        </p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
+            {/* WORKS は独立セクション「DESIGN IN MOTION」へ移設（大ピン外） */}
             {/* 次セクションへの転換＝CONCERNS：暗色オーロラが右から捲れ、
                その面に載った文字（見出し・チップ）も一緒に revealed される（clip-path が両方を切り出す） */}
             <div className="wc2-wipe">
@@ -949,7 +930,7 @@ export default function WebContentV2() {
               <div className="wc2-c2s-services">
                 <div className="wc2-c2s-emerge">
                   <div className="wc2-wrap wc2-services-headwrap">
-                    <span className="wc2-label">( 04 ) — SERVICES</span>
+                    <span className="wc2-label">( 03 ) — SERVICES</span>
                     <h2 className="wc2-h2">SMASKが提供できること</h2>
                   </div>
                   <div className="wc2-rows">
@@ -967,7 +948,7 @@ export default function WebContentV2() {
                 </div>
               </div>
               <div className="wc2-wipe-inner">
-                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
+                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 02 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
                 <ul className="wc2-chips">
                   {CONCERNS.map((text, i) => <li key={text} data-n={`C-0${i + 1}`}>{text}</li>)}
@@ -977,6 +958,41 @@ export default function WebContentV2() {
                 </p>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ============ DESIGN IN MOTION：実績を全幅タイルで縦に連続（trionn寄り）。スクロールで各タイルがせり出す ============ */}
+        <section className="wc2-sec wc2-dim-sec">
+          <div className="wc2-wrap wc2-dim-head">
+            <span className="wc2-label" data-reveal>( 04 ) — DESIGN IN MOTION</span>
+            <h2 className="wc2-h2 wc2-fill" data-reveal>Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+            <p className="wc2-dim-note" data-reveal>実績サンプル（実案件名・掲載可否・映像は代表確認のうえ差し替え）。</p>
+          </div>
+          <div className="wc2-dim-list">
+            {WORKS.map((w) => (
+              <a className="wc2-dim-tile" key={w.num} href="#works" style={{ "--hue": w.hue } as React.CSSProperties}>
+                <div className="wc2-dim-media" aria-hidden="true">
+                  {w.img ? (
+                    <img className="wc2-dim-img" src={w.img} alt="" />
+                  ) : (
+                    <span className="wc2-dim-ph">
+                      <span className="wc2-dim-watermark">{w.en}</span>
+                    </span>
+                  )}
+                </div>
+                <div className="wc2-dim-cap">
+                  <span className="wc2-dim-idx">{w.num}</span>
+                  <div className="wc2-dim-captext">
+                    <h3 className="wc2-dim-title">{w.title}</h3>
+                    <p className="wc2-dim-tags">
+                      {w.tags.map((t) => <span key={t}>{t}</span>)}
+                      <time>{w.year}</time>
+                    </p>
+                  </div>
+                  <span className="wc2-dim-view" aria-hidden="true">VIEW <span>→</span></span>
+                </div>
+              </a>
+            ))}
           </div>
         </section>
 

@@ -509,6 +509,73 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* ============ STRENGTHS ============ */
 .wc2-lead--solo { margin-top: 2.4rem; max-width: 46rem; }
 
+/* ===== DESIGN IN MOTION：全幅タイルが縦に連続。スクロールでせり出す（JS駆動）＋メディアはパララックス ===== */
+.wc2-dim-sec { background: transparent; }
+.wc2-dim-head { margin-bottom: clamp(2rem, 5vw, 3.6rem); }
+.wc2-dim-head .wc2-amp { font-style: normal; padding: 0 .2em; color: var(--wc2-ink-mute); }
+.wc2-dim-note { margin-top: 1.2rem; color: var(--wc2-ink-mute); font-size: .82rem; }
+.wc2-dim-list {
+  display: flex; flex-direction: column; gap: clamp(1.4rem, 3vw, 2.6rem);
+  width: min(100% - 3rem, 1400px); margin-inline: auto;
+}
+.wc2-dim-tile {
+  position: relative; display: block; width: 100%;
+  height: clamp(340px, 72svh, 720px);
+  border-radius: 16px; overflow: hidden;
+  opacity: 0; will-change: transform, opacity;
+  text-decoration: none; color: var(--wc2-ink);
+  border: 1px solid rgb(230 231 234 / .1);
+}
+.wc2-dim-media { position: absolute; inset: 0; will-change: transform; }
+.wc2-dim-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.wc2-dim-ph {
+  position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden;
+  background:
+    radial-gradient(130% 120% at 18% 18%, hsl(var(--hue) 65% 26%), transparent 58%),
+    radial-gradient(130% 120% at 82% 86%, hsl(calc(var(--hue) + 40) 60% 20%), transparent 58%),
+    linear-gradient(125deg, hsl(var(--hue) 55% 12%), hsl(calc(var(--hue) + 24) 50% 7%));
+}
+.wc2-dim-ph::after {                          /* 流れる光沢＝“モーション”の仮表現（動画差し替え前提） */
+  content: ""; position: absolute; inset: -30%;
+  background: linear-gradient(115deg, transparent 42%, hsl(var(--hue) 90% 72% / .16) 50%, transparent 58%);
+  animation: wc2DimSheen 6.5s linear infinite;
+}
+@keyframes wc2DimSheen { from { transform: translateX(-45%); } to { transform: translateX(45%); } }
+.wc2-dim-watermark {
+  font-family: var(--wc2-display); font-weight: 900;
+  font-size: clamp(2.2rem, 9vw, 8rem); letter-spacing: .04em;
+  color: rgb(255 255 255 / .06); white-space: nowrap; user-select: none;
+}
+.wc2-dim-cap {
+  position: absolute; inset: auto 0 0 0; z-index: 2;
+  display: flex; align-items: flex-end; gap: clamp(1rem, 3vw, 2rem);
+  padding: clamp(1.4rem, 3vw, 2.6rem);
+  background: linear-gradient(0deg, rgb(4 6 10 / .82), rgb(4 6 10 / .2) 60%, transparent);
+}
+.wc2-dim-idx {
+  font-family: var(--wc2-display); font-weight: 900; font-size: clamp(1rem, 2vw, 1.4rem);
+  color: transparent; -webkit-text-stroke: 1px rgb(255 255 255 / .5); line-height: 1;
+}
+.wc2-dim-captext { flex: 1 1 auto; min-width: 0; }
+.wc2-dim-title { font-family: var(--wc2-display); font-weight: 500; font-size: clamp(1.4rem, 3.4vw, 2.6rem); color: #fff; line-height: 1.15; }
+.wc2-dim-tags { margin-top: .7rem; display: flex; flex-wrap: wrap; gap: .5rem 1.1rem; align-items: center; }
+.wc2-dim-tags span, .wc2-dim-tags time {
+  font-family: var(--wc2-body); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--wc2-ink-soft);
+}
+.wc2-dim-tags time { color: var(--wc2-ink-mute); margin-left: auto; }
+.wc2-dim-view {
+  flex: none; align-self: center;
+  font-family: var(--wc2-display); font-size: .72rem; letter-spacing: .2em; color: #fff;
+  display: inline-flex; gap: .6rem; opacity: 0; transform: translateX(-6px);
+  transition: opacity .4s var(--ease-out), transform .4s var(--ease-out);
+}
+.wc2-dim-tile:hover .wc2-dim-view { opacity: 1; transform: none; }
+.wc2-dim-tile:hover .wc2-dim-media { filter: brightness(1.08); }
+@media (max-width: 720px) {
+  .wc2-dim-view { display: none; }
+  .wc2-dim-cap { flex-wrap: wrap; align-items: flex-start; }
+}
+
 /* ===== STRENGTHS：見出しがバウンド着地／4側面に強みを刻んだ白キューブが落ちて回転ショーケース ===== */
 .wc2-strengths-sec { background: #eceded; }
 .wc2-str-pin { height: 460svh; }
@@ -838,6 +905,10 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-route-hint { display: none; }
   .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
   .wc2-route-stage .wc2-steps--fb { display: grid; width: min(100% - 3rem, 1240px); margin-inline: auto; }
+  /* DESIGN IN MOTION：タイルの出現・パララックス・光沢を無効化 */
+  .wc2-dim-tile { opacity: 1 !important; transform: none !important; }
+  .wc2-dim-media { transform: none !important; }
+  .wc2-dim-ph::after { animation: none; }
   /* CONTACT：出現演出を無効化し、通常表示 */
   .wc2-contact-pin { height: auto; }
   .wc2-contact-stage { position: static; height: auto; overflow: visible; display: block; padding: 4rem 0; }
