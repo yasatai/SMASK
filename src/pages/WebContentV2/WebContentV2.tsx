@@ -1080,6 +1080,14 @@ export default function WebContentV2() {
                   </span>
                 </a>
                 <p className="wc2-contact-lead">まずはお気軽にご相談ください。ご要望・ご予算に合わせて柔軟にご対応いたします。</p>
+                {/* 自社ロゴ（暗色背景用に反転＋色相補正＋screenで白背景を透過） */}
+                <img
+                  className="wc2-contact-logo"
+                  src={`${import.meta.env.BASE_URL}assets/logo.jpg`}
+                  alt="SMASK"
+                  width="1024"
+                  height="512"
+                />
               </div>
             </div>
           </div>

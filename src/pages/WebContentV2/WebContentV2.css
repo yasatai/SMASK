@@ -778,6 +778,14 @@
   background: rgb(230 231 234 / .08); border-color: rgb(230 231 234 / .8);
 }
 .wc2-contact-lead { margin-top: 2.2rem; max-width: 40rem; margin-inline: auto; }
+/* 自社ロゴ：白背景JPGを暗色背景に載せる（反転→色相補正でオレンジ維持→screenで白地を透過） */
+.wc2-contact-logo {
+  display: block; margin: clamp(2.2rem, 5vw, 3.6rem) auto 0;
+  width: clamp(120px, 15vw, 180px); height: auto;
+  filter: invert(1) hue-rotate(180deg);
+  mix-blend-mode: screen;
+  opacity: .92;
+}
 /* 紙色フッターへの橋渡し */
 .wc2-bridge {
   height: clamp(6rem, 13vw, 11rem); margin-top: clamp(5rem, 10vw, 8rem);
