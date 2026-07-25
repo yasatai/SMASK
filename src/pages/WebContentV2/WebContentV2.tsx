@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
@@ -101,6 +102,7 @@ function Loader({ onDone }: { onDone: () => void }) {
 }
 
 export default function WebContentV2() {
+  const navigate = useNavigate();
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => { document.title = "Webコンテンツ制作 ｜ SMASK"; }, []);
@@ -880,6 +882,14 @@ export default function WebContentV2() {
     <>
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
+        <button
+          className="wc2-home-button"
+          aria-label="Go to home"
+          onClick={() => navigate("/")}
+        >
+          <span>←</span>
+          <span>HOME</span>
+        </button>
         <WebContentV2Menu />
         <Scene3D />
         {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
