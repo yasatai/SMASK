@@ -433,19 +433,22 @@ export default function WebContentV2() {
       const top = pin.getBoundingClientRect().top + window.scrollY;
       const p = Math.min(1, Math.max(0, (window.scrollY - top) / len));
 
-      /* ① 落下＋転がり（0.06〜0.40）：上から降りてきて回転しながら着地、着地で軽くバウンド */
+      /* ① 落下＋転がり（0.06〜0.40）：斜め右上から降りてきて回転しながら着地、着地で軽くバウンド */
       if (cube && cubeWrap) {
         const drop = seg(p, 0.06, 0.40);
-        const y = (1 - ease(drop)) * -80;                          // -80vh 上から
+        const prog = ease(drop);
+        const x = (1 - prog) * 48;                                 // +48vw 右から（斜め）
+        const y = (1 - prog) * -74;                                // -74vh 上から
         const settle = drop > 0.86 ? Math.sin((drop - 0.86) / 0.14 * Math.PI) * 6 : 0;  // 着地バウンド
-        cubeWrap.style.transform = `translateY(${(y + settle).toFixed(1)}vh)`;
+        cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
         const spin = drop * 540;                                   // 転がり（1.5回転）
         /* ② 展開（0.44〜0.62）：正面を向き、拡大しながら溶けて開く */
         const open = seg(p, 0.44, 0.62);
         const rx = 18 + spin * (1 - open);
         const ry = -24 + spin * (1 - open);
+        const rz = (1 - prog) * -26;                               // 斜め落下に合わせた転がりの傾き
         const scale = 1 + open * 6;                                // 拡大して画面を覆うように開く
-        cube.style.transform = `rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
+        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
         cubeWrap.style.opacity = (1 - seg(p, 0.50, 0.62)).toFixed(3);   // 開ききると消える
       }
       /* ③ 展開の直後、内容（SMASKの強み）が中央から現れる（0.56〜0.74）→ 静止 */
