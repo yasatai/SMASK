@@ -422,7 +422,7 @@ export default function WebContentV2() {
     const cube = pin.querySelector<HTMLElement>(".wc2-cube");
     const cubeWrap = pin.querySelector<HTMLElement>(".wc2-cube-wrap");
     const shadow = pin.querySelector<HTMLElement>(".wc2-cube-shadow");
-    const content = pin.querySelector<HTMLElement>(".wc2-str-content");
+    const head = pin.querySelector<HTMLElement>(".wc2-str-head");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -434,36 +434,43 @@ export default function WebContentV2() {
       const top = pin.getBoundingClientRect().top + window.scrollY;
       const p = Math.min(1, Math.max(0, (window.scrollY - top) / len));
 
-      /* ① 落下＋転がり（0.06〜0.40）：斜め右上から降りてきて回転しながら着地、着地で軽くバウンド */
-      if (cube && cubeWrap) {
-        const drop = seg(p, 0.06, 0.40);
-        const prog = ease(drop);
-        const x = (1 - prog) * 48;                                 // +48vw 右から（斜め）
-        const y = (1 - prog) * -74;                                // -74vh 上から
-        const settle = drop > 0.86 ? Math.sin((drop - 0.86) / 0.14 * Math.PI) * 6 : 0;  // 着地バウンド
-        cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
-        const spin = drop * 540;                                   // 転がり（1.5回転）
-        /* ② 展開（0.44〜0.62）：正面を向き、拡大しながら溶けて開く */
-        const open = seg(p, 0.44, 0.62);
-        const rx = 18 + spin * (1 - open);
-        const ry = -24 + spin * (1 - open);
-        const rz = (1 - prog) * -26;                               // 斜め落下に合わせた転がりの傾き
-        const scale = 1 + open * 6;                                // 拡大して画面を覆うように開く
-        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
-        cubeWrap.style.opacity = (1 - seg(p, 0.50, 0.62)).toFixed(3);   // 開ききると消える
-        /* 床の設置影：Xだけキューブに追従し、落下で濃く/大きく、着地でキュッと締まる */
-        if (shadow) {
-          const near = ease(drop);                                      // 地面への近さ 0→1
-          const sc = 0.42 + near * 0.62 - Math.max(0, settle) * 0.03;   // 近いほど大きく、バウンドで少し縮む
-          shadow.style.transform = `translate(${x.toFixed(1)}vw, 82px) scale(${sc.toFixed(3)})`;  // 床（キューブ真下）に固定
-          shadow.style.opacity = (near * 0.9 * (1 - seg(p, 0.50, 0.60))).toFixed(3);
-        }
+      /* overshoot（バウンド）付き ease：着地・回転の“カチッ”を出す */
+      const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+
+      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16） */
+      if (head) {
+        const hb = back(seg(p, 0.00, 0.16));                          // overshoot で放り込まれた感
+        head.style.opacity = seg(p, 0.00, 0.08).toFixed(3);
+        head.style.transform = `translateY(${((1 - hb) * -58).toFixed(1)}vh)`;
       }
-      /* ③ 展開の直後、内容（SMASKの強み）が中央から現れる（0.56〜0.74）→ 静止 */
-      if (content) {
-        const c = seg(p, 0.56, 0.74);
-        content.style.opacity = c.toFixed(3);
-        content.style.transform = `scale(${(0.7 + 0.3 * c).toFixed(3)})`;
+
+      /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 右側に着地、着地で軽くバウンド */
+      if (cube && cubeWrap) {
+        const drop = seg(p, 0.08, 0.36);
+        const roll = ease(drop);                                      // 0→1
+        const x = 20 + (1 - roll) * 34;                               // 右上(54vw)→右側定位置(20vw)
+        const y = (1 - roll) * -76;                                   // 上から
+        const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
+        cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
+
+        /* ③ 90°ずつの回転ショーケース：01→02→03→04（各ステップ overshoot でカチッ） */
+        const s1 = back(seg(p, 0.40, 0.52));
+        const s2 = back(seg(p, 0.56, 0.68));
+        const s3 = back(seg(p, 0.72, 0.84));
+        const showRY = -90 * (s1 + s2 + s3);                          // 0 → -270（4側面を順に正面へ）
+
+        const tumble = 1 - roll;                                      // 落下中だけ効く 1→0
+        const rx = -13 * roll + 26 * tumble;                          // 着地時 -13°の見下ろし＋落下中の余分な傾き
+        const ry = showRY - 540 * tumble;                             // 落下中は転がり、着地で showRY に収束
+        const rz = tumble * -24;                                      // 斜め落下の傾き（着地で0）
+        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`;
+
+        /* 床の設置影：Xはキューブに追従、落下で濃く/大きく、着地でキュッと締まる */
+        if (shadow) {
+          const sc = 0.42 + roll * 0.6 - Math.max(0, settle) * 0.03;
+          shadow.style.transform = `translate(${x.toFixed(1)}vw, 158px) scale(${sc.toFixed(3)})`;
+          shadow.style.opacity = (roll * 0.85).toFixed(3);
+        }
       }
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
@@ -745,39 +752,44 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ STRENGTHS：白いキューブが落ちて転がり→展開→内容が現れる ============ */}
+        {/* ============ STRENGTHS：見出しが上から投げられてバウンド／4側面に強みを持つ白キューブが落ちて回転ショーケース ============ */}
         <section className="wc2-sec wc2-strengths-sec">
           <div className="wc2-str-pin">
             <div className="wc2-str-stage">
-              {/* 床の設置影（落下・着地に合わせて濃く/大きく） */}
-              <div className="wc2-cube-shadow" aria-hidden="true"></div>
-              {/* 上から落ちて転がってくる白いキューブ */}
-              <div className="wc2-cube-wrap" aria-hidden="true">
-                <div className="wc2-cube">
-                  <span className="wc2-face wc2-face-front"></span>
-                  <span className="wc2-face wc2-face-back"></span>
-                  <span className="wc2-face wc2-face-right"></span>
-                  <span className="wc2-face wc2-face-left"></span>
-                  <span className="wc2-face wc2-face-top"></span>
-                  <span className="wc2-face wc2-face-bottom"></span>
-                </div>
-              </div>
-              {/* キューブが展開されると現れる内容 */}
-              <div className="wc2-str-content">
+              {/* 左：見出し（上から投げられたようにバウンドして着地） */}
+              <div className="wc2-str-head">
                 <span className="wc2-label">( 05 ) — STRENGTHS</span>
                 <h2 className="wc2-h2">SMASKの強み</h2>
                 <p className="wc2-str-lead">
                   制作そのものを目的とせず、事業にとって本当に必要な形を整える。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
                 </p>
-                <div className="wc2-str-grid">
-                  {STRENGTHS.map(([num, title, body]) => (
-                    <div className="wc2-str-item" key={num}>
-                      <span className="wc2-str-num">{num}</span>
-                      <h3>{title}</h3>
-                      <p>{body}</p>
-                    </div>
+                <span className="wc2-str-hint" aria-hidden="true">SCROLL — キューブが回転し、4つの強みが順に現れます</span>
+              </div>
+              {/* 床の設置影（落下・着地に合わせて濃く/大きく） */}
+              <div className="wc2-cube-shadow" aria-hidden="true"></div>
+              {/* 右：4側面（01〜04）に強みを刻んだ白キューブ。斜め上から落ちて転がり、90°ずつ回転して各面を見せる */}
+              <div className="wc2-cube-wrap" aria-hidden="true">
+                <div className="wc2-cube">
+                  {STRENGTHS.map(([num, title, body], i) => (
+                    <span className={`wc2-face wc2-face-str ${["wc2-face-front", "wc2-face-right", "wc2-face-back", "wc2-face-left"][i]}`} key={num}>
+                      <b className="wc2-fn">{num}</b>
+                      <b className="wc2-ft">{title}</b>
+                      <span className="wc2-fb">{body}</span>
+                    </span>
                   ))}
+                  <span className="wc2-face wc2-face-top"><span className="wc2-fmark">SMASK</span></span>
+                  <span className="wc2-face wc2-face-bottom"></span>
                 </div>
+              </div>
+              {/* reduced-motion 用フォールバック：通常グリッド */}
+              <div className="wc2-str-grid wc2-str-grid--fb">
+                {STRENGTHS.map(([num, title, body]) => (
+                  <div className="wc2-str-item" key={num}>
+                    <span className="wc2-str-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
