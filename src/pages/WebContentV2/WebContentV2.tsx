@@ -113,23 +113,29 @@ export default function WebContentV2() {
   }, []);
 
   /* トップからの遷移で張られた黒幕（html.is-web-depart）を、
-     このページのローダーが描画されてから外す＝入れ替わりの隙間に白が出ない */
+     ローダー完了後にだけ外す。これにより、3Dページの初期描画前に白が出るのを防ぐ。 */
   useEffect(() => {
+    if (!loaded) return;
+
+    let raf1 = 0;
     let raf2 = 0;
-    const raf1 = requestAnimationFrame(() => {
+    let t = 0;
+
+    raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(() => {
-        document.documentElement.classList.remove("is-web-depart");
+        t = window.setTimeout(() => {
+          document.documentElement.classList.remove("is-web-depart");
+        }, 1000);
       });
     });
-    /* rAF が止まる環境（背面タブ等）でも必ず外す保険 */
-    const t = window.setTimeout(() => document.documentElement.classList.remove("is-web-depart"), 1500);
+
     return () => {
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);
       window.clearTimeout(t);
       document.documentElement.classList.remove("is-web-depart");
     };
-  }, []);
+  }, [loaded]);
 
   /* ローダー表示中はスクロールを止める */
   useEffect(() => {

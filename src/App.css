@@ -20,6 +20,10 @@ main :is(h1, h2, h3, h4, p, li, dt, dd, figcaption, blockquote),
 
 /* ページの入れ替わり（Homeのアンマウント〜3Dページの描画）の隙間を塞ぐ黒幕。
    <html> に付くのでルート遷移をまたいでも消えない。3Dページ側が描画後に外す。 */
+html.is-web-depart,
+html.is-web-depart body {
+  background: #05060a;
+}
 html.is-web-depart::after {
   content: "";
   position: fixed; inset: 0; z-index: 9998;
