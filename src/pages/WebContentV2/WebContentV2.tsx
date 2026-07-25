@@ -128,7 +128,7 @@ export default function WebContentV2() {
     let raf = 0;
     const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
     const loop = () => {
-      current += (target - current) * 0.22;                  // 追従の速さ（大きいほどキビキビ反応）
+      current += (target - current) * 0.4;                   // 追従の速さ（大きいほど軽い＝慣性/加速感が減る）
       if (Math.abs(target - current) < 0.5) {
         current = target;
         window.scrollTo(0, current);
