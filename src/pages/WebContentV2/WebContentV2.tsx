@@ -728,9 +728,9 @@ export default function WebContentV2() {
     /* 継ぎ目（大きなセクションの上端＝ハンドオフ位置）を収集 */
     let seams: number[] = [];
     const collectSeams = () => {
-      /* CONTACT の継ぎ目はワープ・カーテンを使わず「PROCESSフェードアウト→中心から出現」で見せるため除外 */
+      /* Hero→APPROACH は Hero 自身のダイブ→暗転があるため除外、CONTACT は別演出のため除外 */
       const els = Array.from(
-        document.querySelectorAll<HTMLElement>(".wc2-approach-sec, .wc2-strengths-sec, .wc2-route-sec")
+        document.querySelectorAll<HTMLElement>(".wc2-strengths-sec, .wc2-route-sec")
       );
       seams = els.map((el) => el.getBoundingClientRect().top + window.scrollY).sort((a, b) => a - b);
     };
