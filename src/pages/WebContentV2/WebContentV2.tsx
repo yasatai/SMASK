@@ -437,22 +437,29 @@ export default function WebContentV2() {
       /* overshoot（バウンド）付き ease：着地・回転の“カチッ”を出す */
       const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
 
-      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16） */
+      /* 見出し＋キューブを1つのまとまりとして画面中央に配置し、間隔は約2cm(76px)で固定 */
+      const vw = window.innerWidth;
+      const rs = Math.max(0.6, Math.min(1, (vw - 760) / 680 * 0.4 + 0.6));  // 狭い画面はキューブ縮小
+      const GAP = 76;                                                 // ≈2cm
+      const cubeHalf = 150 * rs;                                      // 静止時（rotateY=0）の半幅px
+      const hw = head ? head.offsetWidth : 380;                       // 見出しの実測幅
+      const groupLeft = Math.max(24, (vw - (hw + GAP + cubeHalf * 2)) / 2);
+      const cubeCenterPx = groupLeft + hw + GAP + cubeHalf;
+      const xEnd = (cubeCenterPx - vw / 2) / vw * 100;                // 画面中央からのvwオフセット
+
+      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16）。キューブの2cm左へ配置 */
       if (head) {
         const hb = back(seg(p, 0.00, 0.16));                          // overshoot で放り込まれた感
+        head.style.left = `${groupLeft.toFixed(0)}px`;
         head.style.opacity = seg(p, 0.00, 0.08).toFixed(3);
-        head.style.transform = `translateY(${((1 - hb) * -58).toFixed(1)}vh)`;
+        head.style.transform = `translateY(calc(-50% + ${((1 - hb) * -58).toFixed(1)}vh))`;
       }
 
-      /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 右側に着地、着地で軽くバウンド */
+      /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 中央のまとまりの右側に着地、着地で軽くバウンド */
       if (cube && cubeWrap) {
-        /* 画面幅に応じてキューブを縮小（狭い画面で見出しと被らせない） */
-        const rs = Math.max(0.6, Math.min(1, (window.innerWidth - 760) / 680 * 0.4 + 0.6));
         const drop = seg(p, 0.08, 0.36);
         const roll = ease(drop);                                      // 0→1
-        /* 着地位置：広い画面は中央寄り(18vw)、狭い画面は見出しと被らないよう右へ(最大26vw) */
-        const xEnd = Math.min(26, 18 + Math.max(0, (1280 - window.innerWidth) / 520) * 8);
-        const x = xEnd + (1 - roll) * 34;                            // 右上から中央寄りの定位置へ（画面中央基準）
+        const x = xEnd + (1 - roll) * 34;                            // 右上から定位置へ（画面中央基準）
         const y = (1 - roll) * -76;                                   // 上から
         const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
         cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;

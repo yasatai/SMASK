@@ -514,8 +514,8 @@
 }
 /* 左：見出しブロック（JSで上からバウンド着地） */
 .wc2-str-head {
-  position: relative; z-index: 2;
-  margin-left: clamp(2rem, 13vw, 15rem); max-width: min(29rem, 40vw);
+  position: absolute; top: 50%; left: 0; z-index: 2;   /* left/transform は JS が駆動（キューブの2cm左へ） */
+  max-width: min(29rem, 40vw);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-str-head .wc2-label { color: #6b7686; }
