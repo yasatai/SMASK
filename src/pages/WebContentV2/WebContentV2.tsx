@@ -531,18 +531,19 @@ export default function WebContentV2() {
       const top = pin.getBoundingClientRect().top + window.scrollY;
       const p = clamp01((window.scrollY - top) / len);
 
-      /* ★ セクション転換：先頭で暗転→星雲へワープイン、末尾で次セクションへズームアウト */
-      const intro = ss(clamp01(p / 0.12));
-      const outro = ss(clamp01((p - 0.92) / 0.08));
+      /* ★ セクション転換：先頭で暗黒からワープイン（奥から迫り＋ピントが合う）、末尾でワープアウト（突き抜ける） */
+      const intro = ss(clamp01(p / 0.14));
+      const outro = ss(clamp01((p - 0.88) / 0.12));
       if (world) {
         world.style.opacity = (intro * (1 - outro)).toFixed(3);
-        const scale = 0.9 + 0.1 * intro + 0.12 * outro;        // 0.9→1（イン）→1.12（アウト）
-        const rise = (1 - intro) * 5;                          // 少し下から迫り上がる
-        world.style.transform = `scale(${scale.toFixed(3)}) translateY(${rise.toFixed(1)}vh)`;
+        const scale = 0.5 + 0.5 * intro + 0.9 * outro;         // 奥(0.5)→定位置(1)→突き抜け(1.9)
+        const blur = (1 - intro) * 12 + outro * 10;            // ピントが合う→ボケて抜ける
+        world.style.transform = `scale(${scale.toFixed(3)})`;
+        world.style.filter = `blur(${blur.toFixed(1)}px)`;
       }
 
-      /* 彗星の航行は中盤（0.12〜0.90）に割り当て、イン/アウトの余白を確保 */
-      const travel = clamp01((p - 0.12) / 0.78);
+      /* 彗星の航行は中盤（0.14〜0.88）に割り当て、イン/アウトの余白を確保 */
+      const travel = clamp01((p - 0.14) / 0.74);
       const seg = travel * (N - 1);                             // 進行度（0〜N-1）
       const ci = Math.min(N - 1, Math.floor(seg));
       const cf = seg - ci;
