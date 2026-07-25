@@ -233,20 +233,13 @@ export default function WebContentV2() {
         const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
-      /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
-         開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
-         （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
+      /* カードのホイール：タイトルが上がった後、大きな円弧に沿ってカードが回転しながら流れる（trionn DESIGN IN MOTION）。
+         CSS が translate(-50%,-50%) rotate(var(--spin)) を適用。ここでは --spin を +18°→-18° で駆動 */
       if (track) {
-        const prog = seg(p, 0.58, 0.72);
-        const first = track.querySelector<HTMLElement>(".wc2-work");
-        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
-        const cardW = first ? first.getBoundingClientRect().width : 380;
-        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
-        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
-        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
-        const x = startX + (endX - startX) * prog;
-        track.style.transform = `translateX(${x.toFixed(1)}px)`;
-        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
+        const prog = seg(p, 0.58, 0.74);
+        const spin = 18 - prog * 36;                       // 弧が回って寄港カードが流れる
+        track.style.setProperty("--spin", `${spin.toFixed(2)}deg`);
+        track.style.opacity = seg(p, 0.58, 0.66).toFixed(3);
       }
       /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
          ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
@@ -892,18 +885,21 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* DESIGN IN MOTION：タイトルは中央→上へ移動。全幅寄りのモーションタイルが横スクロールで流れる
-               （trionn 準拠。出現・横スクロールの駆動JSは従来のまま＝崩さない） */}
+            {/* DESIGN IN MOTION（trionn 準拠）：巨大な分割見出し＋サブ文。カードは大きな円弧に沿って並び、
+               スクロールでホイールが回転して流れる。出現・回転の駆動JSは大ピン側のまま＝他は崩さない */}
             <div className="wc2-worksreveal">
               <div className="wc2-worksreveal-head">
-                <span className="wc2-label">( 02 ) — DESIGN IN MOTION</span>
-                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
-                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
+                <h2 className="wc2-dim-big" aria-label="DESIGN IN MOTION">
+                  <span className="wc2-dim-big1">DESIGN IN</span>
+                  <span className="wc2-dim-big2">MOTION</span>
+                </h2>
+                <p className="wc2-dim-sub">EXPLORING IDEAS THROUGH<br />DAILY DESIGN PRACTICE.</p>
+                <a className="wc2-viewall wc2-dim-viewall" href="#works">VIEW ON DRIBBBLE <span aria-hidden="true">→</span></a>
               </div>
-              <div className="wc2-worksreveal-track">
-                {WORKS.map(w => (
-                  <article className="wc2-work" key={w.num}>
-                    <a className="wc2-work-inner" href="#works" style={{ "--hue": w.hue } as React.CSSProperties}>
+              <div className="wc2-worksreveal-track" style={{ "--n": WORKS.length } as React.CSSProperties}>
+                {WORKS.map((w, i) => (
+                  <article className="wc2-work" key={w.num} style={{ "--i": i, "--hue": w.hue } as React.CSSProperties}>
+                    <a className="wc2-work-inner" href="#works">
                       <div className="wc2-work-cover">
                         {w.img ? (
                           <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
@@ -912,16 +908,14 @@ export default function WebContentV2() {
                             <span className="wc2-cover-en">{w.en}</span>
                           </div>
                         )}
-                        {/* キャプション（タイル上にオーバーレイ） */}
+                      </div>
+                      <div className="wc2-work-meta">
                         <span className="wc2-cover-num">{w.num}</span>
-                        <span className="wc2-work-view" aria-hidden="true">VIEW <span>→</span></span>
-                        <div className="wc2-work-meta">
-                          <h3>{w.title}</h3>
-                          <p>
-                            {w.tags.map(t => <span key={t}>{t}</span>)}
-                            <time>{w.year}</time>
-                          </p>
-                        </div>
+                        <h3>{w.title}</h3>
+                        <p>
+                          {w.tags.map(t => <span key={t}>{t}</span>)}
+                          <time>{w.year}</time>
+                        </p>
                       </div>
                     </a>
                   </article>
