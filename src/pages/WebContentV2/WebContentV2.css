@@ -909,3 +909,9 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
     width: min(100% - 3rem, 1240px); margin-inline: auto;
   }
 }
+/* CONTACT：狭い画面で「話しましょう」＋矢印が画面外にはみ出すため、文字と矢印を縮める */
+@media (max-width: 480px) {
+  .wc2-talk { gap: 0.7rem; }
+  .wc2-talk-main { font-size: clamp(2rem, 11vw, 3rem); }
+  .wc2-talk-arrow { width: 2.6rem; height: 2.6rem; }
+}
