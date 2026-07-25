@@ -489,22 +489,30 @@ export default function WebContentV2() {
       /* overshoot（バウンド）付き ease：着地・回転の“カチッ”を出す */
       const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
 
-      /* 見出し＋キューブを1つのまとまりとして画面中央に配置し、間隔は約2cm(76px)で固定 */
+      /* 見出しとキューブの配置。広い画面は「見出し｜約2cm｜キューブ」を中央のまとまりに。
+         狭い画面（モバイル）は横に収まらないので縦積み（見出し上・中央／キューブ下・中央）にする */
       const vw = window.innerWidth;
-      const rs = Math.max(0.6, Math.min(1, (vw - 760) / 680 * 0.4 + 0.6));  // 狭い画面はキューブ縮小
+      const mobile = vw < 680;
+      const rs = mobile
+        ? 0.58
+        : Math.max(0.6, Math.min(1, (vw - 760) / 680 * 0.4 + 0.6));  // 狭い画面はキューブ縮小
       const GAP = 76;                                                 // ≈2cm
       const cubeHalf = 150 * rs;                                      // 静止時（rotateY=0）の半幅px
       const hw = head ? head.offsetWidth : 380;                       // 見出しの実測幅
       const groupLeft = Math.max(24, (vw - (hw + GAP + cubeHalf * 2)) / 2);
       const cubeCenterPx = groupLeft + hw + GAP + cubeHalf;
-      const xEnd = (cubeCenterPx - vw / 2) / vw * 100;                // 画面中央からのvwオフセット
+      /* デスクトップ＝中央まとまりの右側／モバイル＝画面中央（縦積み） */
+      const xEnd = mobile ? 0 : (cubeCenterPx - vw / 2) / vw * 100;
+      const headLeft = mobile ? (vw - hw) / 2 : groupLeft;
+      const headExtraY = mobile ? -26 : 0;                            // モバイルは見出しを上へ寄せる(vh)
+      const cubeYFinal = mobile ? 18 : 0;                             // モバイルはキューブを下へ(vh)
 
-      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16）。キューブの2cm左へ配置 */
+      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16） */
       if (head) {
         const hb = back(seg(p, 0.00, 0.16));                          // overshoot で放り込まれた感
-        head.style.left = `${groupLeft.toFixed(0)}px`;
+        head.style.left = `${headLeft.toFixed(0)}px`;
         head.style.opacity = seg(p, 0.00, 0.08).toFixed(3);
-        head.style.transform = `translateY(calc(-50% + ${((1 - hb) * -58).toFixed(1)}vh))`;
+        head.style.transform = `translateY(calc(-50% + ${(headExtraY + (1 - hb) * -58).toFixed(1)}vh))`;
       }
 
       /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 中央のまとまりの右側に着地、着地で軽くバウンド */
@@ -512,7 +520,7 @@ export default function WebContentV2() {
         const drop = seg(p, 0.08, 0.36);
         const roll = ease(drop);                                      // 0→1
         const x = xEnd + (1 - roll) * 34;                            // 右上から定位置へ（画面中央基準）
-        const y = (1 - roll) * -76;                                   // 上から
+        const y = (1 - roll) * -76 + cubeYFinal * roll;              // 上から。モバイルは見出しの下(cubeYFinal)へ着地
         const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
         cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
 
@@ -531,7 +539,7 @@ export default function WebContentV2() {
         /* 床の設置影：Xはキューブに追従、落下で濃く/大きく、着地でキュッと締まる */
         if (shadow) {
           const sc = (0.42 + roll * 0.6 - Math.max(0, settle) * 0.03) * rs;
-          shadow.style.transform = `translate(${x.toFixed(1)}vw, ${(158 * rs).toFixed(0)}px) scale(${sc.toFixed(3)})`;
+          shadow.style.transform = `translate(${x.toFixed(1)}vw, calc(${(158 * rs).toFixed(0)}px + ${(cubeYFinal * roll).toFixed(1)}vh)) scale(${sc.toFixed(3)})`;
           shadow.style.opacity = (roll * 0.85).toFixed(3);
         }
       }

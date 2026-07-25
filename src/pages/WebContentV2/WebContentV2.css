@@ -889,3 +889,9 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-steps { grid-template-columns: 1fr; }
   .wc2-row-in { gap: 1.4rem; padding-block: 2rem; }
 }
+/* STRENGTHS：狭い画面は見出し上・キューブ下の縦積み（JS が left/位置を中央寄せに切替）。
+   見出しは全幅で読ませ、中央揃えにする */
+@media (max-width: 679px) {
+  .wc2-str-head { max-width: min(24rem, 86vw); text-align: center; }
+  .wc2-str-lead { margin-inline: auto; max-width: 24rem; }
+}
