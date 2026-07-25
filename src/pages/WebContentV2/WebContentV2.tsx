@@ -112,6 +112,25 @@ export default function WebContentV2() {
     return () => { root.classList.remove("is-fp-dark", "wc2-chrome-off", "wc2-page-active"); };
   }, []);
 
+  /* トップからの遷移で張られた黒幕（html.is-web-depart）を、
+     このページのローダーが描画されてから外す＝入れ替わりの隙間に白が出ない */
+  useEffect(() => {
+    let raf2 = 0;
+    const raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        document.documentElement.classList.remove("is-web-depart");
+      });
+    });
+    /* rAF が止まる環境（背面タブ等）でも必ず外す保険 */
+    const t = window.setTimeout(() => document.documentElement.classList.remove("is-web-depart"), 1500);
+    return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      window.clearTimeout(t);
+      document.documentElement.classList.remove("is-web-depart");
+    };
+  }, []);
+
   /* ローダー表示中はスクロールを止める */
   useEffect(() => {
     document.body.style.overflow = loaded ? "" : "hidden";

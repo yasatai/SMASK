@@ -82,7 +82,12 @@ export default function Home() {
          3Dページは遅延読み込みなので、演出中に先読みして遷移時の待ち＝白い一瞬を無くす */
       if (gem === "sapphire") void importWebContentV2();
       const delay = gem === "sapphire" ? 1850 : 1400;
-      const t = window.setTimeout(() => navigate(a.getAttribute("href")!), delay);
+      const t = window.setTimeout(() => {
+        /* 遷移直前に <html> へ黒幕を張る。Home のアンマウント〜3Dページ描画の隙間で
+           紙色（白）が覗くのを防ぐ。外すのは 3Dページ側（描画後） */
+        if (gem === "sapphire") document.documentElement.classList.add("is-web-depart");
+        navigate(a.getAttribute("href")!);
+      }, delay);
       cleanups.push(() => clearTimeout(t));
     };
     bizLinks.forEach(a => a.addEventListener("click", onBizClick));
@@ -90,6 +95,13 @@ export default function Home() {
       bizLinks.forEach(a => a.removeEventListener("click", onBizClick));
       const biz = document.getElementById("business");
       if (biz) { biz.classList.remove("is-departing"); delete biz.dataset.depart; }
+      /* 保険：3Dページ以外へ抜けた場合に黒幕が残らないよう、少し遅れて必ず外す
+         （3Dページへ遷移した場合は、その前に 3Dページ側が外している） */
+      window.setTimeout(() => {
+        if (window.location.pathname !== "/business-web") {
+          document.documentElement.classList.remove("is-web-depart");
+        }
+      }, 1200);
     });
 
     /* ---- フルページ（PC）か通常スクロール（タッチ/狭幅/reduce）かを判定 ---- */
