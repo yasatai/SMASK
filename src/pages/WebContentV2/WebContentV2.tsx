@@ -125,7 +125,7 @@ export default function WebContentV2() {
       raf2 = requestAnimationFrame(() => {
         t = window.setTimeout(() => {
           document.documentElement.classList.remove("is-web-depart");
-        }, 1000);
+        }, 1800);
       });
     });
 
