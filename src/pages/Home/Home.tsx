@@ -76,7 +76,10 @@ export default function Home() {
       biz.dataset.depart = gem;                         // ズームの寄り先（CSS側で座標が決まる）
       biz.classList.add("is-departing");
       setBizArrival(gem);                               // 到着側へ「どこから来たか」を渡す
-      const t = window.setTimeout(() => navigate(a.getAttribute("href")!), 1400);
+      /* Webコンテンツ制作（sapphire）は 3D ページへ。寄り続けて暗転しきってから遷移する
+         （遷移先は黒背景のローダーで始まるため、暗転から途切れずに繋がる） */
+      const delay = gem === "sapphire" ? 1850 : 1400;
+      const t = window.setTimeout(() => navigate(a.getAttribute("href")!), delay);
       cleanups.push(() => clearTimeout(t));
     };
     bizLinks.forEach(a => a.addEventListener("click", onBizClick));
@@ -342,6 +345,8 @@ export default function Home() {
           {/* カードホバーで背景の対応領域だけ色が冴えるレイヤー（CSSの :has(:hover) 駆動） */}
           <div className="panel-bg-vivid" aria-hidden="true"></div>
           <div className="curtain" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          {/* Webコンテンツ制作へ発つときの暗転幕（クローズアップの後半で黒く沈む） */}
+          <div className="biz-blackout" aria-hidden="true"></div>
           <div className="wrap">
             <div className="sec-head reveal-item">
               <span className="eyebrow">Our Business</span>

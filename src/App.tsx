@@ -6,8 +6,8 @@ import Home from "./pages/Home/Home";
 import PreciousMetals from "./pages/PreciousMetals/PreciousMetals";
 import MetalDetail from "./pages/MetalDetail/MetalDetail";
 import Jewelry from "./pages/Jewelry/Jewelry";
-import WebContent from "./pages/WebContent/WebContent";
-/* V2試作（3D入り）。three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
+/* Webコンテンツ制作は 3D 版を本採用。three.js ごと遅延読み込みし、他ページのバンドルに影響させない
+   （旧 2D 版 pages/WebContent は未使用のまま保管） */
 const WebContentV2 = lazy(() => import("./pages/WebContentV2/WebContentV2"));
 import Column from "./pages/Column/Column";
 import ColumnPost from "./pages/Column/ColumnPost";
@@ -27,7 +27,6 @@ const ROUTES = new Set([
   "/business-precious-metals/silver",
   "/business-jewelry",
   "/business-web",
-  "/business-web-v2",
   "/column",
   "/company",
   "/contact",
@@ -131,9 +130,8 @@ export default function App() {
         <Route path="/business-precious-metals" element={<PreciousMetals />} />
         <Route path="/business-precious-metals/:metal" element={<MetalDetail />} />
         <Route path="/business-jewelry" element={<Jewelry />} />
-        <Route path="/business-web" element={<WebContent />} />
-        {/* V2試作：メニュー非掲載・URL直打ちのみ */}
-        <Route path="/business-web-v2" element={<Suspense fallback={null}><WebContentV2 /></Suspense>} />
+        {/* Webコンテンツ制作＝3D版を /business-web で提供 */}
+        <Route path="/business-web" element={<Suspense fallback={null}><WebContentV2 /></Suspense>} />
         <Route path="/column" element={<Column />} />
         <Route path="/column/:slug" element={<ColumnPost />} />
         <Route path="/company" element={<Company />} />

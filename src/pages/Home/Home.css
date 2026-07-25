@@ -335,6 +335,26 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 #business[data-depart="sapphire"] .panel-bg-vivid {
   --biz-x: 18%; --biz-y: 55%; transform-origin: 18% 55%;
 }
+/* ---- Webコンテンツ制作（sapphire）だけは 3D ページへ繋ぐため専用の演出 ----
+ * 背景のPC部分へ寄り続け（通常より深く）、そのまま暗転して遷移する。
+ * 遷移先（3D版）は黒背景のローダーで始まるので、暗転から途切れずに繋がる。 */
+#business[data-depart="sapphire"].is-departing .panel-bg,
+#business[data-depart="sapphire"].is-departing .panel-bg-vivid {
+  transition:
+    opacity .5s var(--ease-out),
+    transform 1.9s cubic-bezier(.5, 0, .3, 1) .2s;   /* 寄り続ける（長め・深く） */
+  transform: scale(7.5);
+}
+/* 暗転幕：クローズアップの後半で黒く沈め、遷移の瞬間には真っ黒にする */
+.biz-blackout {
+  position: absolute; inset: 0; z-index: 6;
+  background: #05060a;
+  opacity: 0; pointer-events: none;
+}
+#business[data-depart="sapphire"].is-departing .biz-blackout {
+  opacity: 1;
+  transition: opacity .85s var(--ease-in-out) .85s;   /* 寄りを見せてから沈む */
+}
 .curtain {
   position: absolute; inset: 0; z-index: 5; display: grid;
   grid-template-columns: repeat(4, 1fr); pointer-events: none;
