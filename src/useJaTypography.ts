@@ -2,23 +2,69 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
 /**
- * 日本語のレスポンシブ改行を整えるヘルパー。ルート切替ごとに本文テキストを走査し：
- *  - ルール③「。」の後に文章を続けない → 「。」の直後（後続テキストがある場合）に <br> を挿入
- *  - ルール②行末に「、」を残さない → 「、＋次の1文字」を白スペース nowrap で束ね、
- *    「、」が行末に落ちないようにする（次文字と必ず同じ行に載る）
- * インライン要素（<em>/<a> 等）は壊さず、対象のテキストノードだけを置換する。
+ * 日本語のレスポンシブ改行を整えるヘルパー。ルート切替ごとに本文テキストを走査する。
  *
- * 除外：per-char/per-line アニメの見出し（.wc2-fill / .wc2-hl / .wc2-hero-h1 / .wc2-dim-big）、
- *       ローダー、data-no-ja 指定要素、および wc2（3D演出）ページ全体は別扱いのため対象外。
+ *  - ルール①（変な位置での改行／行頭に助詞が来ない）
+ *      → CSS の `word-break: auto-phrase`（App.css）に任せる。JS では何もしない。
+ *  - ルール②（行末に「、」を残さない）
+ *      → 「、」の直後に WORD JOINER を挟み、そこで改行させない。
+ *  - ルール③（「。」の後に文章を続けない）
+ *      → 「。」の直後（後続テキストがある場合）に <br> を挿入。
+ *
+ * 重要：テキストを <span> で分割しないこと。分割するとブラウザの文節解析
+ *       （auto-phrase）が働かず、「価格」→「価 / 格の」のように単語が割れる
+ *       （実測で確認済み）。そのため WORD JOINER を文字として挟む方式にしている。
+ *
+ * 除外：per-char/per-line アニメの見出し（.wc2-fill / .wc2-hl / .wc2-hero-h1 /
+ *       .wc2-dim-big）、ローダー、マーキー、data-no-ja 指定要素。
  */
 const SKIP_SELECTOR =
   ".wc2-fill, .wc2-hl, .wc2-hero-h1, .wc2-dim-big, .wc2-loader, .wc2-marquee, [data-no-ja]";
 
-function nowrapComma(next: string) {
-  const span = document.createElement("span");
-  span.style.whiteSpace = "nowrap";
-  span.textContent = next ? "、" + next : "、";
-  return span;
+/** 改行を禁止する不可視文字（U+2060 WORD JOINER）。テキストを分割しない。 */
+const WJ = "⁠";
+
+/* ルール①の補助：auto-phrase でも稀に手前・途中で改行されてしまう助詞。
+   直前と内部に WJ を挟み、行頭に来ない／途中で割れないようにする（分割はしない）。
+   長い綴りから順に判定する。 */
+const PARTICLE_SEQ = [
+  "をもとに", "のもとに", "をもと",
+  "にとって", "について", "によって", "における", "とともに",
+  "としての", "という", "として", "とって",
+  "を", "が",
+];
+/** 助詞が後続しうる文字（漢字・カナ・閉じ括弧・英数字）。平仮名の語尾（例「上品さは」）も対象。 */
+const NOUNISH = /[ぁ-んァ-ヶー一-龠々」』）〕〉》0-9A-Za-z０-９]/;
+/** 単独助詞に見えて語頭になりうる語（誤って束ねない） */
+const WORD_START = /^(もの|もと|もう|もし|とき|ところ|ともに|とも|には|にも|でも|はじ|やは|へや)/;
+/** 名詞の後ろでのみ助詞として扱う一文字（を/が は常に助詞なので上の配列で処理） */
+const SOFT_PARTICLE = /[はもにでとへや]/;
+
+/** 助詞の直前と内部に WJ を挟む（前が行頭／既に WJ の場合は不要） */
+function protectParticles(text: string) {
+  let out = "";
+  const prevChar = () => (out.length ? out[out.length - 1] : "");
+  for (let i = 0; i < text.length; ) {
+    const seq = PARTICLE_SEQ.find((s) => text.startsWith(s, i));
+    if (seq && out.length && prevChar() !== WJ) {
+      out += WJ + seq.split("").join(WJ); // 直前＋内部で改行させない
+      i += seq.length;
+      continue;
+    }
+    const ch = text[i];
+    if (
+      SOFT_PARTICLE.test(ch) &&
+      NOUNISH.test(prevChar()) &&
+      !WORD_START.test(text.slice(i))
+    ) {
+      out += WJ + ch; // 名詞に続く助詞＝行頭に来させない
+      i += 1;
+      continue;
+    }
+    out += ch;
+    i += 1;
+  }
+  return out;
 }
 
 /** 「、」の直後に置かれた手書きの <br>（行末に「、」を残す原因）を除去する */
@@ -31,16 +77,11 @@ function stripCommaBr(root: Element) {
   });
 }
 
-/* ルール①用：この文字の直前では改行させない（行頭に来させない）助詞 */
-const HEAD_NG = /[をがものにはでとへや]/;
-/* 束ねる相手として妥当な直前文字（日本語の字・閉じ括弧・英数字） */
-const JA_CHAR = /[ぁ-んァ-ヶー一-龠々」』）〕〉》0-9A-Za-z０-９Ａ-Ｚａ-ｚ]/;
-
 function processTextNode(node: Text) {
   const parent = node.parentElement;
   if (!parent) return;
-  const text = node.data;
-  if (!/[。、をがものにはでとへや]/.test(text)) return;
+  const text = protectParticles(node.data); // ルール①の補助（WJ を挟むだけ）
+  if (text === node.data && !/[。、]/.test(text)) return;
 
   const frag = document.createDocumentFragment();
   let buf = "";
@@ -52,48 +93,16 @@ function processTextNode(node: Text) {
   };
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
-    if (HEAD_NG.test(ch)) {
-      // ルール①：助詞を行頭に来させない
-      if (buf.length && JA_CHAR.test(buf[buf.length - 1])) {
-        // 直前の1文字と nowrap で束ねる
-        const prev = buf[buf.length - 1];
-        buf = buf.slice(0, -1);
-        flush();
-        const span = document.createElement("span");
-        span.style.whiteSpace = "nowrap";
-        span.textContent = prev + ch;
-        frag.appendChild(span);
-      } else {
-        // 直前の文字が取れない（ノード先頭・スパン境界直後など）→ WORD JOINER で改行を禁止
-        buf += "\u2060" + ch;
-      }
-      continue;
-    }
     if (ch === "。") {
       buf += ch;
-      flush();
-      // 「。」の後にまだ文字が残っていれば改行（末尾の「。」は改行しない）
+      // ルール③：「。」の後にまだ文字が残っていれば改行（末尾の「。」は改行しない）
       if (text.slice(i + 1).replace(/\s/g, "").length > 0) {
+        flush();
         frag.appendChild(document.createElement("br"));
       }
     } else if (ch === "、") {
-      const next = text[i + 1] || "";
-      flush();
-      if (next) {
-        // 「、＋次の1文字」を nowrap で束ねる → 「、」が行末に来ない
-        frag.appendChild(nowrapComma(next));
-        i++;
-      } else {
-        // ノード末尾の「、」：次の隣接テキストの先頭1文字を借りて束ねる（行末の「、」を防ぐ）
-        let sib = node.nextSibling;
-        while (sib && sib.nodeType === 3 && !(sib as Text).data.trim()) sib = sib.nextSibling;
-        if (sib && sib.nodeType === 3 && (sib as Text).data.length) {
-          frag.appendChild(nowrapComma((sib as Text).data[0]));
-          (sib as Text).data = (sib as Text).data.slice(1);
-        } else {
-          frag.appendChild(nowrapComma(""));
-        }
-      }
+      // ルール②：「、」の直後で改行させない＝「、」が行末に残らない
+      buf += ch + WJ;
     } else {
       buf += ch;
     }
@@ -112,7 +121,7 @@ export function useJaTypography(enabled: boolean) {
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
         acceptNode(n) {
           const t = n as Text;
-          if (!t.data || !/[。、をがものにはでとへや]/.test(t.data)) return NodeFilter.FILTER_REJECT;
+          if (!t.data || !/[。、をがはもにでとへや]/.test(t.data)) return NodeFilter.FILTER_REJECT;
           const p = t.parentElement;
           if (!p) return NodeFilter.FILTER_REJECT;
           const tag = p.tagName;

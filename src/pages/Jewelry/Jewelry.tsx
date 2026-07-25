@@ -170,7 +170,8 @@ export default function Jewelry() {
           <div className="jw-wrap jw-bg">
             <div className="jw-bg-head">
               <span className="jw-eyebrow" data-reveal>BACKGROUND</span>
-              <h2 className="jw-h2">御徒町の製作背景を<br />もとに</h2>
+              {/* ルール①：「を」の直後で改行すると次行が「もとに」で始まるため、語の切れ目で改行する */}
+              <h2 className="jw-h2">御徒町の<br />製作背景をもとに</h2>
             </div>
             <div className="jw-bg-text">
               <p className="jw-strong" data-reveal>SMASKのジュエリー製作は、御徒町の製作背景をもとに進めています。</p>
