@@ -834,6 +834,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   /* PROCESS：航路演出を無効化し、通常のステップ一覧で読ませる */
   .wc2-route-pin { height: auto; }
   .wc2-route-stage { position: static; height: auto; overflow: visible; background: none; padding: 4rem 0; }
+  .wc2-route-world { position: static; opacity: 1 !important; transform: none !important; filter: none !important; }
   .wc2-route-head { position: static; max-width: none; width: min(100% - 3rem, 1240px); margin: 0 auto 2rem; }
   .wc2-route-hint { display: none; }
   .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
@@ -894,4 +895,17 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 @media (max-width: 679px) {
   .wc2-str-head { max-width: min(24rem, 86vw); text-align: center; }
   .wc2-str-lead { margin-inline: auto; max-width: 24rem; }
+
+  /* PROCESS：弧＋彗星はモバイルで極小＆重なるため、静的なステップ一覧にフォールバック
+     （reduced-motion と同じ扱い）。route 効果の inline スタイルは !important で無効化 */
+  .wc2-route-pin { height: auto; }
+  .wc2-route-stage { position: static; height: auto; overflow: visible; background: none; padding: 4rem 0; }
+  .wc2-route-world { position: static; opacity: 1 !important; transform: none !important; filter: none !important; }
+  .wc2-route-head { position: static; max-width: none; width: min(100% - 3rem, 1240px); margin: 0 auto 2rem; }
+  .wc2-route-hint { display: none; }
+  .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
+  .wc2-route-stage .wc2-steps--fb {
+    display: grid; grid-template-columns: 1fr; gap: 1.2rem;
+    width: min(100% - 3rem, 1240px); margin-inline: auto;
+  }
 }
