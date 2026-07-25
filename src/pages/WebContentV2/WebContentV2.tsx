@@ -892,36 +892,38 @@ export default function WebContentV2() {
             <div className="wc2-stripes" aria-hidden="true">
               <span></span><span></span><span></span><span></span><span></span><span></span>
             </div>
-            {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
-               左→右に流れる（trionn 準拠）。全てスクロール同期 */}
+            {/* DESIGN IN MOTION：タイトルは中央→上へ移動。全幅寄りのモーションタイルが横スクロールで流れる
+               （trionn 準拠。出現・横スクロールの駆動JSは従来のまま＝崩さない） */}
             <div className="wc2-worksreveal">
               <div className="wc2-worksreveal-head">
-                <span className="wc2-label">( 02 ) — WORKS</span>
+                <span className="wc2-label">( 02 ) — DESIGN IN MOTION</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
                 <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
               </div>
               <div className="wc2-worksreveal-track">
                 {WORKS.map(w => (
                   <article className="wc2-work" key={w.num}>
-                    <div className="wc2-work-inner">
+                    <a className="wc2-work-inner" href="#works" style={{ "--hue": w.hue } as React.CSSProperties}>
                       <div className="wc2-work-cover">
                         {w.img ? (
                           <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
                         ) : (
-                          <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
-                            <span className="wc2-cover-num">{w.num}</span>
+                          <div className="wc2-cover-art wc2-cover-art--type">
                             <span className="wc2-cover-en">{w.en}</span>
                           </div>
                         )}
+                        {/* キャプション（タイル上にオーバーレイ） */}
+                        <span className="wc2-cover-num">{w.num}</span>
+                        <span className="wc2-work-view" aria-hidden="true">VIEW <span>→</span></span>
+                        <div className="wc2-work-meta">
+                          <h3>{w.title}</h3>
+                          <p>
+                            {w.tags.map(t => <span key={t}>{t}</span>)}
+                            <time>{w.year}</time>
+                          </p>
+                        </div>
                       </div>
-                      <div className="wc2-work-meta">
-                        <h3>{w.title}</h3>
-                        <p>
-                          {w.tags.map(t => <span key={t}>{t}</span>)}
-                          <time>{w.year}</time>
-                        </p>
-                      </div>
-                    </div>
+                    </a>
                   </article>
                 ))}
               </div>
