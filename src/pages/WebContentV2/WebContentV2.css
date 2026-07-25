@@ -512,20 +512,36 @@
   display: flex; align-items: center; justify-content: center;
   perspective: 1100px;
 }
-/* 白いキューブ（面ごとに陰影をつけて白背景でも立体に見せる） */
-.wc2-cube-wrap { position: absolute; width: 130px; height: 130px; will-change: transform, opacity; }
+/* 白いキューブ：光源を左上前に固定し、面ごとのグラデ＋面取り＋設置影でリアルに見せる */
+.wc2-cube-wrap { position: absolute; width: 140px; height: 140px; will-change: transform, opacity; }
 .wc2-cube { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .wc2-face {
-  position: absolute; width: 130px; height: 130px;
-  border: 1px solid rgb(30 40 60 / .12);
-  box-shadow: inset 0 0 40px rgb(20 30 50 / .05);
+  position: absolute; width: 140px; height: 140px;
+  border-radius: 5px;                                  /* わずかな角丸で成型ブロック感 */
+  /* 面取り：内側の明部ハイライト＋陰部、外周のアンビエントオクルージョン */
+  box-shadow:
+    inset 3px 3px 5px rgb(255 255 255 / .85),
+    inset -4px -5px 12px rgb(24 34 54 / .22),
+    inset 0 0 0 1px rgb(255 255 255 / .35);
 }
-.wc2-face-front  { background: #f6f7f8; transform: translateZ(65px); }
-.wc2-face-back   { background: #eceef0; transform: rotateY(180deg) translateZ(65px); }
-.wc2-face-right  { background: #e2e4e8; transform: rotateY(90deg) translateZ(65px); }
-.wc2-face-left   { background: #e6e8eb; transform: rotateY(-90deg) translateZ(65px); }
-.wc2-face-top    { background: #fbfcfc; transform: rotateX(90deg) translateZ(65px); }
-.wc2-face-bottom { background: #dcdee2; transform: rotateX(-90deg) translateZ(65px); }
+/* 面ごとの明度は光源（左上前）基準：top最も明るく、bottom/backが最暗 */
+.wc2-face-front  { background: linear-gradient(150deg, #ffffff 0%, #f2f4f7 46%, #dfe3e9 100%); transform: translateZ(70px); }
+.wc2-face-back   { background: linear-gradient(150deg, #dfe2e7 0%, #cdd1d8 100%); transform: rotateY(180deg) translateZ(70px); }
+.wc2-face-right  { background: linear-gradient(120deg, #d3d7de 0%, #bdc2cb 100%); transform: rotateY(90deg) translateZ(70px); }
+.wc2-face-left   { background: linear-gradient(120deg, #eef0f3 0%, #d8dce2 100%); transform: rotateY(-90deg) translateZ(70px); }
+.wc2-face-top    { background: linear-gradient(160deg, #ffffff 0%, #f4f6f9 60%, #e9edf1 100%); transform: rotateX(90deg) translateZ(70px); }
+.wc2-face-bottom { background: linear-gradient(160deg, #c4c8d0 0%, #b3b8c1 100%); transform: rotateX(-90deg) translateZ(70px); }
+
+/* 床の設置影（キューブの真下、落下・着地でJS駆動） */
+.wc2-cube-shadow {
+  position: absolute; left: 50%; top: 50%;
+  width: 190px; height: 46px; margin: -23px 0 0 -95px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgb(20 28 44 / .34), rgb(20 28 44 / .12) 55%, transparent 78%);
+  filter: blur(3px);
+  transform: translateY(120px) scale(.4);
+  opacity: 0; will-change: transform, opacity; pointer-events: none;
+}
 
 /* 展開後に現れる内容 */
 .wc2-str-content {

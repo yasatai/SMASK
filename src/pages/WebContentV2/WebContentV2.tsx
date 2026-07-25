@@ -421,6 +421,7 @@ export default function WebContentV2() {
     if (!pin) return;
     const cube = pin.querySelector<HTMLElement>(".wc2-cube");
     const cubeWrap = pin.querySelector<HTMLElement>(".wc2-cube-wrap");
+    const shadow = pin.querySelector<HTMLElement>(".wc2-cube-shadow");
     const content = pin.querySelector<HTMLElement>(".wc2-str-content");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);
@@ -450,6 +451,13 @@ export default function WebContentV2() {
         const scale = 1 + open * 6;                                // 拡大して画面を覆うように開く
         cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(2)})`;
         cubeWrap.style.opacity = (1 - seg(p, 0.50, 0.62)).toFixed(3);   // 開ききると消える
+        /* 床の設置影：Xだけキューブに追従し、落下で濃く/大きく、着地でキュッと締まる */
+        if (shadow) {
+          const near = ease(drop);                                      // 地面への近さ 0→1
+          const sc = 0.42 + near * 0.62 - Math.max(0, settle) * 0.03;   // 近いほど大きく、バウンドで少し縮む
+          shadow.style.transform = `translate(${x.toFixed(1)}vw, 82px) scale(${sc.toFixed(3)})`;  // 床（キューブ真下）に固定
+          shadow.style.opacity = (near * 0.9 * (1 - seg(p, 0.50, 0.60))).toFixed(3);
+        }
       }
       /* ③ 展開の直後、内容（SMASKの強み）が中央から現れる（0.56〜0.74）→ 静止 */
       if (content) {
@@ -741,6 +749,8 @@ export default function WebContentV2() {
         <section className="wc2-sec wc2-strengths-sec">
           <div className="wc2-str-pin">
             <div className="wc2-str-stage">
+              {/* 床の設置影（落下・着地に合わせて濃く/大きく） */}
+              <div className="wc2-cube-shadow" aria-hidden="true"></div>
               {/* 上から落ちて転がってくる白いキューブ */}
               <div className="wc2-cube-wrap" aria-hidden="true">
                 <div className="wc2-cube">
