@@ -55,6 +55,11 @@ const PROCESS: [string, string, string][] = [
   ["05", "公開・運用開始", "公開後の運用を見据えた状態で、無理なくスタートできるよう整えます。"],
   ["06", "必要に応じた改善", "公開して終わりではなく、必要に応じて見直しや改善につなげます。"],
 ];
+/* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。x<50 の点はカードを右、x>=50 は左へ出す */
+const ROUTE_POS: { x: number; y: number }[] = [
+  { x: 40, y: 15 }, { x: 66, y: 29 }, { x: 42, y: 45 },
+  { x: 70, y: 61 }, { x: 44, y: 77 }, { x: 65, y: 90 },
+];
 
 /* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え） ---- */
 type Work = { num: string; title: string; en: string; tags: string[]; year: string; img?: string; hue: number };
@@ -495,6 +500,72 @@ export default function WebContentV2() {
     };
   }, []);
 
+  /* ---- PROCESS：宇宙の航路（彗星が 01→06 を巡り、到達した寄港地が点灯・走破線が伸びる） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-route-pin");
+    if (!pin) return;
+    const stations = Array.from(pin.querySelectorAll<HTMLElement>(".wc2-station"));
+    const comet = pin.querySelector<HTMLElement>(".wc2-comet");
+    const base = pin.querySelector<SVGPolylineElement>(".wc2-route-base");
+    const trail = pin.querySelector<SVGPolylineElement>(".wc2-route-trail");
+    const N = ROUTE_POS.length;
+
+    /* 寄港地を座標に配置（カードは中心側へ出す） */
+    stations.forEach((el, i) => {
+      el.style.left = `${ROUTE_POS[i].x}%`;
+      el.style.top = `${ROUTE_POS[i].y}%`;
+      el.dataset.side = ROUTE_POS[i].x < 50 ? "r" : "l";
+    });
+    /* 全体の薄い航路線（固定） */
+    if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
+
+    let raf = 0;
+    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, pin.offsetHeight - vh);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = clamp01((window.scrollY - top) / len);
+
+      const seg = p * (N - 1);                                  // 進行度（0〜N-1）
+      const ci = Math.min(N - 1, Math.floor(seg));
+      const cf = seg - ci;
+      const a = ROUTE_POS[ci];
+      const b = ROUTE_POS[Math.min(N - 1, ci + 1)];
+      const cx = a.x + (b.x - a.x) * cf;                        // 彗星の現在位置（%）
+      const cy = a.y + (b.y - a.y) * cf;
+
+      if (comet) { comet.style.left = `${cx.toFixed(2)}%`; comet.style.top = `${cy.toFixed(2)}%`; }
+      /* 走破線：通過済みノード＋彗星の先端まで */
+      if (trail) {
+        const pts: string[] = [];
+        for (let i = 0; i <= ci; i++) pts.push(`${ROUTE_POS[i].x},${ROUTE_POS[i].y}`);
+        pts.push(`${cx.toFixed(2)},${cy.toFixed(2)}`);
+        trail.setAttribute("points", pts.join(" "));
+      }
+      /* 各寄港地：接近で点灯（以降は点灯維持）。カードは“今いる寄港地”だけ濃く出す（重なり回避） */
+      stations.forEach((el, i) => {
+        const reveal = clamp01((seg - (i - 0.6)) / 0.6);       // i の0.6手前から点灯 →到達で1（＝点＋走破線）
+        el.style.setProperty("--op", (0.14 + 0.86 * reveal).toFixed(3));
+        const pulse = Math.max(0, 1 - Math.abs(seg - i) / 0.5); // 到達付近だけ波紋
+        el.style.setProperty("--pulse", pulse.toFixed(3));
+        const focus = clamp01(1 - Math.abs(seg - i) / 0.7);    // 近い寄港地のカードだけ表示
+        el.style.setProperty("--card", Math.pow(focus, 1.6).toFixed(3));  // 中間はごく淡く→カードの重なりを防ぐ
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   /* ---- 設計図の白い点：グリッド線の上を、交点で進路を変えながら自由に動く ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -806,20 +877,44 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ PROCESS ============ */}
-        <section className="wc2-sec">
-          <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 06 ) — PROCESS</span>
-            <h2 className="wc2-h2 wc2-fill">ご相談から制作までの流れ</h2>
-            <ol className="wc2-steps" data-reveal-stagger>
-              {PROCESS.map(([num, title, body]) => (
-                <li key={num}>
-                  <span className="wc2-step-num">{num}</span>
-                  <h3>{title}</h3>
-                  <p>{body}</p>
-                </li>
+        {/* ============ PROCESS：宇宙の航路（スクロールで彗星が 01→06 を巡り、寄港地が点灯） ============ */}
+        <section className="wc2-sec wc2-route-sec">
+          <div className="wc2-route-pin">
+            <div className="wc2-route-stage">
+              <div className="wc2-route-head">
+                <span className="wc2-label">( 06 ) — PROCESS</span>
+                <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
+                <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
+              </div>
+              {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}
+              <svg className="wc2-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <polyline className="wc2-route-base" points="" fill="none" />
+                <polyline className="wc2-route-trail" points="" fill="none" />
+              </svg>
+              {/* 6つの寄港地（JSで座標・点灯を駆動） */}
+              {PROCESS.map(([num, title, body], i) => (
+                <div className="wc2-station" data-i={i} key={num}>
+                  <span className="wc2-st-node" aria-hidden="true"><i></i></span>
+                  <div className="wc2-st-card">
+                    <span className="wc2-st-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                </div>
               ))}
-            </ol>
+              {/* 走る彗星 */}
+              <div className="wc2-comet" aria-hidden="true"><span className="wc2-comet-tail"></span></div>
+              {/* reduced-motion フォールバック：通常のステップ一覧 */}
+              <ol className="wc2-steps wc2-steps--fb">
+                {PROCESS.map(([num, title, body]) => (
+                  <li key={num}>
+                    <span className="wc2-step-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
         </section>
 

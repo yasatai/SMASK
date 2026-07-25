@@ -177,6 +177,29 @@
 }
 .ct-btn:hover, .ct-btn:focus-visible { background: var(--ct-accent-d); }
 .ct-btn:active { transform: translateY(1px); }
+.ct-btn:disabled { opacity: .6; cursor: progress; }
+
+/* ---- ハニーポット（視覚非表示・レイアウトに影響させない） ---- */
+.ct-hp {
+  position: absolute; left: -9999px; width: 1px; height: 1px;
+  overflow: hidden; opacity: 0; pointer-events: none;
+}
+
+/* ---- 送信完了メッセージ ---- */
+.ct-thanks {
+  text-align: center;
+  border: 1px solid var(--ct-line, oklch(90% 0.006 70)); border-radius: 8px;
+  padding: clamp(2.6rem, 6vw, 4rem) clamp(1.6rem, 4vw, 3rem);
+  background: var(--color-paper-2, transparent);
+}
+.ct-thanks h3 {
+  font-family: var(--font-jp); font-weight: 500;
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem); letter-spacing: .06em; color: var(--color-ink);
+}
+.ct-thanks p {
+  max-width: 32rem; margin: 1.1rem auto 0;
+  font-size: .88rem; line-height: 2.1; letter-spacing: .04em; color: var(--color-ink-soft);
+}
 
 /* ---- メールアドレス ---- */
 .ct-mail { margin-top: 2.2rem; text-align: right; }

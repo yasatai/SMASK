@@ -42,6 +42,9 @@ const SCALES = [
 
 const MAX_MESSAGE = 500;
 
+/* 送信先は価格・お知らせと同じ公開API（同一オリジン・新環境変数は作らない） */
+const API_BASE = import.meta.env.VITE_PRICE_API_BASE ?? "";
+
 type Errors = string[];
 
 export default function Contact() {
@@ -54,7 +57,11 @@ export default function Contact() {
   const [scale, setScale] = useState("");
   const [message, setMessage] = useState("");
   const [agreed, setAgreed] = useState(false);
+  const [website, setWebsite] = useState(""); // ハニーポット（人は触らない・botよけ）
   const [errors, setErrors] = useState<Errors>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.title = "お問い合わせ ｜ SMASK"; }, []);
@@ -76,8 +83,9 @@ export default function Contact() {
     return e;
   };
 
-  const onSubmit = (ev: React.FormEvent) => {
+  const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
+    // 送信直前にもクライアントバリデーションを実行する
     const e = validate();
     setErrors(e);
     if (e.length) {
@@ -85,7 +93,25 @@ export default function Contact() {
       requestAnimationFrame(() => errorRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }));
       return;
     }
-    /* 送信先は未接続。実装時はここで API へ POST する */
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch(`${API_BASE}/api/public/inquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          company: company.trim(), person: person.trim(), email: email.trim(), tel: tel.trim(),
+          inquiry_type: inquiryType, topics, scale, message: message.trim(), agreed,
+          website, // ハニーポット
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setSubmitted(true);
+    } catch {
+      setSubmitError("送信に失敗しました。お手数ですが、時間をおいて再度お試しいただくか、下記メールアドレスへご連絡ください。");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -129,7 +155,20 @@ export default function Contact() {
             <h2 className="ct-h2">お問い合わせ</h2>
             <p className="ct-required-note"><span className="ct-req">※</span> は必須項目です</p>
 
+            {submitted ? (
+              <div className="ct-thanks" role="status">
+                <h3>送信が完了しました</h3>
+                <p>お問い合わせありがとうございます。担当者より順次ご連絡いたしますので、いましばらくお待ちください。</p>
+              </div>
+            ) : (
             <form className="ct-form" onSubmit={onSubmit} noValidate>
+
+              {/* ハニーポット（視覚非表示・スクリーンリーダー非対象・自動補完オフ。bot対策） */}
+              <div className="ct-hp" aria-hidden="true">
+                <label htmlFor="website">Webサイト（入力しないでください）</label>
+                <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off"
+                  value={website} onChange={e => setWebsite(e.target.value)} />
+              </div>
 
               {/* 会社名 / 担当者名 */}
               <div className="ct-row">
@@ -262,11 +301,26 @@ export default function Contact() {
                 </div>
               )}
 
+              {/* 送信エラー */}
+              {submitError && (
+                <div className="ct-errors" role="alert" tabIndex={-1}>
+                  <p className="ct-errors-title">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                      <path d="M12 7.6v5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                      <circle cx="12" cy="16" r=".9" fill="currentColor" />
+                    </svg>
+                    {submitError}
+                  </p>
+                </div>
+              )}
+
               {/* 送信 */}
               <div className="ct-submit">
-                <button className="ct-btn" type="submit">送信する</button>
+                <button className="ct-btn" type="submit" disabled={submitting}>{submitting ? "送信中…" : "送信する"}</button>
               </div>
             </form>
+            )}
 
             {/* メールアドレス */}
             <div className="ct-mail">
