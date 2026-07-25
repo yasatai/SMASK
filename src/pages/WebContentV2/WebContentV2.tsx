@@ -274,10 +274,12 @@ export default function WebContentV2() {
         const order = stripes.length - 1 - i;   // 下の帯ほど先
         s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
       });
-      /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上） */
+      /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上）。
+         モバイルは上部ボタンに掛からないよう上昇量を控えめに */
       if (head) {
         head.style.opacity = seg(p, 0.46, 0.55).toFixed(3);
-        const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
+        const upFactor = window.innerWidth < 680 ? 0.22 : 0.32;
+        const up = seg(p, 0.55, 0.64) * window.innerHeight * upFactor;
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
       /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
@@ -504,8 +506,8 @@ export default function WebContentV2() {
       /* デスクトップ＝中央まとまりの右側／モバイル＝画面中央（縦積み） */
       const xEnd = mobile ? 0 : (cubeCenterPx - vw / 2) / vw * 100;
       const headLeft = mobile ? (vw - hw) / 2 : groupLeft;
-      const headExtraY = mobile ? -26 : 0;                            // モバイルは見出しを上へ寄せる(vh)
-      const cubeYFinal = mobile ? 18 : 0;                             // モバイルはキューブを下へ(vh)
+      const headExtraY = mobile ? -14 : 0;                            // モバイルは見出しをやや上へ（上部ボタンは避ける）(vh)
+      const cubeYFinal = mobile ? 22 : 0;                             // モバイルはキューブを下へ(vh)
 
       /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16） */
       if (head) {
