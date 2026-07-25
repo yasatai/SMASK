@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
 import "./WebContentV2.css";
@@ -117,46 +118,22 @@ export default function WebContentV2() {
     return () => { document.body.style.overflow = ""; };
   }, [loaded]);
 
-  /* ---- 慣性スムーススクロール（trionn/Lenis 風）：ホイール量を lerp で追従。
-     scrollY を読む各演出（Hero/大ピン/キューブ/航路/ワープ）はそのまま滑らかに動く。
-     タッチ端末・reduced-motion では無効（ネイティブの慣性に任せる） ---- */
+  /* ---- スムーススクロール（trionn と同じ Lenis）：入力に即反応しつつ滑らか。
+     scrollY を読む各演出（Hero/大ピン/キューブ/航路/ワープ）はそのまま動く。
+     タッチ端末・reduced-motion では無効（ネイティブに任せる） ---- */
   useEffect(() => {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     if ("ontouchstart" in window || !matchMedia("(pointer: fine)").matches) return;
-    let target = window.scrollY;
-    let current = window.scrollY;
+    const lenis = new Lenis({
+      lerp: 0.14,          // 追従の速さ（大きいほど即反応・小さいほど滑らか）
+      wheelMultiplier: 1,
+      smoothWheel: true,
+      syncTouch: false,
+    });
     let raf = 0;
-    const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
-    const loop = () => {
-      current += (target - current) * 0.4;                   // 追従の速さ（大きいほど軽い＝慣性/加速感が減る）
-      if (Math.abs(target - current) < 0.5) {
-        current = target;
-        window.scrollTo(0, current);
-        raf = 0;
-        return;
-      }
-      window.scrollTo(0, Math.round(current * 100) / 100);
-      raf = requestAnimationFrame(loop);
-    };
-    const onWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) return;                                  // ピンチズームはネイティブ
-      if (document.body.style.overflow === "hidden") return; // ローダー/メニュー表示中
-      e.preventDefault();
-      if (!raf) { current = window.scrollY; target = current; }
-      target += e.deltaY;
-      if (target < 0) target = 0;
-      if (target > maxScroll()) target = maxScroll();
-      if (!raf) raf = requestAnimationFrame(loop);
-    };
-    /* ホイール以外（キーボード・スクロールバー・ルート遷移の scrollTo(0)）で飛んだら追従を同期 */
-    const onScroll = () => { if (!raf) { current = window.scrollY; target = current; } };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(raf);
-    };
+    const loop = (time: number) => { lenis.raf(time); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(raf); lenis.destroy(); };
   }, []);
 
   useReveal();
