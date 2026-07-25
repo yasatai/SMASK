@@ -515,7 +515,7 @@
 /* 左：見出しブロック（JSで上からバウンド着地） */
 .wc2-str-head {
   position: relative; z-index: 2;
-  margin-left: clamp(1.5rem, 6vw, 7rem); max-width: 30rem;
+  margin-left: clamp(1.5rem, 6vw, 7rem); max-width: min(30rem, 42vw);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-str-head .wc2-label { color: #6b7686; }
@@ -527,7 +527,7 @@
 }
 
 /* 4側面に強みを刻んだ白キューブ：光源を左上前に固定し、グラデ＋面取りで立体に見せる */
-.wc2-cube-wrap { position: absolute; width: 300px; height: 300px; will-change: transform, opacity; }
+.wc2-cube-wrap { position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px 0 0 -150px; will-change: transform, opacity; }
 .wc2-cube { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .wc2-face {
   position: absolute; width: 300px; height: 300px;

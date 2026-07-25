@@ -446,9 +446,11 @@ export default function WebContentV2() {
 
       /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 右側に着地、着地で軽くバウンド */
       if (cube && cubeWrap) {
+        /* 画面幅に応じてキューブを縮小（狭い画面で見出しと被らせない） */
+        const rs = Math.max(0.6, Math.min(1, (window.innerWidth - 760) / 680 * 0.4 + 0.6));
         const drop = seg(p, 0.08, 0.36);
         const roll = ease(drop);                                      // 0→1
-        const x = 20 + (1 - roll) * 34;                               // 右上(54vw)→右側定位置(20vw)
+        const x = 24 + (1 - roll) * 32;                               // 右上(56vw)→右側定位置(24vw・画面中央基準)
         const y = (1 - roll) * -76;                                   // 上から
         const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
         cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
@@ -463,12 +465,12 @@ export default function WebContentV2() {
         const rx = -13 * roll + 26 * tumble;                          // 着地時 -13°の見下ろし＋落下中の余分な傾き
         const ry = showRY - 540 * tumble;                             // 落下中は転がり、着地で showRY に収束
         const rz = tumble * -24;                                      // 斜め落下の傾き（着地で0）
-        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg)`;
+        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${rs.toFixed(3)})`;
 
         /* 床の設置影：Xはキューブに追従、落下で濃く/大きく、着地でキュッと締まる */
         if (shadow) {
-          const sc = 0.42 + roll * 0.6 - Math.max(0, settle) * 0.03;
-          shadow.style.transform = `translate(${x.toFixed(1)}vw, 158px) scale(${sc.toFixed(3)})`;
+          const sc = (0.42 + roll * 0.6 - Math.max(0, settle) * 0.03) * rs;
+          shadow.style.transform = `translate(${x.toFixed(1)}vw, ${(158 * rs).toFixed(0)}px) scale(${sc.toFixed(3)})`;
           shadow.style.opacity = (roll * 0.85).toFixed(3);
         }
       }
