@@ -728,9 +728,10 @@ export default function WebContentV2() {
     /* 継ぎ目（大きなセクションの上端＝ハンドオフ位置）を収集 */
     let seams: number[] = [];
     const collectSeams = () => {
-      /* Hero→APPROACH は Hero 自身のダイブ→暗転があるため除外、CONTACT は別演出のため除外 */
+      /* ワープ・カーテンは STRENGTHS→PROCESS(航路) の継ぎ目だけで発火する。
+         Hero→APPROACH（Heroのダイブ→暗転）／SERVICES→STRENGTHS（キューブ落下）／CONTACT（別演出）は除外 */
       const els = Array.from(
-        document.querySelectorAll<HTMLElement>(".wc2-strengths-sec, .wc2-route-sec")
+        document.querySelectorAll<HTMLElement>(".wc2-route-sec")
       );
       seams = els.map((el) => el.getBoundingClientRect().top + window.scrollY).sort((a, b) => a - b);
     };
