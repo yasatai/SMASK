@@ -33,6 +33,8 @@
 
 /* ============ 3Dシーン（全面固定・最背面） ============ */
 .wc2-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+/* セクション転換のワープ・カーテン（継ぎ目で被さる。canvasのalphaで表示制御） */
+.wc2-warp { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none; }
 
 /* ============ 設計図グリッド背景（白のあとの暗色セクションの世界） ============
    製図台の方眼（細＋太）。ベースは透過なので 3D の星屑も透ける。

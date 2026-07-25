@@ -699,6 +699,105 @@ export default function WebContentV2() {
     return () => { removeEventListener("mousemove", onMove); cancelAnimationFrame(raf); };
   }, []);
 
+  /* ---- セクション転換のワープ・カーテン：継ぎ目でハイパースペースが被さり、縦スクロールを隠して次を出す ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = document.querySelector<HTMLCanvasElement>(".wc2-warp");
+    const ctx = cv?.getContext("2d");
+    if (!cv || !ctx) return;
+
+    /* 放射状に流れる星（角度・開始半径・太さ・色相を固定生成） */
+    const STARS = Array.from({ length: 150 }, (_, i) => ({
+      ang: (i * 2.399963) % (Math.PI * 2),          // 黄金角でばらける
+      r0: 0.02 + ((i * 53) % 100) / 100 * 0.5,      // 開始半径（画面短辺比）
+      w: 0.6 + ((i * 17) % 10) / 10 * 1.6,
+      hue: [200, 210, 190, 0][i % 4],               // 青系＋たまに白
+      sat: [70, 60, 80, 0][i % 4],
+    }));
+
+    let w = 1, h = 1, dpr = 1;
+    const resize = () => {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = cv.clientWidth || window.innerWidth;
+      h = cv.clientHeight || window.innerHeight;
+      cv.width = Math.max(1, Math.round(w * dpr));
+      cv.height = Math.max(1, Math.round(h * dpr));
+    };
+    resize();
+
+    /* 継ぎ目（大きなセクションの上端＝ハンドオフ位置）を収集 */
+    let seams: number[] = [];
+    const collectSeams = () => {
+      const els = Array.from(
+        document.querySelectorAll<HTMLElement>(".wc2-approach-sec, .wc2-strengths-sec, .wc2-route-sec, .wc2-contact")
+      );
+      seams = els.map((el) => el.getBoundingClientRect().top + window.scrollY).sort((a, b) => a - b);
+    };
+    collectSeams();
+
+    let raf = 0;
+    const draw = () => {
+      raf = 0;
+      if (cv.width !== Math.round(w * dpr) || w <= 1) resize();   // 自己修復
+      const vh = window.innerHeight || 1;                          // 0除算回避（NaN防止）
+      const y = window.scrollY;
+      /* 各継ぎ目への近さから強度を算出（ハンドオフ手前で最大＝縦スクロールを隠す） */
+      let intensity = 0;
+      for (const s of seams) {
+        const peak = s - vh * 0.5;                                 // 継ぎ目の平坦スクロール中央
+        const d = Math.abs(y - peak) / (vh * 0.5);                 // ±0.5vh で 0..1
+        intensity = Math.max(intensity, Math.max(0, 1 - d));
+      }
+      const t = intensity * intensity * (3 - 2 * intensity);       // smoothstep
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      if (!(t > 0.001) || w <= 1) { return; }                      // NaN・未確定サイズは描画しない
+
+      const cx = w / 2, cy = h / 2;
+      const minSide = Math.min(w, h);
+      /* 覆い（縦スクロールを隠す暗幕）＋中心の発光 */
+      ctx.fillStyle = `rgba(4,6,12,${(t * 0.9).toFixed(3)})`;
+      ctx.fillRect(0, 0, w, h);
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, minSide * 0.7);
+      glow.addColorStop(0, `rgba(150,200,255,${(t * 0.5).toFixed(3)})`);
+      glow.addColorStop(0.4, `rgba(90,150,255,${(t * 0.12).toFixed(3)})`);
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, w, h);
+
+      /* 星が中心から放射状に流れる（強度で伸びる／スクロールでわずかに回る） */
+      const spin = y * 0.0006;
+      const streak = minSide * (0.18 + 0.9 * t);                   // 伸び
+      ctx.lineCap = "round";
+      for (const st of STARS) {
+        const a = st.ang + spin;
+        const dx = Math.cos(a), dy = Math.sin(a);
+        const r1 = st.r0 * minSide + streak * 0.15;
+        const r2 = r1 + streak * (0.4 + st.r0);                    // 外側ほど長い尾
+        const col = st.sat === 0 ? `rgba(255,255,255,${(t * 0.95).toFixed(3)})` : `hsla(${st.hue},${st.sat}%,72%,${(t * 0.9).toFixed(3)})`;
+        ctx.strokeStyle = col;
+        ctx.lineWidth = st.w * (0.6 + t);
+        ctx.beginPath();
+        ctx.moveTo(cx + dx * r1, cy + dy * r1);
+        ctx.lineTo(cx + dx * r2, cy + dy * r2);
+        ctx.stroke();
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(draw); };
+    const onResize = () => { resize(); collectSeams(); onScroll(); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    const heal = window.setTimeout(onResize, 200);                 // マウント直後の 1x1 対策
+    draw();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(heal);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <>
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
@@ -950,6 +1049,9 @@ export default function WebContentV2() {
           </div>
           <div className="wc2-bridge" aria-hidden="true"></div>
         </section>
+
+        {/* セクション転換のワープ・カーテン（継ぎ目でハイパースペースが被さって縦スクロールを隠す） */}
+        <canvas className="wc2-warp" aria-hidden="true"></canvas>
       </main>
     </>
   );
