@@ -531,13 +531,13 @@ export default function WebContentV2() {
       const top = pin.getBoundingClientRect().top + window.scrollY;
       const p = clamp01((window.scrollY - top) / len);
 
-      /* ★ セクション転換：先頭で暗黒からワープイン（奥から迫り＋ピントが合う）、末尾でワープアウト（突き抜ける） */
+      /* ★ セクション転換：先頭で暗黒からワープイン（奥から迫り＋ピントが合う）、末尾はクリーンにフェードアウト（→CONTACTで中心から出現） */
       const intro = ss(clamp01(p / 0.14));
-      const outro = ss(clamp01((p - 0.88) / 0.12));
+      const outro = ss(clamp01((p - 0.86) / 0.14));
       if (world) {
-        world.style.opacity = (intro * (1 - outro)).toFixed(3);
-        const scale = 0.5 + 0.5 * intro + 0.9 * outro;         // 奥(0.5)→定位置(1)→突き抜け(1.9)
-        const blur = (1 - intro) * 12 + outro * 10;            // ピントが合う→ボケて抜ける
+        world.style.opacity = (intro * (1 - outro)).toFixed(3); // 末尾で背景ごとフェードアウト
+        const scale = 0.5 + 0.5 * intro - 0.06 * outro;        // 奥(0.5)→定位置(1)→軽く引く(0.94)
+        const blur = (1 - intro) * 12;                         // イン時だけボケ→クリアに（アウトはボケなし）
         world.style.transform = `scale(${scale.toFixed(3)})`;
         world.style.filter = `blur(${blur.toFixed(1)}px)`;
       }
@@ -728,8 +728,9 @@ export default function WebContentV2() {
     /* 継ぎ目（大きなセクションの上端＝ハンドオフ位置）を収集 */
     let seams: number[] = [];
     const collectSeams = () => {
+      /* CONTACT の継ぎ目はワープ・カーテンを使わず「PROCESSフェードアウト→中心から出現」で見せるため除外 */
       const els = Array.from(
-        document.querySelectorAll<HTMLElement>(".wc2-approach-sec, .wc2-strengths-sec, .wc2-route-sec, .wc2-contact")
+        document.querySelectorAll<HTMLElement>(".wc2-approach-sec, .wc2-strengths-sec, .wc2-route-sec")
       );
       seams = els.map((el) => el.getBoundingClientRect().top + window.scrollY).sort((a, b) => a - b);
     };
@@ -794,6 +795,37 @@ export default function WebContentV2() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.clearTimeout(heal);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- CONTACT：PROCESSがフェードアウトした後、中心から「話しましょう」が拡大して出現 ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-contact-pin");
+    if (!pin) return;
+    const inner = pin.querySelector<HTMLElement>(".wc2-contact-inner");
+    if (!inner) return;
+    let raf = 0;
+    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    /* back-ease-out：中心からポンッと出るオーバーシュート */
+    const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+    const tick = () => {
+      raf = 0;
+      const len = Math.max(1, pin.offsetHeight - window.innerHeight);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = clamp01((window.scrollY - top) / len);
+      const e = back(clamp01(p / 0.45));                      // 前半で出現、以降は静止
+      inner.style.opacity = clamp01(p / 0.30).toFixed(3);
+      inner.style.transform = `scale(${(0.4 + 0.6 * e).toFixed(3)})`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -1035,17 +1067,21 @@ export default function WebContentV2() {
           </div>
         </section>
 
-        {/* ============ CONTACT：巨大CTA ============ */}
+        {/* ============ CONTACT：PROCESSがフェードアウト→中心から「話しましょう」が出現（巨大CTA） ============ */}
         <section className="wc2-sec wc2-contact">
-          <div className="wc2-wrap">
-            <span className="wc2-label" data-reveal>( 07 ) — CONTACT</span>
-            <a className="wc2-talk" href="/contact" data-reveal>
-              <span className="wc2-talk-main">話しましょう<em>.</em></span>
-              <span className="wc2-talk-arrow" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              </span>
-            </a>
-            <p className="wc2-contact-lead" data-reveal>まずはお気軽にご相談ください。ご要望・ご予算に合わせて柔軟にご対応いたします。</p>
+          <div className="wc2-contact-pin">
+            <div className="wc2-contact-stage">
+              <div className="wc2-wrap wc2-contact-inner">
+                <span className="wc2-label">( 07 ) — CONTACT</span>
+                <a className="wc2-talk" href="/contact">
+                  <span className="wc2-talk-main">話しましょう<em>.</em></span>
+                  <span className="wc2-talk-arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                </a>
+                <p className="wc2-contact-lead">まずはお気軽にご相談ください。ご要望・ご予算に合わせて柔軟にご対応いたします。</p>
+              </div>
+            </div>
           </div>
           <div className="wc2-bridge" aria-hidden="true"></div>
         </section>

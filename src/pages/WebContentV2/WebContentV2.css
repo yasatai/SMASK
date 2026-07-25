@@ -734,10 +734,22 @@
 .wc2-steps p { margin-top: .5rem; font-size: .82rem; line-height: 1.9; }
 
 /* ============ CONTACT ============ */
-.wc2-contact { padding-bottom: 0; }
+.wc2-contact { padding-bottom: 0; padding-top: 0; }
+/* ピン留め：PROCESSがフェードアウトしたあと、中心から「話しましょう」が拡大出現 */
+.wc2-contact-pin { height: 200svh; }
+.wc2-contact-stage {
+  position: sticky; top: 0; height: 100svh; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.wc2-contact-inner {
+  padding-left: 0; text-align: center;
+  opacity: 0; transform: scale(.4); transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+.wc2-contact-inner .wc2-label { display: inline-block; }
 .wc2-talk {
   display: inline-flex; align-items: center; gap: clamp(1rem, 3vw, 2.2rem);
-  margin-top: 1.6rem;
+  margin-top: 1.6rem; justify-content: center;
 }
 .wc2-talk-main {
   font-family: var(--wc2-display); font-weight: 900;
@@ -765,7 +777,7 @@
   transform: rotate(45deg) scale(1.08);
   background: rgb(230 231 234 / .08); border-color: rgb(230 231 234 / .8);
 }
-.wc2-contact-lead { margin-top: 2.2rem; max-width: 40rem; }
+.wc2-contact-lead { margin-top: 2.2rem; max-width: 40rem; margin-inline: auto; }
 /* 紙色フッターへの橋渡し */
 .wc2-bridge {
   height: clamp(6rem, 13vw, 11rem); margin-top: clamp(5rem, 10vw, 8rem);
@@ -815,6 +827,10 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-route-hint { display: none; }
   .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
   .wc2-route-stage .wc2-steps--fb { display: grid; width: min(100% - 3rem, 1240px); margin-inline: auto; }
+  /* CONTACT：出現演出を無効化し、通常表示 */
+  .wc2-contact-pin { height: auto; }
+  .wc2-contact-stage { position: static; height: auto; overflow: visible; display: block; padding: 4rem 0; }
+  .wc2-contact-inner { opacity: 1 !important; transform: none !important; }
   .wc2-c2s-services { position: static; height: auto; overflow: visible; background: #eceded; padding: 4rem 0; }
   /* ピン留め演出は無効化して通常のセクションとして読ませる */
   .wc2-pin { height: auto; padding-block: clamp(5rem, 11vw, 9.5rem); }
