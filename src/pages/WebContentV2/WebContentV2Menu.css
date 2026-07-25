@@ -1,0 +1,152 @@
+/* ============ ハンバーガーメニュー ============ */
+
+/* トグルボタン */
+.wc2-menu-toggle {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 9980;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1.2rem;
+  background: transparent;
+  border: 1px solid var(--wc2-ink-soft);
+  border-radius: 24px;
+  color: var(--wc2-ink);
+  font-family: var(--wc2-body);
+  font-size: 0.88rem;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+}
+.wc2-menu-toggle:hover {
+  border-color: var(--wc2-ink);
+  color: var(--wc2-ink);
+}
+.wc2-menu-toggle:active {
+  transform: scale(0.96);
+}
+
+.wc2-menu-icon {
+  display: inline-block;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  transition: transform 0.3s var(--ease-out);
+}
+.wc2-menu-toggle[aria-expanded="true"] .wc2-menu-icon {
+  transform: rotate(90deg);
+}
+
+/* バックドロップ */
+.wc2-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9960;
+  background: rgba(5, 6, 10, 0.7);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s var(--ease-out);
+}
+
+/* メニューナビゲーション */
+.wc2-menu-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9970;
+  width: min(100%, 280px);
+  height: 100vh;
+  background: var(--wc2-bg);
+  border-left: 1px solid var(--wc2-line);
+  overflow-y: auto;
+  animation: slideInRight 0.35s var(--ease-out);
+}
+
+/* メニューリスト */
+.wc2-menu-list {
+  padding: 6rem 0 2rem 0;
+  list-style: none;
+}
+
+/* メニューアイテム */
+.wc2-menu-item {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--wc2-ink-soft);
+  font-family: var(--wc2-body);
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out);
+}
+.wc2-menu-item:hover {
+  color: var(--wc2-ink);
+  border-left-color: var(--wc2-ink-soft);
+  background: rgba(230, 231, 234, 0.05);
+}
+.wc2-menu-item.is-active {
+  color: var(--wc2-ink);
+  border-left-color: var(--wc2-ink);
+  background: rgba(230, 231, 234, 0.08);
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* reduced-motion 対応 */
+@media (prefers-reduced-motion: reduce) {
+  .wc2-menu-toggle .wc2-menu-icon {
+    transition: none;
+  }
+  .wc2-menu-nav {
+    animation: none;
+  }
+  .wc2-menu-backdrop {
+    animation: none;
+  }
+  .wc2-menu-item {
+    transition: none;
+  }
+}
+
+/* モバイル・狭い画面対応 */
+@media (max-width: 600px) {
+  .wc2-menu-toggle {
+    top: 1.5rem;
+    right: 1.5rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+  .wc2-menu-nav {
+    width: 100%;
+  }
+  .wc2-menu-list {
+    padding: 5rem 0 2rem 0;
+  }
+  .wc2-menu-item {
+    padding: 0.9rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
+import WebContentV2Menu from "./WebContentV2Menu";
 import "./WebContentV2.css";
 
 /**
@@ -879,6 +880,7 @@ export default function WebContentV2() {
     <>
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
+        <WebContentV2Menu />
         <Scene3D />
         {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
            以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}
@@ -939,7 +941,7 @@ export default function WebContentV2() {
             </div>
             {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
                左→右に流れる（trionn 準拠）。全てスクロール同期 */}
-            <div className="wc2-worksreveal">
+            <div id="wc2-works" className="wc2-worksreveal">
               <div className="wc2-worksreveal-head">
                 <span className="wc2-label">( 02 ) — WORKS</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
@@ -992,7 +994,7 @@ export default function WebContentV2() {
               <span className="wc2-c2s-seed" aria-hidden="true"></span>
               <div className="wc2-c2s-white" aria-hidden="true"></div>
               {/* 白が弾けた直後、SERVICES 全体が中央から爆発的に現れる（白の上） */}
-              <div className="wc2-c2s-services">
+              <div id="wc2-services" className="wc2-c2s-services">
                 <div className="wc2-c2s-emerge">
                   <div className="wc2-wrap wc2-services-headwrap">
                     <span className="wc2-label">( 04 ) — SERVICES</span>
@@ -1012,7 +1014,7 @@ export default function WebContentV2() {
                   </div>
                 </div>
               </div>
-              <div className="wc2-wipe-inner">
+              <div id="wc2-concerns" className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
                 <ul className="wc2-chips">
