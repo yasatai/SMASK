@@ -503,6 +503,13 @@ html.is-fullpage, html.is-fullpage body { height: 100%; overflow: hidden; }
 }
 @media (max-width: 760px) {
   .sub-br { display: none; }
+  /* ルール①：狭い画面で「Webコンテンツ」等が割れないよう、少しだけ詰める */
+  .hero-sub { font-size: .92rem; letter-spacing: 0; }
+}
+@media (max-width: 440px) {
+  /* さらに狭い画面：ルール②で読点の直後に改行できないぶん1行が長くなるため、
+     語が割れない大きさまで詰める（代表了承のボックス調整） */
+  .hero-sub { font-size: .7rem; line-height: 2; }
   .hero { background-image:
       linear-gradient(180deg, var(--color-paper) 0%, color-mix(in oklch, var(--color-paper) 70%, transparent) 45%, color-mix(in oklch, var(--color-paper) 30%, transparent) 100%),
       url("/assets/hero.png");
