@@ -117,6 +117,48 @@ export default function WebContentV2() {
     return () => { document.body.style.overflow = ""; };
   }, [loaded]);
 
+  /* ---- 慣性スムーススクロール（trionn/Lenis 風）：ホイール量を lerp で追従。
+     scrollY を読む各演出（Hero/大ピン/キューブ/航路/ワープ）はそのまま滑らかに動く。
+     タッチ端末・reduced-motion では無効（ネイティブの慣性に任せる） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if ("ontouchstart" in window || !matchMedia("(pointer: fine)").matches) return;
+    let target = window.scrollY;
+    let current = window.scrollY;
+    let raf = 0;
+    const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
+    const loop = () => {
+      current += (target - current) * 0.085;                 // なめらかさ（小さいほど滑らか/重い）
+      if (Math.abs(target - current) < 0.4) {
+        current = target;
+        window.scrollTo(0, current);
+        raf = 0;
+        return;
+      }
+      window.scrollTo(0, Math.round(current * 100) / 100);
+      raf = requestAnimationFrame(loop);
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (e.ctrlKey) return;                                  // ピンチズームはネイティブ
+      if (document.body.style.overflow === "hidden") return; // ローダー/メニュー表示中
+      e.preventDefault();
+      if (!raf) { current = window.scrollY; target = current; }
+      target += e.deltaY;
+      if (target < 0) target = 0;
+      if (target > maxScroll()) target = maxScroll();
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    /* ホイール以外（キーボード・スクロールバー・ルート遷移の scrollTo(0)）で飛んだら追従を同期 */
+    const onScroll = () => { if (!raf) { current = window.scrollY; target = current; } };
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   useReveal();
 
   /* ---- PS2オープニングのスクロール演出 ----
