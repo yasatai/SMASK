@@ -233,12 +233,22 @@ export default function WebContentV2() {
         const up = seg(p, 0.55, 0.64) * window.innerHeight * 0.32;   // 上へ 32vh
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
-      /* カードのホイール：タイトルが上がった後、大きな円弧に沿ってカードが回転しながら流れる（trionn DESIGN IN MOTION）。
-         CSS が translate(-50%,-50%) rotate(var(--spin)) を適用。ここでは --spin を +18°→-18° で駆動 */
+      /* カードの遠近ホイール（trionn DESIGN IN MOTION）：カードを角度で弧に配置し、
+         傾きは控えめ（接線の4割）、手前（角度0付近）ほど大きく＝奥行き。スクロールで全体角度が回って流れる */
       if (track) {
         const prog = seg(p, 0.58, 0.74);
-        const spin = 18 - prog * 36;                       // 弧が回って寄港カードが流れる
-        track.style.setProperty("--spin", `${spin.toFixed(2)}deg`);
+        const spin = 20 - prog * 40;                        // 全体角度：+20°→-20°（カードが弧を流れる）
+        const worksEls = track.querySelectorAll<HTMLElement>(".wc2-work");
+        const N = worksEls.length;
+        const STEP = 13;                                    // カード間の角度
+        worksEls.forEach((w, i) => {
+          const ang = (i - (N - 1) / 2) * STEP + spin;      // このカードの現在角度（deg, 0=手前中央）
+          const rad = (ang * Math.PI) / 180;
+          w.style.setProperty("--ang", `${ang.toFixed(2)}deg`);
+          w.style.setProperty("--tilt", `${(ang * 0.4).toFixed(2)}deg`);  // 少しだけ接線に傾く
+          w.style.setProperty("--sc", (0.68 + 0.32 * Math.cos(rad)).toFixed(3)); // 手前ほど拡大
+          w.style.zIndex = String(200 + Math.round(Math.cos(rad) * 100));         // 手前を前面に
+        });
         track.style.opacity = seg(p, 0.58, 0.66).toFixed(3);
       }
       /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：

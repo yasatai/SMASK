@@ -294,17 +294,21 @@ html.wc2-page-active .wc2-bridge { display: none; }
   --R: clamp(900px, 122vw, 1750px);
   position: absolute; left: 50%; top: calc(46vh + var(--R));
   width: calc(2 * var(--R)); height: calc(2 * var(--R));
-  transform: translate(-50%, -50%) rotate(var(--spin, 0deg));
+  transform: translate(-50%, -50%);
   transform-origin: 50% 50%;
-  opacity: 0; will-change: transform, opacity; pointer-events: none;
+  opacity: 0; will-change: opacity; pointer-events: none;
 }
 .wc2-worksreveal-track .wc2-work {
   position: absolute; left: 50%; top: 50%;
-  width: clamp(220px, 22vw, 380px); height: clamp(150px, 15vw, 252px);
-  transform-origin: 50% 50%;
-  --step: 15deg;
-  --ang: calc((var(--i) - (var(--n) - 1) / 2) * var(--step));
-  transform: translate(-50%, -50%) rotate(var(--ang)) translateY(calc(-1 * var(--R)));
+  width: clamp(240px, 24vw, 420px); height: clamp(165px, 16vw, 280px);
+  transform-origin: 50% 50%; will-change: transform;
+  /* --ang / --tilt / --sc は JS が駆動（フォールバックは静的配置） */
+  --ang: calc((var(--i) - (var(--n) - 1) / 2) * 13deg);
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--ang)) translateY(calc(-1 * var(--R)))
+    rotate(calc(var(--tilt, 0deg) - var(--ang)))   /* 位置は弧上／見た目の傾きは控えめ(--tilt)に */
+    scale(var(--sc, 1));                            /* 手前ほど拡大＝奥行き */
   pointer-events: auto;
 }
 
