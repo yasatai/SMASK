@@ -5,11 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SMASK ｜ 価値を見極め、かたちにする</title>
 <style>
-  :root { color-scheme: dark; }
+  /* html/#root には背景を付けない。付けると body 背景のキャンバス伝播が止まり、
+     各事業ページの固定背景（.jw/.pm/.wc-fixedbg＝position:fixed; z-index:-1）を
+     覆い隠してしまう（Hero背景が消える不具合の原因）。
+     3Dページ遷移の白フラッシュ対策は App.css の .wc2-boot / html.is-web-depart 側で
+     自己完結しているため、ここで全体を暗色ベースにする必要はない。 */
   html, body, #root {
     margin: 0;
     min-height: 100%;
-    background: #05060a;
   }
   body {
     min-height: 100vh;
