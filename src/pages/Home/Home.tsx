@@ -316,7 +316,7 @@ export default function Home() {
             </div>
             <div className="about-grid">
               <div className="about-lead reveal-item">
-                <h2><span className="en eyebrow">Our Belief</span>目に見える価格の、<br />その先を見つめて。</h2>
+                <h2><span className="en eyebrow">Our Belief</span>目に見える価格の、その先を見つめて。</h2>
               </div>
               <div className="about-body reveal-item">
                 <p>SMASKは、目に見える価格だけでなく、その背景にある価値や流れまで見つめながら、事業を組み立てています。</p>

@@ -15,6 +15,7 @@ import Company from "./pages/Company/Company";
 import Contact from "./pages/Contact/Contact";
 import Privacy from "./pages/Privacy/Privacy";
 import { prefersReduced } from "./motion";
+import { useJaTypography } from "./useJaTypography";
 import { SiteSettingsProvider } from "./data/SiteSettingsContext";
 import "./App.css";
 
@@ -46,6 +47,10 @@ export default function App() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [pathname]);
+
+  /* 日本語のレスポンシブ改行整形（「。」後で改行／行末に「、」を残さない）。
+     wc2（3D演出）ページは per-char アニメがあるため対象外にして別途対応 */
+  useJaTypography(pathname !== "/business-web-v2");
 
   /* ---- ページ遷移カーテン（元 main.js の leave-curtain を移植） ---- */
   useEffect(() => {
