@@ -915,3 +915,19 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-talk-main { font-size: clamp(2rem, 11vw, 3rem); }
   .wc2-talk-arrow { width: 2.6rem; height: 2.6rem; }
 }
+
+/* 大ピン各層（APPROACH/WORKS/CONCERNS/SERVICES）のモバイル調整：
+   左右パディングを詰めて幅を確保し、はみ出し・文字切れを防ぐ */
+@media (max-width: 679px) {
+  .wc2-worksreveal-head,
+  .wc2-worksreveal-track,
+  .wc2-worksreveal .wc2-works-note,
+  .wc2-wipe-inner { padding-left: 1.5rem; }
+  .wc2-worksreveal-track { padding-right: 1.5rem; }
+  .wc2-worksreveal-track .wc2-work { width: clamp(230px, 78vw, 320px); }
+  /* SERVICES：グリッド行が縮まず容器幅を超えるのを防ぐ（min-width:auto を解除） */
+  .wc2-c2s-emerge { max-width: 100%; min-width: 0; }
+  .wc2-c2s-services .wc2-rows { width: 100%; }
+  .wc2-c2s-services .wc2-row-in { min-width: 0; }
+  .wc2-c2s-services .wc2-row-in > * { min-width: 0; }
+}
