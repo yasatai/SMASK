@@ -106,6 +106,22 @@ function makeGlowTexture(size = 128): THREE.CanvasTexture {
   return new THREE.CanvasTexture(cv);
 }
 
+/* dust粒子を「丸」にするための小さな円形テクスチャ（中心はしっかり不透明→縁だけ柔らかく）。
+   PointsMaterial は map なしだと gl.POINTS の既定＝正方形で描かれるため、これを map に与える。 */
+function makeDotTexture(size = 64): THREE.CanvasTexture {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  const cx = cv.getContext("2d")!;
+  const g = cx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.55, "rgba(255,255,255,1)");
+  g.addColorStop(0.82, "rgba(255,255,255,.55)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  cx.fillStyle = g;
+  cx.fillRect(0, 0, size, size);
+  return new THREE.CanvasTexture(cv);
+}
+
 /* ---- 振り付けキー ---- */
 type Key = {
   at: number;
@@ -323,8 +339,10 @@ export default function Scene3D() {
       pos[i * 3 + 2] = r * Math.cos(ph) - 3;
     }
     pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const dotTex = makeDotTexture();
     const pMat = new THREE.PointsMaterial({
-      color: 0x8fa0c4, size: 0.022, sizeAttenuation: true,
+      color: 0xdfe8ff, size: 0.022, sizeAttenuation: true,   // オープニングの星屑と同色（#dfe8ff）に統一
+      map: dotTex,   // 円形テクスチャで四角い点を丸くする（加算合成なので透明部分は加算されず＝丸に見える）
       transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false,
     });
     const dust = new THREE.Points(pGeo, pMat);
