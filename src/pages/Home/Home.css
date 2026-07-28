@@ -171,15 +171,16 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-about-sec .wc2-about-body p + p { margin-top: 1.5rem; }
 .wc2-about-cta {
   display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
-  margin-top: 2.8rem; padding-bottom: .55rem;
-  font-family: var(--wc2-display); font-size: .68rem; letter-spacing: .24em;
+  margin-top: 2.8rem; padding-bottom: .6rem;
+  /* 下層ページ(会社概要)へのCTA。ラベル/本文に合わせて大きく */
+  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
   color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
   pointer-events: auto;
   transition: gap .5s var(--ease-expo), color .4s var(--ease-out), border-color .4s var(--ease-out);
 }
 .wc2-about-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
 .wc2-about-cta span {
-  font-size: .9rem;
+  font-size: 1.2rem;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
