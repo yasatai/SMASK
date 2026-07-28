@@ -33,6 +33,15 @@
 
 /* ============ 3Dシーン（全面固定・最背面） ============ */
 .wc2-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+/* 周辺を黒く（オープニングの黒背景に寄せる）ヴィネット。中心は透明＝青い靄はそのまま見せる。
+   3Dには手を入れず上に重ねるだけ（強さは transparent/黒 のストップで調整可） */
+.wc2-scene::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(ellipse 66% 64% at 50% 46%,
+    transparent 0 36%,
+    rgba(5, 6, 10, 0.55) 70%,
+    #05060a 100%);
+}
 /* セクション転換のワープ・カーテン（継ぎ目で被さる。canvasのalphaで表示制御） */
 .wc2-warp { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 60; pointer-events: none; }
 /* V2ページでは共通フッター（SMASK＋タグライン）と紙色ブリッジは不要（CONTACTが締め） */
