@@ -3,6 +3,7 @@ import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
 import WebContentV2Menu from "./WebContentV2Menu";
+import Opening from "./Opening";
 import "./Home.css";
 
 /**
@@ -103,6 +104,21 @@ function Loader({ onDone }: { onDone: () => void }) {
 export default function Home() {
   const [loaded, setLoaded] = useState(false);
 
+  /* ---- オープニング演出：セッション初回のみ再生 ----
+     sessionStorage に印が無ければ再生対象。再生開始と同時に印を付け、
+     2回目以降（同一セッション）は一切描画しない（従来どおり 0→100 ローダー→本編）。
+     SSR/非対応環境は安全側で「再生しない」。 */
+  const [introDone, setIntroDone] = useState(() => {
+    try {
+      if (typeof window === "undefined" || !window.sessionStorage) return true;
+      if (sessionStorage.getItem("smask-opening-seen")) return true;
+      sessionStorage.setItem("smask-opening-seen", "1");
+      return false;
+    } catch {
+      return true;
+    }
+  });
+
   useEffect(() => { document.title = "SMASK ｜ 価値を見極め、かたちにする。"; }, []);
 
   /* このページはフルスクリーン演出のため、ヘッダー（ロゴ・ナビ・バー）を常時非表示。
@@ -113,11 +129,13 @@ export default function Home() {
     return () => { root.classList.remove("is-fp-dark", "wc2-chrome-off", "wc2-page-active"); };
   }, []);
 
-  /* ローダー表示中はスクロールを止める */
+  /* スクロール抑制：ローダー表示中 かつ オープニング再生中は止める。
+     Loader(約1.1s) が先に終わってもオープニング(約4.2s)が続く間はロックを維持する（競合回避） */
   useEffect(() => {
-    document.body.style.overflow = loaded ? "" : "hidden";
+    const lock = !loaded || !introDone;
+    document.body.style.overflow = lock ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
-  }, [loaded]);
+  }, [loaded, introDone]);
 
   /* ---- スムーススクロール（trionn と同じ Lenis）：入力に即反応しつつ滑らか。
      scrollY を読む各演出（Hero/大ピン/キューブ/航路/ワープ）はそのまま動く。
@@ -863,6 +881,7 @@ export default function Home() {
 
   return (
     <>
+      {!introDone && <Opening onDone={() => setIntroDone(true)} />}
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
         <WebContentV2Menu />
