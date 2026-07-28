@@ -53,9 +53,6 @@ export default function Footer() {
       </nav>
       <nav className="footer-nav" aria-label="フッター">
         <a href="/">ホーム</a>
-        <a href="/business-precious-metals">貴金属買取</a>
-        <a href="/business-jewelry">ジュエリー制作</a>
-        <a href="/business-web">Webコンテンツ制作</a>
         <a href="/privacy">プライバシーポリシー</a>
       </nav>
       <hr className="footer-rule" />

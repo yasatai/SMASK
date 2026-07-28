@@ -34,7 +34,6 @@ export const NO_POSTS: Post[] = [];
 
 /**
  * 取得元は管理画面（Laravel）の公開API `GET {VITE_PRICE_API_BASE}/api/public/notices`。
- * 価格API（metalPrices.ts）と同じオリジン・同じ環境変数を使う。
  * 返るのは公開済み（公開日時が到来した分）のみ。
  */
 type ApiNotice = { id: number; title: string; category: string; business: string; body: string; published_at: string };

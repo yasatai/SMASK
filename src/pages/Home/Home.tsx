@@ -1,436 +1,1134 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import SplitLn from "../../components/SplitLn";
-import { prefersReduced } from "../../motion";
-import { setBizArrival, type BizGem } from "../../bizTransition";
-import { importWebContentV2 } from "../WebContentV2/lazy";
-import { takeHomeSection } from "../../homeNav";
+import { useEffect, useRef, useState } from "react";
+import Lenis from "lenis";
+import { useReveal } from "../../useReveal";
+import Scene3D from "./Scene3D";
+import WebContentV2Menu from "./WebContentV2Menu";
 import "./Home.css";
 
 /**
- * トップページ。
- * 元 js/main.js の挙動（オープニング → フルページ・ピン留めセクション遷移／
- * モバイルはスクロール＋IntersectionObserver リビール）を ref + effect で忠実に移植。
- * クラスの付け外しはすべて元実装と同じ classList 操作で行う。
+ * トップ（Home）— 3D の「別世界」ページをサイトの入口に昇格。
+ * - 本サイトの世界観（明朝・金・紙色）から意図的に切り離す：漆黒×クローム×虹、Unbounded/Inter
+ * - 3D はページ全面固定の Scene3D（スクロールで振り付け）。ダイヤモンドは廃止
+ * - WORKS はサンプル（実案件名は代表確認のうえ差し替え）
+ * - 独自のカウンター式ローダーで入場（世界の切り替えを演出）
  */
-/**
- * オープニングを再生済みかどうか。
- *
- * モジュール変数なので、ページを再読み込みするとリセットされる。つまり
- *   ・直接アクセス／リロード（＝サイトへの入場）→ 毎回再生
- *   ・サイト内の移動で戻ってきたとき         → 再生しない
- * オープニングは「入口」の演出なので、中を回っている人には見せない。
- */
-let hasPlayedIntro = false;
+
+/* ---- 文言（現行 WebContent.tsx と同一） ---- */
+const CONCERNS: string[] = [
+  "何をしている会社なのか外部に伝わりにくい",
+  "強みや実績が整理できていない",
+  "問い合わせにつながりにくい",
+  "サービス内容がわかりづらい",
+  "情報発信の導線が弱い",
+  "更新や運用がしづらい",
+  "一部の業務が属人的になっている",
+];
+
+const SERVICES: [string, string, string][] = [
+  [
+    "01",
+    "企業や事業の伝わり方を整える",
+    "企業サイト、サービス紹介ページ、採用ページ、実績・事例ページ、ランディングページなど、目的に応じたWebコンテンツを制作します。情報をただ並べるのではなく、相手に伝わる順番や見せ方を整理し、事業の内容や価値が伝わる構成へ落とし込みます。",
+  ],
+  [
+    "02",
+    "問い合わせ導線を整える",
+    "サイトを作るだけでは、問い合わせや相談にはつながりません。SMASKでは、ページ構成、導線設計、CTAの配置、スマートフォンでの見やすさ、必要な情報にたどり着きやすさまで見直し、行動につながる流れを整えます。",
+  ],
+  [
+    "03",
+    "運用や業務の流れを整える",
+    "Webは公開して終わりではなく、運用しやすいことも重要です。更新しやすい構成づくりに加え、必要に応じて簡易な仕組みの整備や、受付・管理フローの整理など、日々の運用や業務負担を見据えた支援も行います。",
+  ],
+];
+
+const STRENGTHS: [string, string, string][] = [
+  ["01", "事業理解を前提に考える", "SMASKは、制作そのものを目的とせず、事業にとって本当に必要な形を整えることを重視しています。"],
+  ["02", "見た目だけでなく運用まで考える", "現場や運用の実情を踏まえ、日々の使いやすさまで含めて設計します。"],
+  ["03", "必要以上に複雑にしない", "過不足のない提案を行います。余分な機能や構成を加えず、目的に合った形に整えます。"],
+  ["04", "Webと業務のつながりを意識する", "Webサイトと日々の業務フローを切り離さず、全体の流れとして捉えて支援します。"],
+];
+
+const PROCESS: [string, string, string][] = [
+  ["01", "現状確認", "現在のWebサイトや情報発信の状況、運用方法、感じている課題を確認します。"],
+  ["02", "課題整理", "何を改善すべきか、どこを優先すべきかを整理します。"],
+  ["03", "構成・方針提案", "目的に応じて、必要なページ構成や導線、実装方針をご提案します。"],
+  ["04", "制作・実装", "決定した内容に沿って、ページ制作や必要な仕組みの整備を進めます。"],
+  ["05", "公開・運用開始", "公開後の運用を見据えた状態で、無理なくスタートできるよう整えます。"],
+  ["06", "必要に応じた改善", "公開して終わりではなく、必要に応じて見直しや改善につなげます。"],
+];
+/* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。カードは中心から外側へ出す（重なり回避） */
+const ROUTE_POS: { x: number; y: number }[] = [
+  { x: 40, y: 14 }, { x: 62, y: 29 }, { x: 42, y: 44 },
+  { x: 64, y: 60 }, { x: 43, y: 76 }, { x: 61, y: 90 },
+];
+
+/* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え） ---- */
+type Work = { num: string; title: string; en: string; tags: string[]; year: string; img?: string; hue: number };
+const WORKS: Work[] = [
+  { num: "01", title: "SMASK コーポレートサイト", en: "SMASK CORPORATE", tags: ["Corporate Site", "Design / Build"], year: "2026", hue: 210 },
+  { num: "02", title: "貴金属価格管理システム", en: "PRICE MANAGEMENT", tags: ["Web App", "Admin / API"], year: "2026", hue: 280 },
+  { num: "03", title: "不動産会社コーポレートサイト", en: "REAL ESTATE", tags: ["Corporate Site"], year: "2025", hue: 160 },
+  { num: "04", title: "外壁塗装サービスLP", en: "EXTERIOR PAINTING", tags: ["Landing Page"], year: "2025", hue: 30 },
+];
+
+const MARQUEE = "WEB CONTENT — DESIGN — DEVELOPMENT — OPERATION — ";
+
+/* ---- カウンター式ローダー（trionn の 0→100 の引用）。
+   setInterval 駆動＝rAF に依存しない。1秒強で必ず終わる ---- */
+function Loader({ onDone }: { onDone: () => void }) {
+  const [n, setN] = useState(0);
+  const doneRef = useRef(false);
+  useEffect(() => {
+    const t0 = performance.now();
+    const id = window.setInterval(() => {
+      const p = Math.min(1, (performance.now() - t0) / 1100);
+      setN(Math.floor(p * 100));
+      if (p >= 1 && !doneRef.current) {
+        doneRef.current = true;
+        window.clearInterval(id);
+        onDone();
+      }
+    }, 24);
+    return () => window.clearInterval(id);
+  }, [onDone]);
+  return (
+    <div className={`wc2-loader ${n >= 100 ? "is-done" : ""}`} aria-hidden="true">
+      <span className="wc2-loader-num">{n}</span>
+      <span className="wc2-loader-bar" style={{ transform: `scaleX(${n / 100})` }}></span>
+    </div>
+  );
+}
 
 export default function Home() {
-  const navigate = useNavigate();
-  const introRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLElement>(null);
-  const mainRef = useRef<HTMLElement>(null);
+  const [loaded, setLoaded] = useState(false);
 
+  useEffect(() => { document.title = "SMASK ｜ 価値を見極め、かたちにする。"; }, []);
+
+  /* このページはフルスクリーン演出のため、ヘッダー（ロゴ・ナビ・バー）を常時非表示。
+     ダーク基調用の is-fp-dark も付ける（他要素のダーク対応のため残す） */
   useEffect(() => {
-    document.title = "SMASK ｜ 価値を見極め、かたちにする";
-    const cleanups: Array<() => void> = [];
-    const intro = introRef.current!;
-    const hero = heroRef.current!;
+    const root = document.documentElement;
+    root.classList.add("is-fp-dark", "wc2-chrome-off", "wc2-page-active");
+    return () => { root.classList.remove("is-fp-dark", "wc2-chrome-off", "wc2-page-active"); };
+  }, []);
 
-    /* ---- オープニング（サイトへの入場時のみ再生） ---- */
-    if (prefersReduced || hasPlayedIntro) {
-      intro.classList.add("is-done");
-      hero.classList.add("is-ready");
-    } else {
-      hasPlayedIntro = true;
-      document.body.style.overflow = "hidden";
-      const t1 = setTimeout(() => {
-        intro.classList.add("is-parting");
-        hero.classList.add("is-ready");
-      }, 2400);
-      const t2 = setTimeout(() => {
-        intro.classList.add("is-done");
-        document.body.style.overflow = "";
-      }, 3900);
-      cleanups.push(() => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        document.body.style.overflow = "";
-      });
-    }
+  /* ローダー表示中はスクロールを止める */
+  useEffect(() => {
+    document.body.style.overflow = loaded ? "" : "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [loaded]);
 
-    /* ---- 事業カード「詳細を見る」：対象領域へズームインしてから遷移 ----
-       文字・カードをフェードアウト → 色づいた領域だけ残し → その場所へ寄っていく。
-       遷移先では BizArrival が同じ場所のアップから引いて見せる。 */
-    let departing = false;
-    const bizLinks = Array.from(
-      mainRef.current!.querySelectorAll<HTMLAnchorElement>(".biz-card .biz-link")
-    );
-    const onBizClick = (e: MouseEvent) => {
-      if (prefersReduced) return;                       // 演出なし＝Appの通常遷移に任せる
-      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-      e.preventDefault();                               // Appの遷移カーテンを止め、こちらで遷移する
-      if (departing) return;
-      departing = true;
-      const a = e.currentTarget as HTMLAnchorElement;
-      const card = a.closest<HTMLElement>(".biz-card")!;
-      const gem = (card.dataset.gem ?? "gold") as BizGem;
-      const biz = document.getElementById("business")!;
-      biz.dataset.depart = gem;                         // ズームの寄り先（CSS側で座標が決まる）
-      biz.classList.add("is-departing");
-      setBizArrival(gem);                               // 到着側へ「どこから来たか」を渡す
-      /* Webコンテンツ制作（sapphire）は 3D ページへ。寄り続けて暗転しきってから遷移する
-         （遷移先は黒背景のローダーで始まるため、暗転から途切れずに繋がる）。
-         3Dページは遅延読み込みなので、演出中に先読みして遷移時の待ち＝白い一瞬を無くす */
-      if (gem === "sapphire") void importWebContentV2();
-      const delay = gem === "sapphire" ? 1850 : 1400;
-      const t = window.setTimeout(() => {
-        /* 遷移直前に <html> へ黒幕を張る。Home のアンマウント〜3Dページ描画の隙間で
-           紙色（白）が覗くのを防ぐ。外すのは 3Dページ側（描画後） */
-        if (gem === "sapphire") document.documentElement.classList.add("is-web-depart");
-        navigate(a.getAttribute("href")!);
-      }, delay);
-      cleanups.push(() => clearTimeout(t));
+  /* ---- スムーススクロール（trionn と同じ Lenis）：入力に即反応しつつ滑らか。
+     scrollY を読む各演出（Hero/大ピン/キューブ/航路/ワープ）はそのまま動く。
+     タッチ端末・reduced-motion では無効（ネイティブに任せる） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if ("ontouchstart" in window || !matchMedia("(pointer: fine)").matches) return;
+    const lenis = new Lenis({
+      lerp: 0.14,          // 追従の速さ（大きいほど即反応・小さいほど滑らか）
+      wheelMultiplier: 1,
+      smoothWheel: true,
+      syncTouch: false,
+    });
+    let raf = 0;
+    const loop = (time: number) => { lenis.raf(time); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop);
+    return () => { cancelAnimationFrame(raf); lenis.destroy(); };
+  }, []);
+
+  useReveal();
+
+  /* ---- PS2オープニングのスクロール演出 ----
+     最初は映像＋SCROLLヒントのみ。スクロールに同期して文字が順に立ち上がり
+     （戻せば逆再生）、ダイブ終盤で文字が退場 → 終端で完全暗転 →
+     ヒーローを抜けて半画面ぶんで幕が明け、次セクションが始まる */
+  const heroCopyRef = useRef<HTMLDivElement>(null);
+  const blackoutRef = useRef<HTMLDivElement>(null);
+  /* CONCERNS→SERVICES 転換：白い点への吸い込み進行度（ピン効果が書き、点キャンバスが読む） */
+  const convergeRef = useRef(0);
+  useEffect(() => {
+    const hero = document.querySelector<HTMLElement>(".wc2-hero");
+    const black = blackoutRef.current;
+    if (!hero || !black) return;
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const tag = hero.querySelector<HTMLElement>(".wc2-hero-tag");
+    const h1 = hero.querySelector<HTMLElement>(".wc2-hero-h1");
+    const lines = Array.from(hero.querySelectorAll<HTMLElement>(".wc2-hl > span"));
+    const sub = hero.querySelector<HTMLElement>(".wc2-hero-sub");
+    const hint = hero.querySelector<HTMLElement>(".wc2-hero-scroll");
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, hero.offsetHeight - vh);
+      const p = Math.min(1, Math.max(0, window.scrollY / len));
+
+      if (!reduced) {
+        /* 文字はスクロールに同期して段階的に立ち上がる（スクラブ＝戻すと逆再生）。
+           〜30%で文字が完成 → 35%からダイブ開始（Scene3D の diveP=0.35 と対応）。
+           前半はカメラが動かない「文字だけのスクロール」になる */
+        const out = 1 - seg(p, 0.56, 0.72);          // ダイブ終盤の退場
+        if (tag) tag.style.opacity = (seg(p, 0.05, 0.14) * out).toFixed(3);
+        if (h1) h1.style.opacity = out.toFixed(3);
+        lines.forEach((ln, i) => {
+          const lp = seg(p, 0.08 + i * 0.05, 0.20 + i * 0.05);
+          ln.style.transform = `translateY(${((1 - lp) * 110).toFixed(1)}%)`;
+        });
+        if (sub) sub.style.opacity = (seg(p, 0.18, 0.30) * out).toFixed(3);
+        /* SCROLLヒントは最初から見えていて、動き出したら退く */
+        if (hint) hint.style.opacity = (1 - seg(p, 0.04, 0.12)).toFixed(3);
+      }
+
+      /* 暗転：ダイブ終盤(72%〜)で立ち上がり、終端で1。抜けたら0.55画面ぶんで明ける */
+      const rise = ss(Math.min(1, Math.max(0, (p - 0.72) / 0.28)));
+      const past = Math.max(0, (window.scrollY - len) / (vh * 0.55));
+      const o = Math.max(0, Math.min(1, rise - past));
+      black.style.opacity = o.toFixed(3);
     };
-    bizLinks.forEach(a => a.addEventListener("click", onBizClick));
-    cleanups.push(() => {
-      bizLinks.forEach(a => a.removeEventListener("click", onBizClick));
-      const biz = document.getElementById("business");
-      if (biz) { biz.classList.remove("is-departing"); delete biz.dataset.depart; }
-      /* 保険：3Dページ以外へ抜けた場合に黒幕が残らないよう、少し遅れて必ず外す
-         （3Dページへ遷移した場合は、その前に 3Dページ側が外している） */
-      window.setTimeout(() => {
-        if (window.location.pathname !== "/business-web") {
-          document.documentElement.classList.remove("is-web-depart");
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- ピン留め画面（APPROACH→白の転調→WORKS）のスクロール演出 ----
+     1本のピン区間で全部を連続再生（スクラブ式・戻せば逆再生）：
+       3〜20% : 見出しの染色（fill側が担当）
+      20〜30% : 本文フェードイン
+      30〜52% : 白帯が「下から上へ」立ち上がり画面が白に
+      46〜56% : WORKS タイトルが中央にフェードイン
+      56〜66% : タイトルが上へ移動
+      62〜100%: カードが横から順にスライドイン（trionn 準拠） */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ap = document.querySelector<HTMLElement>(".wc2-approach-sec");
+    if (!ap) return;
+    const apCols = ap.querySelector<HTMLElement>(".wc2-approach-cols");
+    const stripes = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-stripes span"));
+    const head = ap.querySelector<HTMLElement>(".wc2-worksreveal-head");
+    const track = ap.querySelector<HTMLElement>(".wc2-worksreveal-track");
+    const wipe = ap.querySelector<HTMLElement>(".wc2-wipe");
+    const wipeInner = ap.querySelector<HTMLElement>(".wc2-wipe-inner");
+    const bpDraw = ap.querySelector<HTMLElement>(".wc2-bp-draw");
+    const bpDots = ap.querySelector<HTMLElement>(".wc2-bp-dots");
+    const aurora = document.querySelector<HTMLElement>(".wc2-aurora");
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
+    /* ピン区間の進行度：0=固定開始, 1=固定解除 */
+    const pinP = (el: HTMLElement) => {
+      const len = Math.max(1, el.offsetHeight - window.innerHeight);
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      return Math.min(1, Math.max(0, (window.scrollY - top) / len));
+    };
+    const seed = ap.querySelector<HTMLElement>(".wc2-c2s-seed");
+    const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
+    const svcEmerge = ap.querySelector<HTMLElement>(".wc2-c2s-services .wc2-c2s-emerge");
+    const svcRows = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-c2s-services .wc2-row"));
+    /* 爆発的な拡大：オーバーシュートして落ち着く（back-ease-out） */
+    const backOut = (t: number) => { const c1 = 2.4, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+    const tick = () => {
+      raf = 0;
+      const praw = pinP(ap);
+      /* 既存コンテンツ（〜CONCERNS表示）は前半 0〜56% に圧縮。後半 56〜100% を転換に使う */
+      const p = Math.min(1, praw / 0.56);
+      const pT = Math.max(0, (praw - 0.56) / 0.44);
+      if (apCols) apCols.style.opacity = seg(p, 0.20, 0.30).toFixed(3);
+      /* 白帯：一番下（i=5）から順に立ち上がる。各帯は自分の下辺から伸びる */
+      stripes.forEach((s, i) => {
+        const order = stripes.length - 1 - i;   // 下の帯ほど先
+        s.style.transform = `scaleY(${seg(p, 0.30 + order * 0.035, 0.46 + order * 0.035).toFixed(3)})`;
+      });
+      /* WORKS：タイトルが中央でフェードイン → 上へ移動（文字は上）。
+         モバイルは上部ボタンに掛からないよう上昇量を控えめに */
+      if (head) {
+        head.style.opacity = seg(p, 0.46, 0.55).toFixed(3);
+        const upFactor = window.innerWidth < 680 ? 0.22 : 0.32;
+        const up = seg(p, 0.55, 0.64) * window.innerHeight * upFactor;
+        head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
+      }
+      /* カードのトラック：タイトルが上がった後に、下段で横スクロールして流れる。
+         開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
+         （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
+      if (track) {
+        const prog = seg(p, 0.58, 0.72);
+        const first = track.querySelector<HTMLElement>(".wc2-work");
+        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
+        const cardW = first ? first.getBoundingClientRect().width : 380;
+        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
+        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
+        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
+        const x = startX + (endX - startX) * prog;
+        track.style.transform = `translateX(${x.toFixed(1)}px)`;
+        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
+      }
+      /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
+         ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
+         ② 覆いきってから、文字だけが右→左へ流れて現れる（84%〜96%）。以降は静止して読ませる */
+      if (wipe) {
+        const wp = seg(p, 0.70, 0.82);
+        wipe.style.transform = `translateX(${((1 - wp) * 100).toFixed(2)}%)`;
+      }
+      /* 設計図の線が左→右に引かれていく（見当・寸法・表題欄も一緒に描かれる） */
+      if (bpDraw) {
+        const dp = seg(p, 0.82, 0.94);
+        bpDraw.style.clipPath = `inset(0 ${((1 - dp) * 100).toFixed(1)}% 0 0)`;
+      }
+      /* 線を描き終えたあと、白い点をフェードイン */
+      if (bpDots) bpDots.style.opacity = seg(p, 0.92, 1.0).toFixed(3);
+      if (wipeInner) {
+        const tp = seg(p, 0.86, 0.98);
+        wipeInner.style.transform = `translateX(${((1 - tp) * 20).toFixed(2)}vw)`;
+        wipeInner.style.opacity = tp.toFixed(3);
+      }
+      /* 設計図グリッド背景：CONCERNSでフェードイン → SERVICES転換の完了とともにフェードアウト（以降のセクションでは消す） */
+      if (aurora) aurora.style.opacity = (seg(p, 0.72, 0.86) * (1 - seg(pT, 0.6, 1.0))).toFixed(3);
+
+      /* ===== CONCERNS → SERVICES 転換（後半 pT 0〜1）===== */
+      /* ① 文字がはける（左へ流れて消える） */
+      if (wipeInner && pT > 0) {
+        const ex = seg(pT, 0.0, 0.16);
+        wipeInner.style.transform = `translateX(${(-ex * 26).toFixed(1)}vw)`;
+        wipeInner.style.opacity = (1 - ex).toFixed(3);
+      }
+      /* ② 左から白い「種」の点がスッと現れて中央へ */
+      if (seed) {
+        const s = seg(pT, 0.10, 0.28);
+        seed.style.opacity = s.toFixed(3);
+        seed.style.transform = `translate(-50%,-50%) translateX(${((1 - s) * -46).toFixed(1)}vw)`;
+      }
+      /* ③ 動いていた白い点が、その種にどんどん吸い込まれていく（点キャンバスが読む） */
+      convergeRef.current = seg(pT, 0.24, 0.48);
+      /* ④ 種から白い円が広がって背景が白に（早めに完了させる） */
+      if (white) {
+        const w = seg(pT, 0.46, 0.62);
+        white.style.clipPath = `circle(${(w * 80).toFixed(1)}vmax at 50% 50%)`;
+      }
+      /* ⑤ 白の直後、SERVICES 全体が中央から爆発的に拡大して現れる → 静止して読ませる */
+      if (svcEmerge) {
+        const e = Math.min(1, Math.max(0, (pT - 0.60) / 0.14));   // 0.60〜0.74 で一気に
+        svcEmerge.style.opacity = seg(pT, 0.60, 0.68).toFixed(3);
+        svcEmerge.style.transform = `scale(${(0.2 + 0.8 * backOut(e)).toFixed(3)})`;
+      }
+      /* ⑥ 次セクションへ：SERVICESの行が SV-03 から順に左へフェードアウト（85%〜100%）→ 真っ白 */
+      svcRows.forEach((row, i) => {
+        const order = svcRows.length - 1 - i;          // 最後(SV-03)から先に消す
+        const out = seg(pT, 0.85 + order * 0.04, 0.95 + order * 0.04);
+        row.style.transform = `translateX(${(-out * 30).toFixed(1)}vw)`;
+        row.style.opacity = (1 - out).toFixed(3);
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- 見出しのスクロール染色（.wc2-fill） ----
+     暗色セクションの見出しを1文字ずつ<span>に分割し、スクロールに同期して
+     灰色→白へ読む順に染めていく（スクラブ＝戻すと色も引く）。
+     グラデーションの<em>は1かたまりとして扱い、順番が来たら浮かび上がる */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const heads = Array.from(document.querySelectorAll<HTMLElement>(".wc2-fill"));
+    if (!heads.length) return;
+
+    /* 分割：テキストノード→1文字span、要素（em等）→そのまま1ユニット */
+    const units: HTMLElement[][] = heads.map(head => {
+      const list: HTMLElement[] = [];
+      Array.from(head.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const frag = document.createDocumentFragment();
+          for (const ch of node.textContent ?? "") {
+            const s = document.createElement("span");
+            s.className = "wc2-fc";
+            s.textContent = ch;
+            frag.appendChild(s);
+            list.push(s);
+          }
+          head.replaceChild(frag, node);
+        } else if (node instanceof HTMLElement && node.tagName !== "BR") {
+          node.classList.add("wc2-fc");
+          list.push(node);
         }
-      }, 1200);
+      });
+      list.forEach(u => { u.style.opacity = "0.22"; });   // 初期状態＝薄い（染まる前）
+      return list;
     });
 
-    /* ---- フルページ（PC）か通常スクロール（タッチ/狭幅/reduce）かを判定 ---- */
-    const fullpage =
-      !prefersReduced && !("ontouchstart" in window) && window.innerWidth >= 900;
-
-    if (fullpage) {
-      const panels = Array.from(
-        mainRef.current!.querySelectorAll<HTMLElement>(".panel")
-      );
-      const sections: HTMLElement[] = [hero, ...panels];
-      const footer = document.querySelector<HTMLElement>(".site-footer");
-      if (footer) sections.push(footer);
-
-      window.__smaskFullpage = true;
-      document.documentElement.classList.add("is-fullpage");
-      sections.forEach(s => s.classList.add("fp-section"));
-
-      /* 現在地の表示は左端サイドメニューの金バーが担うため、ドットナビは持たない */
-
-      let current = 0;
-      let animating = false;
-      let wheelLock = 0;
-      const timers = new Set<number>();
-
-      const setActive = (i: number) => {
-        sections.forEach((s, idx) => {
-          const on = idx === i;
-          s.classList.toggle("is-active", on);
-          if (!on) {
-            s.classList.remove("is-revealed");
-            if (s === hero) s.classList.remove("is-ready");
-            const w = s.querySelector(".wrap");
-            if (w) w.scrollTop = 0;
-          }
+    let raf = 0;
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      heads.forEach((head, hi) => {
+        const r = head.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        /* ピン留めセクション内の見出しは、画面位置が固定で動かないため
+           ピン区間の進行度（6%〜66%）で染める。通常セクションは画面位置基準 */
+        const pin = head.closest<HTMLElement>(".wc2-pin");
+        let p: number;
+        if (pin) {
+          /* 統合ピン：コンテンツは前半56%に圧縮（転換に後半を空ける）。その中の3〜20%で染まる */
+          const len = Math.max(1, pin.offsetHeight - vh);
+          const top = pin.getBoundingClientRect().top + window.scrollY;
+          const pp = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+          const pC = Math.min(1, pp / 0.56);
+          p = Math.min(1, Math.max(0, (pC - 0.03) / 0.17));
+        } else {
+          /* 見出しが画面下88%に入ってから、55%の高さぶんで染まりきる */
+          p = Math.min(1, Math.max(0, (vh * 0.88 - r.top) / (vh * 0.55)));
+        }
+        const list = units[hi];
+        const f = p * list.length;
+        list.forEach((u, i) => {
+          const c = Math.min(1, Math.max(0, f - i));
+          u.style.opacity = (0.22 + 0.78 * c).toFixed(3);
         });
-        /* フッターは明色クロージングに変更したため is-fp-dark 反転は不要（常に解除） */
-        document.documentElement.classList.remove("is-fp-dark");
-        /* 左下メニューのマーカーへ現在地を通知 */
-        window.dispatchEvent(new CustomEvent("smask:section", { detail: i }));
-      };
-
-      const reveal = (i: number) => {
-        const s = sections[i];
-        void s.offsetWidth; // reflow：再訪時に演出をやり直すため
-        if (s === hero) s.classList.add("is-ready");
-        else s.classList.add("is-revealed");
-      };
-
-      /* 12-office式の遷移（実測を移植）：カーテンは使わない。
-         出る側 .is-leaving ＝ 要素が方向別に飛び去る（0.8s expo）
-         → 800ms でセクション切替 → 入る側は既存の reveal（時間差入場）。 */
-      const goTo = (i: number) => {
-        if (animating || i === current || i < 0 || i >= sections.length) return;
-        animating = true;
-        const from = sections[current];
-        from.classList.add("is-leaving");
-        const t1 = window.setTimeout(() => {
-          from.classList.remove("is-leaving");
-          setActive(i);
-          current = i;
-          reveal(i);
-          const t2 = window.setTimeout(() => {
-            animating = false;
-            wheelLock = Date.now(); // トラックパッド慣性の吸収
-          }, 1100);
-          timers.add(t2);
-        }, 800);
-        timers.add(t1);
-      };
-
-      /* 下層ページのサイドナビから「SMASKとは/事業内容/SMASKの考え方」で来た場合は、
-         先頭ではなく対象セクションに直接着地する（イントロ済み＝SPA復帰なので即時でよい） */
-      const wanted = takeHomeSection();
-      const start = wanted != null && wanted > 0 && wanted < sections.length ? wanted : 0;
-      setActive(start); // hero の is-ready はイントロ側が付与
-      current = start;
-      if (start !== 0) reveal(start);
-
-      /* 画面より背が高いセクションは内部スクロールを先に消化 */
-      const canScrollInside = (el: HTMLElement, dy: number) => {
-        const sc = el.querySelector(".wrap");
-        if (!sc || sc.scrollHeight <= sc.clientHeight + 1) return false;
-        if (dy > 0) return sc.scrollTop + sc.clientHeight < sc.scrollHeight - 1;
-        return sc.scrollTop > 0;
-      };
-
-      const onWheel = (e: WheelEvent) => {
-        if (e.ctrlKey) return; // ピンチズームはネイティブ
-        if (departing) { e.preventDefault(); return; }  // ズーム遷移中は操作を受けない
-        if (!intro.classList.contains("is-done")) { e.preventDefault(); return; }
-        if (canScrollInside(sections[current], e.deltaY)) return;
-        e.preventDefault();
-        if (animating) return;
-        const now = Date.now();
-        if (now - wheelLock < 400) return;
-        if (Math.abs(e.deltaY) < 24) return;
-        wheelLock = now;
-        goTo(current + (e.deltaY > 0 ? 1 : -1));
-      };
-      window.addEventListener("wheel", onWheel, { passive: false });
-
-      const onKey = (e: KeyboardEvent) => {
-        if (animating || departing) return;
-        if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
-          e.preventDefault(); goTo(current + 1);
-        } else if (e.key === "ArrowUp" || e.key === "PageUp") {
-          e.preventDefault(); goTo(current - 1);
-        } else if (e.key === "End") { e.preventDefault(); goTo(sections.length - 1); }
-        else if (e.key === "Home") { e.preventDefault(); goTo(0); }
-      };
-      window.addEventListener("keydown", onKey);
-
-      /* 左下メニューからのセクション遷移を受け付ける */
-      const onGoto = (e: Event) => goTo((e as CustomEvent<number>).detail);
-      window.addEventListener("smask:goto", onGoto);
-
-      /* SCROLL 表示クリックで次へ */
-      const hint = hero.querySelector<HTMLElement>(".hero-scroll");
-      const onHint = () => goTo(1);
-      if (hint) {
-        hint.style.cursor = "pointer";
-        hint.addEventListener("click", onHint);
-      }
-
-      /* デスクトップ⇔モバイルの境界を跨いだら再初期化（元実装どおり） */
-      const onResize = () => {
-        if (window.innerWidth < 900) window.location.reload();
-      };
-      window.addEventListener("resize", onResize);
-
-      cleanups.push(() => {
-        timers.forEach(t => clearTimeout(t));
-        window.removeEventListener("wheel", onWheel);
-        window.removeEventListener("keydown", onKey);
-        window.removeEventListener("resize", onResize);
-        window.removeEventListener("smask:goto", onGoto);
-        if (hint) { hint.removeEventListener("click", onHint); hint.style.cursor = ""; }
-        document.documentElement.classList.remove("is-fullpage", "is-fp-dark");
-        sections.forEach(s =>
-          s.classList.remove("fp-section", "is-active", "is-revealed", "is-leaving")
-        );
-        delete window.__smaskFullpage;
       });
-    } else {
-      /* ---- 通常スクロールモード：セクションのカーテンリビール（元実装どおり） ---- */
-      /* サイドナビ経由で対象セクション指定があれば、そこへスクロール。
-         App 側の「先頭へ戻す」処理より後に効かせるため rAF で1フレーム遅らせる。 */
-      const wanted = takeHomeSection();
-      const idBySection: Record<number, string> = { 1: "about", 2: "business", 3: "approach" };
-      if (wanted && idBySection[wanted]) {
-        const raf = requestAnimationFrame(() => {
-          document.getElementById(idBySection[wanted])
-            ?.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth" });
-        });
-        cleanups.push(() => cancelAnimationFrame(raf));
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- 右→左スライドイン（.wc2-inright） ----
+     捲れで暗転したあとの次セクションの文字が、スクロールに同期して右から入ってくる */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const items = Array.from(document.querySelectorAll<HTMLElement>(".wc2-inright"));
+    if (!items.length) return;
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      items.forEach((el, i) => {
+        const r = el.getBoundingClientRect();
+        if (r.top > vh + 60 || r.bottom < -60) return;
+        /* 画面下86%に入ってから42%の高さぶんで着地。要素ごとに少し時間差 */
+        const prog = ss(Math.min(1, Math.max(0, (vh * 0.86 - r.top) / (vh * 0.42) - i * 0.08)));
+        el.style.transform = `translateX(${((1 - prog) * 16).toFixed(2)}vw)`;
+        el.style.opacity = prog.toFixed(3);
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- STRENGTHS：白いキューブが上から落ちて転がり→展開→内容が現れる（ピン進行度で駆動） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-str-pin");
+    if (!pin) return;
+    const cube = pin.querySelector<HTMLElement>(".wc2-cube");
+    const cubeWrap = pin.querySelector<HTMLElement>(".wc2-cube-wrap");
+    const shadow = pin.querySelector<HTMLElement>(".wc2-cube-shadow");
+    const head = pin.querySelector<HTMLElement>(".wc2-str-head");
+    let raf = 0;
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);          // ease-out（落下）
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, pin.offsetHeight - vh);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = Math.min(1, Math.max(0, (window.scrollY - top) / len));
+
+      /* overshoot（バウンド）付き ease：着地・回転の“カチッ”を出す */
+      const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+
+      /* 見出しとキューブの配置。広い画面は「見出し｜約2cm｜キューブ」を中央のまとまりに。
+         狭い画面（モバイル）は横に収まらないので縦積み（見出し上・中央／キューブ下・中央）にする */
+      const vw = window.innerWidth;
+      const mobile = vw < 680;
+      const rs = mobile
+        ? 0.58
+        : Math.max(0.6, Math.min(1, (vw - 760) / 680 * 0.4 + 0.6));  // 狭い画面はキューブ縮小
+      const GAP = 76;                                                 // ≈2cm
+      const cubeHalf = 150 * rs;                                      // 静止時（rotateY=0）の半幅px
+      const hw = head ? head.offsetWidth : 380;                       // 見出しの実測幅
+      const groupLeft = Math.max(24, (vw - (hw + GAP + cubeHalf * 2)) / 2);
+      const cubeCenterPx = groupLeft + hw + GAP + cubeHalf;
+      /* デスクトップ＝中央まとまりの右側／モバイル＝画面中央（縦積み） */
+      const xEnd = mobile ? 0 : (cubeCenterPx - vw / 2) / vw * 100;
+      const headLeft = mobile ? (vw - hw) / 2 : groupLeft;
+      const headExtraY = mobile ? -14 : 0;                            // モバイルは見出しをやや上へ（上部ボタンは避ける）(vh)
+      const cubeYFinal = mobile ? 22 : 0;                             // モバイルはキューブを下へ(vh)
+
+      /* ① 見出しが上から投げられてバウンド着地（0.00〜0.16） */
+      if (head) {
+        const hb = back(seg(p, 0.00, 0.16));                          // overshoot で放り込まれた感
+        head.style.left = `${headLeft.toFixed(0)}px`;
+        head.style.opacity = seg(p, 0.00, 0.08).toFixed(3);
+        head.style.transform = `translateY(calc(-50% + ${(headExtraY + (1 - hb) * -58).toFixed(1)}vh))`;
       }
 
-      const panels = mainRef.current!.querySelectorAll<HTMLElement>(".panel");
-      if (prefersReduced || !("IntersectionObserver" in window)) {
-        panels.forEach(p => p.classList.add("is-revealed"));
-      } else {
-        const io = new IntersectionObserver(
-          entries => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add("is-revealed");
-                io.unobserve(entry.target);
-              }
-            });
-          },
-          { threshold: 0.22, rootMargin: "0px 0px -8% 0px" }
-        );
-        panels.forEach(p => io.observe(p));
-        cleanups.push(() => io.disconnect());
+      /* ② 斜め右上から落下＋転がり（0.08〜0.36）→ 中央のまとまりの右側に着地、着地で軽くバウンド */
+      if (cube && cubeWrap) {
+        const drop = seg(p, 0.08, 0.36);
+        const roll = ease(drop);                                      // 0→1
+        const x = xEnd + (1 - roll) * 34;                            // 右上から定位置へ（画面中央基準）
+        const y = (1 - roll) * -76 + cubeYFinal * roll;              // 上から。モバイルは見出しの下(cubeYFinal)へ着地
+        const settle = drop > 0.84 ? Math.sin((drop - 0.84) / 0.16 * Math.PI) * 5 : 0;  // 着地バウンド
+        cubeWrap.style.transform = `translate(${x.toFixed(1)}vw, ${(y + settle).toFixed(1)}vh)`;
+
+        /* ③ 90°ずつの回転ショーケース：01→02→03→04（各ステップ overshoot でカチッ） */
+        const s1 = back(seg(p, 0.40, 0.52));
+        const s2 = back(seg(p, 0.56, 0.68));
+        const s3 = back(seg(p, 0.72, 0.84));
+        const showRY = -90 * (s1 + s2 + s3);                          // 0 → -270（4側面を順に正面へ）
+
+        const tumble = 1 - roll;                                      // 落下中だけ効く 1→0
+        const rx = -13 * roll + 26 * tumble;                          // 着地時 -13°の見下ろし＋落下中の余分な傾き
+        const ry = showRY - 540 * tumble;                             // 落下中は転がり、着地で showRY に収束
+        const rz = tumble * -24;                                      // 斜め落下の傾き（着地で0）
+        cube.style.transform = `rotateZ(${rz.toFixed(1)}deg) rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) scale(${rs.toFixed(3)})`;
+
+        /* 床の設置影：Xはキューブに追従、落下で濃く/大きく、着地でキュッと締まる */
+        if (shadow) {
+          const sc = (0.42 + roll * 0.6 - Math.max(0, settle) * 0.03) * rs;
+          shadow.style.transform = `translate(${x.toFixed(1)}vw, calc(${(158 * rs).toFixed(0)}px + ${(cubeYFinal * roll).toFixed(1)}vh)) scale(${sc.toFixed(3)})`;
+          shadow.style.opacity = (roll * 0.85).toFixed(3);
+        }
       }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- PROCESS：宇宙の航路（彗星が 01→06 を巡り、到達した寄港地が点灯・走破線が伸びる） ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-route-pin");
+    if (!pin) return;
+    const world = pin.querySelector<HTMLElement>(".wc2-route-world");
+    const stations = Array.from(pin.querySelectorAll<HTMLElement>(".wc2-station"));
+    const comet = pin.querySelector<HTMLElement>(".wc2-comet");
+    const base = pin.querySelector<SVGPolylineElement>(".wc2-route-base");
+    const trail = pin.querySelector<SVGPolylineElement>(".wc2-route-trail");
+    const N = ROUTE_POS.length;
+
+    /* 寄港地を座標に配置（カードは中心から外側へ出す＝隣同士が重ならない） */
+    stations.forEach((el, i) => {
+      el.style.left = `${ROUTE_POS[i].x}%`;
+      el.style.top = `${ROUTE_POS[i].y}%`;
+      el.dataset.side = ROUTE_POS[i].x < 50 ? "l" : "r";
+    });
+    /* 全体の薄い航路線（固定） */
+    if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
+
+    let raf = 0;
+    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    const ss = (t: number) => t * t * (3 - 2 * t);
+    const tick = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const len = Math.max(1, pin.offsetHeight - vh);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = clamp01((window.scrollY - top) / len);
+
+      /* ★ セクション転換：先頭で暗黒からワープイン（奥から迫り＋ピントが合う）、末尾はクリーンにフェードアウト（→CONTACTで中心から出現） */
+      const intro = ss(clamp01(p / 0.14));
+      const outro = ss(clamp01((p - 0.86) / 0.14));
+      if (world) {
+        world.style.opacity = (intro * (1 - outro)).toFixed(3); // 末尾で背景ごとフェードアウト
+        const scale = 0.5 + 0.5 * intro - 0.06 * outro;        // 奥(0.5)→定位置(1)→軽く引く(0.94)
+        const blur = (1 - intro) * 12;                         // イン時だけボケ→クリアに（アウトはボケなし）
+        world.style.transform = `scale(${scale.toFixed(3)})`;
+        world.style.filter = `blur(${blur.toFixed(1)}px)`;
+      }
+
+      /* 彗星の航行は中盤（0.14〜0.88）に割り当て、イン/アウトの余白を確保 */
+      const travel = clamp01((p - 0.14) / 0.74);
+      const seg = travel * (N - 1);                             // 進行度（0〜N-1）
+      const ci = Math.min(N - 1, Math.floor(seg));
+      const cf = seg - ci;
+      const a = ROUTE_POS[ci];
+      const b = ROUTE_POS[Math.min(N - 1, ci + 1)];
+      const cx = a.x + (b.x - a.x) * cf;                        // 彗星の現在位置（%）
+      const cy = a.y + (b.y - a.y) * cf;
+
+      if (comet) { comet.style.left = `${cx.toFixed(2)}%`; comet.style.top = `${cy.toFixed(2)}%`; }
+      /* 走破線：通過済みノード＋彗星の先端まで */
+      if (trail) {
+        const pts: string[] = [];
+        for (let i = 0; i <= ci; i++) pts.push(`${ROUTE_POS[i].x},${ROUTE_POS[i].y}`);
+        pts.push(`${cx.toFixed(2)},${cy.toFixed(2)}`);
+        trail.setAttribute("points", pts.join(" "));
+      }
+      /* 各寄港地：接近で点灯し、以降は点灯・カードとも維持（文言を消さない） */
+      stations.forEach((el, i) => {
+        const reveal = clamp01((seg - (i - 0.6)) / 0.6);       // i の0.6手前から点灯 →到達で1
+        el.style.setProperty("--op", (0.14 + 0.86 * reveal).toFixed(3));
+        const pulse = Math.max(0, 1 - Math.abs(seg - i) / 0.5); // 到達付近だけ波紋
+        el.style.setProperty("--pulse", pulse.toFixed(3));
+        const cardR = clamp01((seg - (i - 0.5)) / 0.5);        // 到達手前で1→以降ずっと表示維持
+        el.style.setProperty("--card", cardR.toFixed(3));
+      });
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- 設計図の白い点：グリッド線の上を、交点で進路を変えながら自由に動く ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = document.querySelector<HTMLCanvasElement>(".wc2-bp-dots");
+    const host = cv?.parentElement;
+    if (!cv || !host) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+    const G = 34;                          // 細方眼の間隔（見えている方眼の網と一致＝必ず線の上）
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+    const resize = () => {
+      const r = host.getBoundingClientRect();
+      W = r.width; H = r.height;
+      cv.width = Math.max(1, Math.round(W * dpr));
+      cv.height = Math.max(1, Math.round(H * dpr));
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const ro = new ResizeObserver(resize);
+    ro.observe(host);
+    resize();
+    /* マウント直後はレイアウト未確定で 0 を拾うことがある（canvas が 1x1 になる）。
+       少し遅らせて測り直し＋窓リサイズにも追従 */
+    const lateResize = window.setTimeout(resize, 120);
+    window.addEventListener("resize", resize);
+
+    const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    const cols = () => Math.floor(W / G);
+    const rows = () => Math.floor(H / G);
+    const ri = (n: number) => Math.floor(Math.random() * n);
+    type Dot = { x: number; y: number; dx: number; dy: number; tx: number; ty: number; spd: number };
+    const inB = (x: number, y: number) => x >= 0 && x <= cols() * G && y >= 0 && y <= rows() * G;
+    /* 交点に着いたら次の目標へ。細方眼だと毎マス曲がるとガタつくので、
+       基本は直進（85%）、たまに交点で90°曲がる。必ず線の上を辿る */
+    const retarget = (o: Dot) => {
+      if ((o.dx !== 0 || o.dy !== 0) && Math.random() < 0.85 && inB(o.x + o.dx * G, o.y + o.dy * G)) {
+        o.tx = o.x + o.dx * G; o.ty = o.y + o.dy * G;   // 直進
+        return;
+      }
+      const opts = DIRS
+        .filter(d => !(d[0] === -o.dx && d[1] === -o.dy))
+        .filter(d => inB(o.x + d[0] * G, o.y + d[1] * G));
+      const d = opts.length ? opts[ri(opts.length)] : [-o.dx, -o.dy];
+      o.dx = d[0]; o.dy = d[1];
+      o.tx = o.x + d[0] * G; o.ty = o.y + d[1] * G;
+    };
+    const N = 14;                          // 控えめな数
+    const dots: Dot[] = [];
+    for (let i = 0; i < N; i++) {
+      const gx = ri(cols() + 1) * G, gy = ri(rows() + 1) * G;
+      const d0 = DIRS[ri(4)];
+      const o: Dot = { x: gx, y: gy, dx: d0[0], dy: d0[1], tx: gx, ty: gy, spd: 34 + Math.random() * 46 };
+      retarget(o);
+      dots.push(o);
     }
 
-    return () => cleanups.forEach(fn => fn());
+    let raf = 0, last = 0, disposed = false;
+    const frame = (t: number) => {
+      if (disposed) return;
+      /* 自己修復：バッファと実サイズがずれていたら測り直す（1x1 対策） */
+      const needW = Math.round((host.clientWidth || 0) * dpr);
+      if (host.clientWidth > 0 && Math.abs(cv.width - needW) > 2) resize();
+      const dt = last ? Math.min(0.05, (t - last) / 1000) : 0.016; last = t;
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#eef2ff";
+      ctx.shadowColor = "rgba(170,205,255,.9)";
+      ctx.shadowBlur = 7;
+      const cvg = convergeRef.current;          // 0=通常, 1=完全に中央へ吸い込み
+      const cx = W / 2, cy = H / 2;
+      dots.forEach(o => {
+        const mx = o.tx - o.x, my = o.ty - o.y;
+        const dist = Math.hypot(mx, my);
+        const step = o.spd * dt;
+        if (dist <= step || dist === 0) { o.x = o.tx; o.y = o.ty; retarget(o); }
+        else { o.x += (mx / dist) * step; o.y += (my / dist) * step; }
+        /* 吸い込み：描画位置を中央へ寄せる（論理位置＝線上は保ったまま見た目だけ収束） */
+        const dx = cvg > 0 ? o.x + (cx - o.x) * cvg : o.x;
+        const dy = cvg > 0 ? o.y + (cy - o.y) * cvg : o.y;
+        ctx.beginPath(); ctx.arc(dx, dy, 1.6, 0, Math.PI * 2); ctx.fill();
+      });
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    frame(0);                              // 凍結環境でも1枚は描く
+    return () => {
+      disposed = true; cancelAnimationFrame(raf);
+      window.clearTimeout(lateResize); window.removeEventListener("resize", resize);
+      ro.disconnect();
+    };
+  }, []);
+
+  /* カスタムカーソル（ドット＋遅れて追う輪）。タッチ環境・reduced-motion では出さない */
+  const dotRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if ("ontouchstart" in window || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const dot = dotRef.current, ring = ringRef.current;
+    if (!dot || !ring) return;
+    let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;
+    let raf = 0;
+    const onMove = (e: MouseEvent) => {
+      x = e.clientX; y = e.clientY;
+      dot.style.transform = `translate(${x}px, ${y}px)`;
+      const t = e.target as Element;
+      const hot = !!t.closest("a, button, .wc2-work");
+      dot.classList.toggle("is-hot", hot);
+      ring.classList.toggle("is-hot", hot);
+    };
+    const loop = () => {
+      rx += (x - rx) * 0.16; ry += (y - ry) * 0.16;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      raf = requestAnimationFrame(loop);
+    };
+    addEventListener("mousemove", onMove, { passive: true });
+    raf = requestAnimationFrame(loop);
+    return () => { removeEventListener("mousemove", onMove); cancelAnimationFrame(raf); };
+  }, []);
+
+  /* ---- セクション転換のワープ・カーテン：継ぎ目でハイパースペースが被さり、縦スクロールを隠して次を出す ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = document.querySelector<HTMLCanvasElement>(".wc2-warp");
+    const ctx = cv?.getContext("2d");
+    if (!cv || !ctx) return;
+
+    /* 放射状に流れる星（角度・開始半径・太さ・色相を固定生成） */
+    const STARS = Array.from({ length: 150 }, (_, i) => ({
+      ang: (i * 2.399963) % (Math.PI * 2),          // 黄金角でばらける
+      r0: 0.02 + ((i * 53) % 100) / 100 * 0.5,      // 開始半径（画面短辺比）
+      w: 0.6 + ((i * 17) % 10) / 10 * 1.6,
+      hue: [200, 210, 190, 0][i % 4],               // 青系＋たまに白
+      sat: [70, 60, 80, 0][i % 4],
+    }));
+
+    let w = 1, h = 1, dpr = 1;
+    const resize = () => {
+      dpr = Math.min(2, window.devicePixelRatio || 1);
+      w = cv.clientWidth || window.innerWidth;
+      h = cv.clientHeight || window.innerHeight;
+      cv.width = Math.max(1, Math.round(w * dpr));
+      cv.height = Math.max(1, Math.round(h * dpr));
+    };
+    resize();
+
+    /* 継ぎ目（大きなセクションの上端＝ハンドオフ位置）を収集 */
+    let seams: number[] = [];
+    const collectSeams = () => {
+      /* ワープ・カーテンは STRENGTHS→PROCESS(航路) の継ぎ目だけで発火する。
+         Hero→APPROACH（Heroのダイブ→暗転）／SERVICES→STRENGTHS（キューブ落下）／CONTACT（別演出）は除外 */
+      const els = Array.from(
+        document.querySelectorAll<HTMLElement>(".wc2-route-sec")
+      );
+      seams = els.map((el) => el.getBoundingClientRect().top + window.scrollY).sort((a, b) => a - b);
+    };
+    collectSeams();
+
+    let raf = 0;
+    const draw = () => {
+      raf = 0;
+      if (cv.width !== Math.round(w * dpr) || w <= 1) resize();   // 自己修復
+      const vh = window.innerHeight || 1;                          // 0除算回避（NaN防止）
+      const y = window.scrollY;
+      /* 各継ぎ目への近さから強度を算出（ハンドオフ手前で最大＝縦スクロールを隠す） */
+      let intensity = 0;
+      for (const s of seams) {
+        const peak = s - vh * 0.5;                                 // 継ぎ目の平坦スクロール中央
+        const d = Math.abs(y - peak) / (vh * 0.5);                 // ±0.5vh で 0..1
+        intensity = Math.max(intensity, Math.max(0, 1 - d));
+      }
+      const t = intensity * intensity * (3 - 2 * intensity);       // smoothstep
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+      if (!(t > 0.001) || w <= 1) { return; }                      // NaN・未確定サイズは描画しない
+
+      const cx = w / 2, cy = h / 2;
+      const minSide = Math.min(w, h);
+      /* 覆い（縦スクロールを隠す暗幕）＋中心の発光 */
+      ctx.fillStyle = `rgba(4,6,12,${(t * 0.9).toFixed(3)})`;
+      ctx.fillRect(0, 0, w, h);
+      const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, minSide * 0.7);
+      glow.addColorStop(0, `rgba(150,200,255,${(t * 0.5).toFixed(3)})`);
+      glow.addColorStop(0.4, `rgba(90,150,255,${(t * 0.12).toFixed(3)})`);
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, w, h);
+
+      /* 星が中心から放射状に流れる（強度で伸びる／スクロールでわずかに回る） */
+      const spin = y * 0.0006;
+      const streak = minSide * (0.18 + 0.9 * t);                   // 伸び
+      ctx.lineCap = "round";
+      for (const st of STARS) {
+        const a = st.ang + spin;
+        const dx = Math.cos(a), dy = Math.sin(a);
+        const r1 = st.r0 * minSide + streak * 0.15;
+        const r2 = r1 + streak * (0.4 + st.r0);                    // 外側ほど長い尾
+        const col = st.sat === 0 ? `rgba(255,255,255,${(t * 0.95).toFixed(3)})` : `hsla(${st.hue},${st.sat}%,72%,${(t * 0.9).toFixed(3)})`;
+        ctx.strokeStyle = col;
+        ctx.lineWidth = st.w * (0.6 + t);
+        ctx.beginPath();
+        ctx.moveTo(cx + dx * r1, cy + dy * r1);
+        ctx.lineTo(cx + dx * r2, cy + dy * r2);
+        ctx.stroke();
+      }
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(draw); };
+    const onResize = () => { resize(); collectSeams(); onScroll(); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    const heal = window.setTimeout(onResize, 200);                 // マウント直後の 1x1 対策
+    draw();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(heal);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  /* ---- CONTACT：PROCESSがフェードアウトした後、中心から「話しましょう」が拡大して出現 ---- */
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const pin = document.querySelector<HTMLElement>(".wc2-contact-pin");
+    if (!pin) return;
+    const inner = pin.querySelector<HTMLElement>(".wc2-contact-inner");
+    if (!inner) return;
+    let raf = 0;
+    const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+    /* back-ease-out：中心からポンッと出るオーバーシュート */
+    const back = (t: number) => { const c = 1.70158; return t <= 0 ? 0 : t >= 1 ? 1 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
+    const tick = () => {
+      raf = 0;
+      const len = Math.max(1, pin.offsetHeight - window.innerHeight);
+      const top = pin.getBoundingClientRect().top + window.scrollY;
+      const p = clamp01((window.scrollY - top) / len);
+      const e = back(clamp01(p / 0.45));                      // 前半で出現、以降は静止
+      inner.style.opacity = clamp01(p / 0.30).toFixed(3);
+      inner.style.transform = `scale(${(0.4 + 0.6 * e).toFixed(3)})`;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    tick();
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
     <>
-      {/* オープニング */}
-      <div className="intro" ref={introRef} aria-hidden="true">
-        <div className="intro-panels"><span></span><span></span><span></span><span></span></div>
-        <div className="intro-stage">
-          <div className="intro-word" aria-label="SMASK">
-            <span>S</span><span>M</span><span>A</span><span>S</span><span>K</span>
-          </div>
-          <div className="intro-rule">
-            <i className="intro-gem intro-gem--ruby"></i>
-            <i className="intro-gem intro-gem--sapphire"></i>
-          </div>
-          <p className="intro-tag">価値を見極め、かたちにする</p>
-        </div>
-      </div>
+      {!loaded && <Loader onDone={() => setLoaded(true)} />}
+      <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
+        <WebContentV2Menu />
+        <Scene3D />
+        {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
+           以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}
+        <div className="wc2-aurora" aria-hidden="true"></div>
+        <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
+        <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
-      <main ref={mainRef}>
-        {/* HERO */}
-        <section className="hero" ref={heroRef}>
-          <div className="hero-inner">
-            <div className="hero-copy">
-              <span className="eyebrow fade-up">SMASK</span>
-              <h1>
-                <span className="hl">
-                  {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
-                  <SplitLn base={0.15} step={0.045} segments={[{ text: "価値を見極め" }]} />
-                </span>
-                <span className="hl">
-                  <SplitLn base={0.45} step={0.045} segments={[{ text: "かたち", accent: true }, { text: "にする。" }]} />
-                </span>
+        {/* ============ HERO：PS2オープニング（縦に長い区間＝靄へのダイブ） ============ */}
+        <section className="wc2-hero">
+          <div className="wc2-hero-sticky">
+            <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
+              <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
+              <h1 className="wc2-hero-h1">
+                <span className="wc2-hl"><span>伝わるWebを、</span></span>
+                <span className="wc2-hl wc2-hl--grad"><span>動かすまで。</span></span>
               </h1>
-              <p className="hero-sub fade-up">
-                {/* 代表指示：「見極め」の後で改行する。ルール②に従い読点は置かず、改行が間を担う。
-                    「。」の後の改行はヘルパーが自動挿入する */}
-                貴金属買取、ジュエリー制作、Webコンテンツ制作。SMASKは、それぞれ異なる領域で、価値の本質を見極め<br />
-                必要な形に整え、社会へ届けていきます。
-              </p>
+              <p className="wc2-hero-sub">現場理解をもとに、伝わるWebと業務の流れを整えます。</p>
+              <div className="wc2-hero-scroll" aria-hidden="true">
+                <span>SCROLL</span>
+                <i></i>
+              </div>
             </div>
           </div>
-          <span className="hero-scroll" aria-hidden="true"><span className="line"></span>SCROLL</span>
         </section>
 
-        {/* ABOUT */}
-        <section className="panel" id="about">
-          <div className="panel-bg" aria-hidden="true"></div>
-          <div className="curtain" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-          <div className="wrap">
-            <div className="sec-head reveal-item">
-              <span className="eyebrow">About SMASK</span>
-              <h2><SplitLn base={0.14} step={0.045} segments={[{ text: "SMASKとは" }]} /></h2>
-            </div>
-            <div className="about-grid">
-              <div className="about-lead reveal-item">
-                <h2><span className="en eyebrow">Our Belief</span>目に見える価格の、その先を見つめて。</h2>
+        {/* ダイブ終端の完全暗転幕（スクロール駆動） */}
+        <div className="wc2-blackout" ref={blackoutRef} aria-hidden="true"></div>
+
+        {/* ============ APPROACH＋白の転調：ひと続きのピン留め画面 ============
+             前半＝文字の染色→本文フェード（帯は画面上部に常駐）。
+             後半＝固定したまま白帯が「下から上へ」伸びて画面全体が白になり、
+             白になりかけで WORKS の見出しがフェードイン ============ */}
+        <section className="wc2-sec wc2-approach-sec wc2-pin">
+          <div className="wc2-pin-sticky">
+            {/* 帯：ピン画面の上部に常駐（文字の染色中も見えている） */}
+            <div className="wc2-marquee wc2-marquee--pin" aria-hidden="true">
+              <div className="wc2-marquee-track">
+                <span>{MARQUEE.repeat(4)}</span>
+                <span>{MARQUEE.repeat(4)}</span>
               </div>
-              <div className="about-body reveal-item">
-                <p>SMASKは、目に見える価格だけでなく、その背景にある価値や流れまで見つめながら、事業を組み立てています。</p>
-                <ul className="about-list">
-                  <li>貴金属の価値を見極めること。</li>
-                  {/* 代表指示：ここで改行する。ルール②に従い読点は置かず、改行が間を担う
-                      （data-no-ja でヘルパーの自動整形から除外） */}
-                  <li data-no-ja>新しい価値観を持つジュエリーを構想し<br />形にしていくこと。</li>
-                  <li>情報や導線を整え、伝わる形にすること。</li>
+            </div>
+            <div className="wc2-wrap">
+              <span className="wc2-label">( 01 ) — APPROACH</span>
+              {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
+              <h2 className="wc2-h2 wc2-fill">Web制作を<br /><em>見た目だけ</em>で終わらせない</h2>
+              <div className="wc2-cols wc2-approach-cols">
+                <p className="wc2-lead">
+                  Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
+                </p>
+                <p>
+                  SMASKでは、見た目の整ったページを制作するだけではなく、事業内容の伝わりやすさ、情報の整理、導線のわかりやすさ、運用のしやすさまで含めて設計します。制作そのものを目的にするのではなく、事業にとって意味のある形で機能することを重視しています。
+                </p>
+              </div>
+            </div>
+            {/* 白の転調：下の帯から順に立ち上がる（APPROACHの文字ごと呑み込む） */}
+            <div className="wc2-stripes" aria-hidden="true">
+              <span></span><span></span><span></span><span></span><span></span><span></span>
+            </div>
+            {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
+               左→右に流れる（trionn 準拠）。全てスクロール同期 */}
+            <div id="wc2-works" className="wc2-worksreveal">
+              <div className="wc2-worksreveal-head">
+                <span className="wc2-label">( 02 ) — WORKS</span>
+                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
+                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
+              </div>
+              <div className="wc2-worksreveal-track">
+                {WORKS.map(w => (
+                  <article className="wc2-work" key={w.num}>
+                    <div className="wc2-work-inner">
+                      <div className="wc2-work-cover">
+                        {w.img ? (
+                          <div className="wc2-cover-art" style={{ backgroundImage: `url(${w.img})` }}></div>
+                        ) : (
+                          <div className="wc2-cover-art wc2-cover-art--type" style={{ "--hue": w.hue } as React.CSSProperties}>
+                            <span className="wc2-cover-num">{w.num}</span>
+                            <span className="wc2-cover-en">{w.en}</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="wc2-work-meta">
+                        <h3>{w.title}</h3>
+                        <p>
+                          {w.tags.map(t => <span key={t}>{t}</span>)}
+                          <time>{w.year}</time>
+                        </p>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+            {/* 次セクションへの転換＝CONCERNS：暗色オーロラが右から捲れ、
+               その面に載った文字（見出し・チップ）も一緒に revealed される（clip-path が両方を切り出す） */}
+            <div className="wc2-wipe">
+              {/* 設計図の“描画”レイヤー：太グリッド・見当・寸法・表題欄。
+                  clip-path で左→右に「線が引かれていく」（JS駆動） */}
+              <div className="wc2-bp-draw" aria-hidden="true">
+                <span className="wc2-bp-reg tl"></span><span className="wc2-bp-reg tr"></span>
+                <span className="wc2-bp-reg bl"></span><span className="wc2-bp-reg br"></span>
+                <div className="wc2-bp-dim"><b>W 1440</b></div>
+                <div className="wc2-bp-title">
+                  <div><span>SHEET</span><span>03 / CONCERNS</span></div>
+                  <div><span>SCALE</span><span>1 : 1</span></div>
+                  <div><span>REV</span><span>A — 2026.07</span></div>
+                </div>
+              </div>
+              {/* 線を描き終わったあと、グリッド線の上を白い点が自由に動く（数は控えめ） */}
+              <canvas className="wc2-bp-dots" aria-hidden="true"></canvas>
+              {/* CONCERNS→SERVICES 転換：左から現れる「種」の白点と、そこから広がる白い円 */}
+              <span className="wc2-c2s-seed" aria-hidden="true"></span>
+              <div className="wc2-c2s-white" aria-hidden="true"></div>
+              {/* 白が弾けた直後、SERVICES 全体が中央から爆発的に現れる（白の上） */}
+              <div id="wc2-services" className="wc2-c2s-services">
+                <div className="wc2-c2s-emerge">
+                  <div className="wc2-wrap wc2-services-headwrap">
+                    <span className="wc2-label">( 04 ) — SERVICES</span>
+                    <h2 className="wc2-h2">SMASKが提供できること</h2>
+                  </div>
+                  <div className="wc2-rows">
+                    {SERVICES.map(([num, title, body]) => (
+                      <div className="wc2-row" key={num}>
+                        <span className="wc2-row-rule" aria-hidden="true"></span>
+                        <div className="wc2-wrap wc2-row-in">
+                          <span className="wc2-row-num">SV-{num}</span>
+                          <h3>{title}</h3>
+                          <p>{body}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div id="wc2-concerns" className="wc2-wipe-inner">
+                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
+                <h2 className="wc2-h2">こんなお悩みに対応します</h2>
+                <ul className="wc2-chips">
+                  {CONCERNS.map((text, i) => <li key={text} data-n={`C-0${i + 1}`}>{text}</li>)}
                 </ul>
-                <p>異なる事業に見えても、その根底には「本質を捉え、無理のない形で価値を届ける」という共通した考えがあります。</p>
+                <p className="wc2-note">
+                  このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* OUR BUSINESS */}
-        <section className="panel panel--tint" id="business">
-          <div className="panel-bg" aria-hidden="true"></div>
-          {/* カードホバーで背景の対応領域だけ色が冴えるレイヤー（CSSの :has(:hover) 駆動） */}
-          <div className="panel-bg-vivid" aria-hidden="true"></div>
-          <div className="curtain" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-          {/* Webコンテンツ制作へ発つときの暗転幕（クローズアップの後半で黒く沈む） */}
-          <div className="biz-blackout" aria-hidden="true"></div>
-          <div className="wrap">
-            <div className="sec-head reveal-item">
-              <span className="eyebrow">Our Business</span>
-              <h2><SplitLn base={0.14} step={0.045} segments={[{ text: "事業紹介" }]} /></h2>
-              <p className="lead">異なる領域で、価値の本質に向き合う3つの事業。</p>
-            </div>
-            <div className="biz-grid">
-              <article className="biz-card reveal-item" data-gem="gold">
-                <span className="num">01</span>
-                <span className="en">Precious Metals</span>
-                <h3>貴金属買取</h3>
-                <p>金・プラチナなどの貴金属を、相場だけでなく状態や背景も踏まえて丁寧に確認し、適正にご案内します。</p>
-                <a className="biz-link" href="/business-precious-metals">詳細を見る <span className="arrow" aria-hidden="true">→</span></a>
-              </article>
-              <article className="biz-card reveal-item" data-gem="ruby">
-                <span className="num">02</span>
-                <span className="en">Jewelry</span>
-                <h3>ジュエリー制作</h3>
-                <p>Pristine Diamondを軸に、ラボグロウンダイヤモンドという新しい選択肢を、これからの価値観にあった形で構想・準備しています。</p>
-                <a className="biz-link" href="/business-jewelry">詳細を見る <span className="arrow" aria-hidden="true">→</span></a>
-              </article>
-              <article className="biz-card reveal-item" data-gem="sapphire">
-                <span className="num">03</span>
-                <span className="en">Web Content</span>
-                <h3>Webコンテンツ制作</h3>
-                <p>見た目を整えるだけでなく、事業の伝わり方、情報整理、導線設計、運用のしやすさまで含めて整えます。</p>
-                <a className="biz-link" href="/business-web">詳細を見る <span className="arrow" aria-hidden="true">→</span></a>
-              </article>
+        {/* ============ STRENGTHS：見出しが上から投げられてバウンド／4側面に強みを持つ白キューブが落ちて回転ショーケース ============ */}
+        <section className="wc2-sec wc2-strengths-sec">
+          <div className="wc2-str-pin">
+            <div className="wc2-str-stage">
+              {/* 左：見出し（上から投げられたようにバウンドして着地） */}
+              <div className="wc2-str-head">
+                <span className="wc2-label">( 05 ) — STRENGTHS</span>
+                <h2 className="wc2-h2">SMASKの強み</h2>
+                <p className="wc2-str-lead">
+                  制作そのものを目的とせず、事業にとって本当に必要な形を整える。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
+                </p>
+                <span className="wc2-str-hint" aria-hidden="true">SCROLL — キューブが回転し、4つの強みが順に現れます</span>
+              </div>
+              {/* 床の設置影（落下・着地に合わせて濃く/大きく） */}
+              <div className="wc2-cube-shadow" aria-hidden="true"></div>
+              {/* 右：4側面（01〜04）に強みを刻んだ白キューブ。斜め上から落ちて転がり、90°ずつ回転して各面を見せる */}
+              <div className="wc2-cube-wrap" aria-hidden="true">
+                <div className="wc2-cube">
+                  {STRENGTHS.map(([num, title, body], i) => (
+                    <span className={`wc2-face wc2-face-str ${["wc2-face-front", "wc2-face-right", "wc2-face-back", "wc2-face-left"][i]}`} key={num}>
+                      <b className="wc2-fn">{num}</b>
+                      <b className="wc2-ft">{title}</b>
+                      <span className="wc2-fb">{body}</span>
+                    </span>
+                  ))}
+                  <span className="wc2-face wc2-face-top"><span className="wc2-fmark">SMASK</span></span>
+                  <span className="wc2-face wc2-face-bottom"></span>
+                </div>
+              </div>
+              {/* reduced-motion 用フォールバック：通常グリッド */}
+              <div className="wc2-str-grid wc2-str-grid--fb">
+                {STRENGTHS.map(([num, title, body]) => (
+                  <div className="wc2-str-item" key={num}>
+                    <span className="wc2-str-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* OUR APPROACH */}
-        <section className="panel" id="approach">
-          <div className="panel-bg" aria-hidden="true"></div>
-          <div className="curtain" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
-          <div className="wrap">
-            <div className="sec-head reveal-item">
-              <span className="eyebrow">Our Approach</span>
-              <h2><SplitLn base={0.14} step={0.045} segments={[{ text: "SMASKの考え方" }]} /></h2>
-            </div>
-            <div className="approach-intro reveal-item">
-              <p>SMASKは、見た目だけの整い方や、一時的な話題性だけを追いません。何を残し、何を整え、どう届けるべきかを見ながら、事業ごとに無理のない形をつくっていきます。</p>
-            </div>
-            <div className="approach-grid">
-              <div className="approach-item">
-                <span className="idx">01</span>
-                <div><h3>本質を見極める</h3><p>表面的な価値や見た目だけでなく、その背景にある価値・文脈・意味まで確認します。</p></div>
+        {/* ============ PROCESS：宇宙の航路（スクロールで彗星が 01→06 を巡り、寄港地が点灯） ============ */}
+        <section className="wc2-sec wc2-route-sec">
+          <div className="wc2-route-pin">
+            <div className="wc2-route-stage">
+              {/* ワープイン/アウト用ラッパ（ピン先頭で暗転→出現、末尾でズームアウト） */}
+              <div className="wc2-route-world">
+                <div className="wc2-route-head">
+                  <span className="wc2-label">( 06 ) — PROCESS</span>
+                  <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
+                  <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
+                </div>
+                {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}
+                <svg className="wc2-route-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                  <polyline className="wc2-route-base" points="" fill="none" />
+                  <polyline className="wc2-route-trail" points="" fill="none" />
+                </svg>
+                {/* 6つの寄港地（JSで座標・点灯を駆動） */}
+                {PROCESS.map(([num, title, body], i) => (
+                  <div className="wc2-station" data-i={i} key={num}>
+                    <span className="wc2-st-node" aria-hidden="true"><i></i></span>
+                    <div className="wc2-st-card">
+                      <span className="wc2-st-num">{num}</span>
+                      <h3>{title}</h3>
+                      <p>{body}</p>
+                    </div>
+                  </div>
+                ))}
+                {/* 走る彗星 */}
+                <div className="wc2-comet" aria-hidden="true"><span className="wc2-comet-tail"></span></div>
               </div>
-              <div className="approach-item">
-                <span className="idx">02</span>
-                <div><h3>必要以上に複雑にしない</h3><p>整理されていない情報は伝わりません。シンプルで機能する形を選びます。</p></div>
-              </div>
-              <div className="approach-item">
-                <span className="idx">03</span>
-                <div><h3>現実に根ざして形にする</h3><p>理想だけでなく、現場の実態に合った形で進めます。急がず、正しく始めます。</p></div>
-              </div>
-              <div className="approach-item">
-                <span className="idx">04</span>
-                <div><h3>長く機能する価値を考える</h3><p>一時的な話題性より、時間が経っても意味を持ち続けるものを大切にします。</p></div>
-              </div>
-            </div>
-            <div className="approach-close reveal-item">
-              <hr className="rule-gold" style={{ marginBottom: "2rem" }} />
-              <p>事業は違っても、向き合っているのは価値そのものです。</p>
-              <p>貴金属、ジュエリー、情報。扱う対象は異なっても、SMASKが見ているのは、その本質をどう見極め、どう整え、どう届けるかです。</p>
+              {/* reduced-motion フォールバック：通常のステップ一覧 */}
+              <ol className="wc2-steps wc2-steps--fb">
+                {PROCESS.map(([num, title, body]) => (
+                  <li key={num}>
+                    <span className="wc2-step-num">{num}</span>
+                    <h3>{title}</h3>
+                    <p>{body}</p>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </section>
+
+        {/* ============ CONTACT：PROCESSがフェードアウト→中心から「話しましょう」が出現（巨大CTA） ============ */}
+        <section className="wc2-sec wc2-contact">
+          <div className="wc2-contact-pin">
+            <div className="wc2-contact-stage">
+              <div className="wc2-wrap wc2-contact-inner">
+                <span className="wc2-label">( 07 ) — CONTACT</span>
+                <a className="wc2-talk" href="/contact">
+                  <span className="wc2-talk-main">話しましょう<em>.</em></span>
+                  <span className="wc2-talk-arrow" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                  </span>
+                </a>
+                <p className="wc2-contact-lead">まずはお気軽にご相談ください。ご要望・ご予算に合わせて柔軟にご対応いたします。</p>
+                {/* 自社ロゴ（暗色背景用に反転＋色相補正＋screenで白背景を透過） */}
+                <img
+                  className="wc2-contact-logo"
+                  src={`${import.meta.env.BASE_URL}assets/logo.jpg`}
+                  alt="SMASK"
+                  width="1024"
+                  height="512"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="wc2-bridge" aria-hidden="true"></div>
+        </section>
+
+        {/* セクション転換のワープ・カーテン（継ぎ目でハイパースペースが被さって縦スクロールを隠す） */}
+        <canvas className="wc2-warp" aria-hidden="true"></canvas>
       </main>
     </>
   );
