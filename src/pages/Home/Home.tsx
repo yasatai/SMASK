@@ -174,6 +174,7 @@ export default function Home() {
     const h1 = hero.querySelector<HTMLElement>(".wc2-hero-h1");
     const lines = Array.from(hero.querySelectorAll<HTMLElement>(".wc2-hl > span"));
     const sub = hero.querySelector<HTMLElement>(".wc2-hero-sub");
+    const lead = hero.querySelector<HTMLElement>(".wc2-hero-lead");
     const hint = hero.querySelector<HTMLElement>(".wc2-hero-scroll");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
@@ -196,6 +197,7 @@ export default function Home() {
           ln.style.transform = `translateY(${((1 - lp) * 110).toFixed(1)}%)`;
         });
         if (sub) sub.style.opacity = (seg(p, 0.18, 0.30) * out).toFixed(3);
+        if (lead) lead.style.opacity = (seg(p, 0.22, 0.34) * out).toFixed(3);
         /* SCROLLヒントは最初から見えていて、動き出したら退く */
         if (hint) hint.style.opacity = (1 - seg(p, 0.04, 0.12)).toFixed(3);
       }
@@ -898,10 +900,14 @@ export default function Home() {
             <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
               <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
               <h1 className="wc2-hero-h1">
-                <span className="wc2-hl"><span>伝わるWebを、</span></span>
-                <span className="wc2-hl wc2-hl--grad"><span>動かすまで。</span></span>
+                <span className="wc2-hl"><span>価値を見極め、</span></span>
+                <span className="wc2-hl wc2-hl--grad"><span>かたちにする。</span></span>
               </h1>
-              <p className="wc2-hero-sub">現場理解をもとに、伝わるWebと業務の流れを整えます。</p>
+              <p className="wc2-hero-sub">伝わるWebを、動かすまで。</p>
+              <p className="wc2-hero-lead">
+                SMASKは、事業を理解し、情報・文章・導線・デザイン・実装・運用をつなぐWebコンテンツ制作会社です。<br />
+                企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。
+              </p>
               <div className="wc2-hero-scroll" aria-hidden="true">
                 <span>SCROLL</span>
                 <i></i>

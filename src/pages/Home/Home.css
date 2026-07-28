@@ -184,16 +184,24 @@ html.wc2-page-active .wc2-bridge { display: none; }
    （JSがtransform/opacityを直接駆動。戻すと逆再生されるスクラブ式） */
 .wc2-hl { display: block; overflow: hidden; }
 .wc2-hl > span { display: inline-block; transform: translateY(110%); will-change: transform; }
-.wc2-hero-tag, .wc2-hero-sub { opacity: 0; will-change: opacity; }
+.wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead { opacity: 0; will-change: opacity; }
 .wc2-hl--grad > span {
   background: var(--wc2-iri); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
   animation: wc2IriShift 9s linear infinite;
 }
 @keyframes wc2IriShift { to { background-position: 200% 0; } }
-.wc2-hero-sub {
-  margin-top: 2rem; max-width: 30rem;
-  font-size: .95rem; letter-spacing: .04em;
+/* .wc2-page p（.93rem）より詳細度を上げて確実に効かせる */
+.wc2-hero-copy .wc2-hero-sub {
+  margin-top: 1.8rem; max-width: 36rem;
+  font-size: clamp(1.3rem, 2.3vw, 1.85rem); font-weight: 500; line-height: 1.45; letter-spacing: .04em;
+  color: var(--wc2-ink);
+}
+/* Heroの本文（統合仕様の2文）。サブの直後にサブと同じフェードで出す */
+.wc2-hero-copy .wc2-hero-lead {
+  margin-top: 1.5rem; max-width: 38rem;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
+  color: var(--wc2-ink-soft);
 }
 .wc2-hero-scroll {
   margin-top: clamp(3rem, 7vh, 5.5rem);
@@ -815,7 +823,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 
 @media (prefers-reduced-motion: reduce) {
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
-  .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub,
+  .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead,
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-aurora { opacity: 1; }
