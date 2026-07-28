@@ -151,9 +151,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* Hero(セクション1)と同じ左寄せに：中央寄せ(max-width)を外し、左端から始める。
    見出しは2行、本文は自前の max-width で左寄せ＝余裕を持たせる */
 .wc2-about-copy { max-width: none; text-align: left; }
-/* ラベル（ABOUT — SMASKとは）を本文より少し小さいくらいに拡大（既定 .68rem→約16px） */
+/* ラベル（ABOUT — SMASKとは）：サイズはHeroタグと統一（約16px）、
+   色はHeroタグと同じ明るい灰（--wc2-ink-soft）に。※色は背景により変わり得るため固定基準にはしない */
 .wc2-about-copy .wc2-label {
   font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em;
+  color: var(--wc2-ink-soft);
 }
 .wc2-about-head {
   margin-bottom: 0;
