@@ -202,9 +202,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: #000;
   opacity: 0; pointer-events: none;
 }
-.wc2-hero-tag {
+/* p要素なので .wc2-page p(.93rem) に負けないよう .wc2-hero-copy スコープで詳細度を確保 */
+.wc2-hero-copy .wc2-hero-tag {
   font-family: var(--wc2-display); font-weight: 400;
-  font-size: .7rem; letter-spacing: .28em; text-transform: uppercase;
+  /* セクション2のラベルと同じ大きさに統一（約16px） */
+  font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em; text-transform: uppercase;
   color: var(--wc2-ink-soft);
 }
 .wc2-hero-tag i {
