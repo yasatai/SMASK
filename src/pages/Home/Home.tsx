@@ -919,6 +919,26 @@ export default function Home() {
         {/* ダイブ終端の完全暗転幕（スクロール駆動） */}
         <div className="wc2-blackout" ref={blackoutRef} aria-hidden="true"></div>
 
+        {/* ============ ABOUT：SMASKとは（Hero と APPROACH の間・通常スクロール） ============
+             暗転が明けて最初に読ませる導入。3Dの靄の上に浮かぶ透過セクション。
+             入場は data-reveal / data-reveal-stagger（他セクションと同じ流儀）。
+             3Dのスクロール振り付け（ピン留め）は足さない（普通のスクロールセクション） */}
+        <section id="wc2-about-sec" className="wc2-sec wc2-about-sec">
+          <div className="wc2-wrap wc2-about-copy">
+            <span className="wc2-label" data-reveal>ABOUT — SMASKとは</span>
+            {/* ルール（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
+            <h2 className="wc2-h2 wc2-about-head" data-reveal>Webをつくる前に<br /><em>事業を理解する。</em></h2>
+            {/* 本文：1文1段落（「。」の後に文を続けない）。.wc2-page p に負けないようスコープ指定 */}
+            <div className="wc2-about-body" data-reveal-stagger>
+              <p>Webサイトは、情報を並べ、見た目を整えるだけでは、事業の価値まで十分に伝えられません。</p>
+              <p>誰に、何を、どの順番で伝えるのか。その出発点は、会社や事業を深く理解することです。</p>
+              <p>SMASKは、企業が持つ価値や強みをともに整理し、文章、導線、デザイン、実装仕様へ一貫してつなげます。</p>
+            </div>
+            {/* 会社概要へ：App の leave-curtain 遷移に委譲（通常アンカー） */}
+            <a className="wc2-about-cta" href="/company" data-reveal>SMASKについて <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
+
         {/* ============ APPROACH＋白の転調：ひと続きのピン留め画面 ============
              前半＝文字の染色→本文フェード（帯は画面上部に常駐）。
              後半＝固定したまま白帯が「下から上へ」伸びて画面全体が白になり、
