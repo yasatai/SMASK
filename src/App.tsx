@@ -1,15 +1,10 @@
 import { useEffect, lazy, Suspense } from "react";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Home from "./pages/Home/Home";
-import PreciousMetals from "./pages/PreciousMetals/PreciousMetals";
-import MetalDetail from "./pages/MetalDetail/MetalDetail";
-import Jewelry from "./pages/Jewelry/Jewelry";
-/* Webコンテンツ制作は 3D 版を本採用。three.js ごと遅延読み込みし、他ページのバンドルに影響させない
-   （旧 2D 版 pages/WebContent は未使用のまま保管） */
-import { importWebContentV2 } from "./pages/WebContentV2/lazy";
-const WebContentV2 = lazy(importWebContentV2);
+/* トップ（3D Home）は three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
+import { importHome } from "./pages/Home/lazy";
+const Home = lazy(importHome);
 import Column from "./pages/Column/Column";
 import ColumnPost from "./pages/Column/ColumnPost";
 import Company from "./pages/Company/Company";
@@ -20,24 +15,15 @@ import { useJaTypography } from "./useJaTypography";
 import { SiteSettingsProvider } from "./data/SiteSettingsContext";
 import "./App.css";
 
+/* ページ遷移カーテンの対象ルート（情報ページ間ナビ用）。
+   トップは 3D Home が自前の演出を持つが、他ページから "/" へ戻る導線のために含める。 */
 const ROUTES = new Set([
   "/",
-  "/business-precious-metals",
-  "/business-precious-metals/gold",
-  "/business-precious-metals/platinum",
-  "/business-precious-metals/silver",
-  "/business-jewelry",
-  "/business-web",
   "/column",
   "/company",
   "/contact",
   "/privacy",
 ]);
-
-/** 慣性スムーススクロールを使うページ。
- *  下層ページはすべて素直なOS標準スクロールにしたため、対象はトップのみ。
- *  （トップはフルページ遷移が別途ホイールを持つので、実質ここでは何もしない） */
-const SMOOTH_SCROLL_ONLY = "/";
 
 export default function App() {
   const navigate = useNavigate();
@@ -83,64 +69,21 @@ export default function App() {
     return () => document.removeEventListener("click", onClick);
   }, [navigate]);
 
-  /* ---- 慣性スムーススクロール（元 main.js を移植・lerp 0.085）
-     下層ページは読みやすさを優先して対象外。トップのみ ---- */
-  useEffect(() => {
-    if (prefersReduced || "ontouchstart" in window) return;
-    if (pathname !== SMOOTH_SCROLL_ONLY) return;
-    let target = 0;
-    let current = 0;
-    let raf: number | null = null;
-    const maxScroll = () => document.documentElement.scrollHeight - window.innerHeight;
-    const loop = () => {
-      // ルート遷移などで外部からスクロール位置が飛んだら追従をやめる
-      if (Math.abs(window.scrollY - current) > 2) { raf = null; return; }
-      current += (target - current) * 0.085;
-      if (Math.abs(target - current) < 0.5) {
-        current = target;
-        window.scrollTo({ top: current, behavior: "auto" });
-        raf = null;
-        return;
-      }
-      window.scrollTo({ top: current, behavior: "auto" });
-      raf = requestAnimationFrame(loop);
-    };
-    const onWheel = (e: WheelEvent) => {
-      if (window.__smaskFullpage) return;        // フルページモードがホイールを所有
-      if (e.ctrlKey) return;                     // ピンチズームはネイティブのまま
-      if (document.body.style.overflow === "hidden") return; // イントロ/メニュー表示中
-      e.preventDefault();
-      if (raf === null) { current = window.scrollY; target = current; }
-      target += e.deltaY;
-      if (target < 0) target = 0;
-      if (target > maxScroll()) target = maxScroll();
-      if (!raf) raf = requestAnimationFrame(loop);
-    };
-    window.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      window.removeEventListener("wheel", onWheel);
-      if (raf !== null) cancelAnimationFrame(raf);
-    };
-  }, [pathname]);
-
   return (
     <SiteSettingsProvider>
       <Header />
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/business-precious-metals" element={<PreciousMetals />} />
-        <Route path="/business-precious-metals/:metal" element={<MetalDetail />} />
-        <Route path="/business-jewelry" element={<Jewelry />} />
-        {/* Webコンテンツ制作＝3D版を /business-web で提供。
-            チャンク読み込み中は黒地を敷く（出発側の暗転から白へ戻らないように） */}
+        {/* トップ＝3D Home。チャンク読み込み中は黒地を敷く（白の一瞬を出さない） */}
         <Route
-          path="/business-web"
+          path="/"
           element={
             <Suspense fallback={<div className="wc2-boot" aria-hidden="true"></div>}>
-              <WebContentV2 />
+              <Home />
             </Suspense>
           }
         />
+        {/* 旧 /business-web はトップへ昇格。ブックマーク等の保険リダイレクト */}
+        <Route path="/business-web" element={<Navigate to="/" replace />} />
         <Route path="/column" element={<Column />} />
         <Route path="/column/:slug" element={<ColumnPost />} />
         <Route path="/company" element={<Company />} />

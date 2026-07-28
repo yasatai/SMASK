@@ -17,6 +17,20 @@ const MENU_ITEMS: MenuItem[] = [
   { label: "CONTACT", id: "wc2-contact-pin" },
 ];
 
+/* ページ遷移項目（同一ページ内ジャンプではなく別ページへ）。
+   通常の <a href> にして App の leave-curtain 遷移演出に委ねる。 */
+interface PageLink {
+  label: string;
+  en: string;
+  href: string;
+}
+
+const PAGE_LINKS: PageLink[] = [
+  { label: "会社概要", en: "COMPANY", href: "/company" },
+  { label: "コラム", en: "COLUMN", href: "/column" },
+  { label: "お問い合わせ", en: "CONTACT", href: "/contact" },
+];
+
 export default function WebContentV2Menu() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -85,6 +99,23 @@ export default function WebContentV2Menu() {
                   >
                     {item.label}
                   </button>
+                </li>
+              ))}
+            </ul>
+
+            {/* 別ページへの導線（ページ内ジャンプと視覚的に区切る） */}
+            <p className="wc2-menu-heading">PAGES</p>
+            <ul className="wc2-menu-list wc2-menu-pages">
+              {PAGE_LINKS.map((p) => (
+                <li key={p.href}>
+                  <a
+                    className="wc2-menu-item wc2-menu-page"
+                    href={p.href}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <span className="wc2-menu-page-jp">{p.label}</span>
+                    <span className="wc2-menu-page-en" aria-hidden="true">{p.en}</span>
+                  </a>
                 </li>
               ))}
             </ul>
