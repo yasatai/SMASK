@@ -193,14 +193,14 @@ html.wc2-page-active .wc2-bridge { display: none; }
 @keyframes wc2IriShift { to { background-position: 200% 0; } }
 /* .wc2-page p（.93rem）より詳細度を上げて確実に効かせる */
 .wc2-hero-copy .wc2-hero-sub {
-  margin-top: 1.8rem; max-width: 34rem;
-  font-size: clamp(1.15rem, 2vw, 1.6rem); font-weight: 500; line-height: 1.5; letter-spacing: .04em;
+  margin-top: 1.8rem; max-width: 36rem;
+  font-size: clamp(1.3rem, 2.3vw, 1.85rem); font-weight: 500; line-height: 1.45; letter-spacing: .04em;
   color: var(--wc2-ink);
 }
 /* Heroの本文（統合仕様の2文）。サブの直後にサブと同じフェードで出す */
 .wc2-hero-copy .wc2-hero-lead {
-  margin-top: 1.4rem; max-width: 36rem;
-  font-size: clamp(.92rem, 1.15vw, 1.05rem); line-height: 1.95; letter-spacing: .02em;
+  margin-top: 1.5rem; max-width: 38rem;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
 .wc2-hero-scroll {
