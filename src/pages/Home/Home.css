@@ -148,7 +148,9 @@ html.wc2-page-active .wc2-bridge { display: none; }
    3D の靄の上に浮かぶ透過セクション（.wc2-page > section が z-index:1・relative）。
    入場は data-reveal / data-reveal-stagger（他セクションと同じ流儀）。
    本文サイズは .wc2-page p（.93rem）より詳細度を上げて確実に効かせる（2クラスのスコープ） */
-.wc2-about-copy { max-width: 46rem; }
+/* Hero(セクション1)と同じ左寄せに：中央寄せ(max-width)を外し、左端から始める。
+   見出しは2行、本文は自前の max-width で左寄せ＝余裕を持たせる */
+.wc2-about-copy { max-width: none; text-align: left; }
 .wc2-about-head {
   margin-bottom: 0;
   /* プロジェクト基準の見出しサイズ（Hero大見出しと同じ clamp(2.7rem,8.6vw,7rem)）。
