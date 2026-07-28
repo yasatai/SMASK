@@ -18,15 +18,15 @@ import "./Opening.css";
    3.2–4.2 : ロゴを少し保持 → オーバーレイ全体をフェードアウト（+わずかに拡大） */
 const T = {
   WAVE_IN: 0.6,
-  WAVE_OUT: 2.2,
-  CONVERGE_IN: 2.2,
-  CONVERGE_OUT: 3.2,
-  BLOOM_IN: 2.3,
-  BLOOM_PEAK: 3.0,
-  LOGO_IN_A: 2.5,
-  LOGO_IN_B: 3.15,
-  FADE_START: 3.5,
-  TOTAL: 4.2,
+  WAVE_OUT: 2.7,      // 波の疾走をゆっくりに（1.6s→2.1s）
+  CONVERGE_IN: 2.7,
+  CONVERGE_OUT: 3.6,
+  BLOOM_IN: 2.8,
+  BLOOM_PEAK: 3.4,
+  LOGO_IN_A: 3.0,
+  LOGO_IN_B: 3.6,
+  FADE_START: 3.9,
+  TOTAL: 4.7,
 };
 /* reduced-motion 用の短縮タイムライン */
 const RM = { LOGO_A: 0.1, LOGO_B: 0.6, FADE_START: 1.0, TOTAL: 1.5 };
@@ -43,6 +43,11 @@ export default function Opening({ onDone }: { onDone: () => void }) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
+  /* onDone は Home 側で毎レンダリング新しい関数になり得る。ref 経由で参照し、
+     useEffect の依存から外して「マウント時1回だけ」にする。
+     （裏で走る 0→100 ローダーの setLoaded 再レンダリングで演出が頭から再生＝波が2回、を防ぐ） */
+  const onDoneRef = useRef(onDone);
+  onDoneRef.current = onDone;
 
   useEffect(() => {
     const overlay = overlayRef.current;
@@ -50,7 +55,7 @@ export default function Opening({ onDone }: { onDone: () => void }) {
     const logo = logoRef.current;
     if (!overlay || !cv) return;
     const ctx = cv.getContext("2d");
-    if (!ctx) { onDone(); return; }
+    if (!ctx) { onDoneRef.current(); return; }
 
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const END = reduced ? RM.TOTAL : T.TOTAL;
@@ -93,7 +98,7 @@ export default function Opening({ onDone }: { onDone: () => void }) {
       done = true;
       cancelAnimationFrame(raf);
       cleanupListeners();
-      onDone();
+      onDoneRef.current();
     };
 
     /* ---- スキップ：任意の入力で 0.4s フェードアウト ---- */
@@ -282,7 +287,7 @@ export default function Opening({ onDone }: { onDone: () => void }) {
       cancelAnimationFrame(raf);
       cleanupListeners();
     };
-  }, [onDone]);
+  }, []);
 
   return (
     <div className="smask-opening" ref={overlayRef} role="presentation">
