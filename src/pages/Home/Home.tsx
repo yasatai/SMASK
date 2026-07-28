@@ -898,10 +898,10 @@ export default function Home() {
             <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
               <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
               <h1 className="wc2-hero-h1">
-                <span className="wc2-hl"><span>伝わるWebを、</span></span>
-                <span className="wc2-hl wc2-hl--grad"><span>動かすまで。</span></span>
+                <span className="wc2-hl"><span>価値を見極め、</span></span>
+                <span className="wc2-hl wc2-hl--grad"><span>かたちにする。</span></span>
               </h1>
-              <p className="wc2-hero-sub">現場理解をもとに、伝わるWebと業務の流れを整えます。</p>
+              <p className="wc2-hero-sub">伝わるWebを、動かすまで。</p>
               <div className="wc2-hero-scroll" aria-hidden="true">
                 <span>SCROLL</span>
                 <i></i>
