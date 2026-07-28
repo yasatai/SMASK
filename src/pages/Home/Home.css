@@ -151,6 +151,12 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* Hero(セクション1)と同じ左寄せに：中央寄せ(max-width)を外し、左端から始める。
    見出しは2行、本文は自前の max-width で左寄せ＝余裕を持たせる */
 .wc2-about-copy { max-width: none; text-align: left; }
+/* ラベル（ABOUT — SMASKとは）：サイズはHeroタグと統一（約16px）、
+   色はHeroタグと同じ明るい灰（--wc2-ink-soft）に。※色は背景により変わり得るため固定基準にはしない */
+.wc2-about-copy .wc2-label {
+  font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em;
+  color: var(--wc2-ink-soft);
+}
 .wc2-about-head {
   margin-bottom: 0;
   /* プロジェクト基準の見出しサイズ（Hero大見出しと同じ clamp(2.7rem,8.6vw,7rem)）。
@@ -165,15 +171,16 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-about-sec .wc2-about-body p + p { margin-top: 1.5rem; }
 .wc2-about-cta {
   display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
-  margin-top: 2.8rem; padding-bottom: .55rem;
-  font-family: var(--wc2-display); font-size: .68rem; letter-spacing: .24em;
+  margin-top: 2.8rem; padding-bottom: .6rem;
+  /* 下層ページ(会社概要)へのCTA。ラベル/本文に合わせて大きく */
+  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
   color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
   pointer-events: auto;
   transition: gap .5s var(--ease-expo), color .4s var(--ease-out), border-color .4s var(--ease-out);
 }
 .wc2-about-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
 .wc2-about-cta span {
-  font-size: .9rem;
+  font-size: 1.2rem;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
@@ -198,9 +205,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: #000;
   opacity: 0; pointer-events: none;
 }
-.wc2-hero-tag {
+/* p要素なので .wc2-page p(.93rem) に負けないよう .wc2-hero-copy スコープで詳細度を確保 */
+.wc2-hero-copy .wc2-hero-tag {
   font-family: var(--wc2-display); font-weight: 400;
-  font-size: .7rem; letter-spacing: .28em; text-transform: uppercase;
+  /* セクション2のラベルと同じ大きさに統一（約16px） */
+  font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em; text-transform: uppercase;
   color: var(--wc2-ink-soft);
 }
 .wc2-hero-tag i {
