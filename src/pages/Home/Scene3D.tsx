@@ -341,7 +341,7 @@ export default function Scene3D() {
     pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     const dotTex = makeDotTexture();
     const pMat = new THREE.PointsMaterial({
-      color: 0x8fa0c4, size: 0.022, sizeAttenuation: true,
+      color: 0xdfe8ff, size: 0.022, sizeAttenuation: true,   // オープニングの星屑と同色（#dfe8ff）に統一
       map: dotTex,   // 円形テクスチャで四角い点を丸くする（加算合成なので透明部分は加算されず＝丸に見える）
       transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false,
     });
