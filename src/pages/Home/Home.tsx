@@ -955,14 +955,28 @@ export default function Home() {
             <div className="wc2-wrap">
               <span className="wc2-label">( 01 ) — APPROACH</span>
               {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
-              <h2 className="wc2-h2 wc2-fill">Web制作を<br /><em>見た目だけ</em>で終わらせない</h2>
-              <div className="wc2-cols wc2-approach-cols">
-                <p className="wc2-lead">
-                  Webサイトは、情報を載せるためだけのものではありません。企業や事業の強みを伝え、必要な相手に安心感を持ってもらい、問い合わせや次の行動につなげるための基盤です。
-                </p>
-                <p>
-                  SMASKでは、見た目の整ったページを制作するだけではなく、事業内容の伝わりやすさ、情報の整理、導線のわかりやすさ、運用のしやすさまで含めて設計します。制作そのものを目的にするのではなく、事業にとって意味のある形で機能することを重視しています。
-                </p>
+              <h2 className="wc2-h2 wc2-fill">情報を選び、つなぎ<br /><em>伝わる流れに整える。</em></h2>
+              {/* .wc2-approach-cols は JS が opacity を駆動する容器（クラス名は変更しない）。
+                  中身だけ「本文2文 ＋ 3小項目（見極める/つなぐ/動かす）」に組み替える */}
+              <div className="wc2-approach-cols">
+                <div className="wc2-approach-body">
+                  <p>大切なのは、情報の量ではなく、何を選び、どの順番でつなぐかです。</p>
+                  <p>SMASKは、必要な情報を見極め、理解しやすい流れへ組み直し、次の行動へ進みやすいWebを設計します。</p>
+                </div>
+                <ul className="wc2-approach-points">
+                  <li>
+                    <h3>見極める</h3>
+                    <p>伝えるべき価値と、情報の優先順位を整理します。</p>
+                  </li>
+                  <li>
+                    <h3>つなぐ</h3>
+                    <p>文章、導線、デザイン、実装仕様を分断せず、一貫したWebサイトへまとめます。</p>
+                  </li>
+                  <li>
+                    <h3>動かす</h3>
+                    <p>公開を終点にせず、更新や改善まで考え、事業の中で使われ続けるWebを目指します。</p>
+                  </li>
+                </ul>
               </div>
             </div>
             {/* 白の転調：下の帯から順に立ち上がる（APPROACHの文字ごと呑み込む） */}
