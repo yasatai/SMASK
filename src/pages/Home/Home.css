@@ -285,6 +285,24 @@ html.wc2-page-active .wc2-bridge { display: none; }
   color: var(--wc2-ink-mute);
 }
 @keyframes wc2Marquee { to { transform: translateX(-50%); } }
+/* 右端は固定MENUボタンの手前でフェードアウトさせ、帯の文字がボタンで切られないようにする。
+   左端も対称に抜いて、ティッカーとして意図的な見え方にする。
+   mask なので上下の枠線も一緒に溶けて消える＝「切れた」ではなく「消えていく」になる */
+.wc2-marquee--pin {
+  --mq-fade-r: 172px;   /* MENUボタン（right:2rem・幅約115px）の左端より外側で消えきる量 */
+  --mq-fade-w: 130px;   /* フェードの柔らかさ（グラデーションの長さ） */
+  --mq-fade-l: 64px;    /* 左端の抜き */
+  -webkit-mask-image: linear-gradient(90deg,
+    transparent 0, #000 var(--mq-fade-l),
+    #000 calc(100% - var(--mq-fade-r) - var(--mq-fade-w)), transparent calc(100% - var(--mq-fade-r)));
+  mask-image: linear-gradient(90deg,
+    transparent 0, #000 var(--mq-fade-l),
+    #000 calc(100% - var(--mq-fade-r) - var(--mq-fade-w)), transparent calc(100% - var(--mq-fade-r)));
+}
+/* モバイルはボタンが小型（right:1rem・小さめpadding）なので抜き量も縮める */
+@media (max-width: 679px) {
+  .wc2-marquee--pin { --mq-fade-r: 138px; --mq-fade-w: 64px; --mq-fade-l: 28px; }
+}
 
 /* ============ ピン留め画面（APPROACH＋白の転調） ============
    セクションを縦に長く取り、中身は sticky で1画面に固定したまま
