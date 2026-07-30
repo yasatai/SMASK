@@ -1120,7 +1120,8 @@ export default function Home() {
               <div className="wc2-str-head">
                 <span className="wc2-label">( 06 ) — STRENGTHS</span>
                 {/* ルール②（行末に「、」を残さない） */}
-                <h2 className="wc2-h2">分けてつくらず<br /><em>つないで仕上げる。</em></h2>
+                {/* キューブが真横にいるため1行あたりを短くし3行に割る＝Tier1(110px)でも構図が保てる */}
+                <h2 className="wc2-h2">分けてつくらず<br /><em>つないで<br />仕上げる。</em></h2>
                 <div className="wc2-str-body">
                   <p>SMASKは、事業理解、文章、導線、デザイン、実装を別々に考えません。</p>
                   <p>各工程をつなぎ、伝える内容と実際のWebサイトが一貫するように制作します。</p>

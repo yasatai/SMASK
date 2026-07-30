@@ -25,6 +25,9 @@
   --wc2-h2-sm:   clamp(2rem, 4.6vw, 4rem);        /* 約64px */
   --wc2-body-lg: clamp(1.05rem, 1.4vw, 1.2rem);   /* 約18〜19px */
   --wc2-body-sm: clamp(.95rem, 1.15vw, 1.05rem);  /* 約16〜17px */
+  /* 本文コンテナの幅・左余白（全セクション共通。ここを変えると全体の左端が揃って動く） */
+  --wc2-wrap-max: 1560px;
+  --wc2-wrap-pad: 3rem;
   --wc2-display: "Unbounded", "Noto Sans JP", sans-serif;
   --wc2-body: "Inter", "Noto Sans JP", sans-serif;
 
@@ -41,7 +44,7 @@
 }
 .wc2-page.is-ready { opacity: 1; }
 
-.wc2-wrap { width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem; }
+.wc2-wrap { width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto; padding-left: var(--wc2-wrap-pad); }
 
 /* ============ 3Dシーン（全面固定・最背面） ============ */
 .wc2-scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
@@ -411,7 +414,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-worksreveal-head {
   position: absolute; left: 0; right: 0; top: 50%;
   transform: translateY(-50%);
-  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
+  width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto; padding-left: var(--wc2-wrap-pad);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-worksreveal-head .wc2-label { color: #7c808a; }
@@ -492,7 +495,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
   position: absolute; left: 0; right: 0;
   top: 40vh; bottom: 6vh;
   display: flex; align-items: center; gap: clamp(1.5rem, 3vw, 3rem);
-  padding-left: 4.5rem; padding-right: 6vw;
+  padding-left: var(--wc2-wrap-pad); padding-right: 6vw;
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-worksreveal-track .wc2-work { flex: 0 0 auto; width: clamp(300px, 30vw, 500px); }
@@ -570,8 +573,8 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* パネルに載る CONCERNS 本体（背景パネルが覆ったあと、右→左に流れて現れる） */
 .wc2-wipe-inner {
   position: absolute; top: 0; bottom: 0; left: 0; right: 0;
-  margin-inline: auto; width: min(100% - 3rem, 1240px);
-  padding-left: 4.5rem;
+  margin-inline: auto; width: min(100% - 2.5rem, var(--wc2-wrap-max));
+  padding-left: var(--wc2-wrap-pad);
   display: flex; flex-direction: column; justify-content: center;
   z-index: 1;
   opacity: 0; transform: translateX(20vw);   /* 初期は右に退避・透明。JSが背景のあとに流す */
@@ -662,7 +665,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-work-meta time { margin-left: auto; font-family: var(--wc2-display); }
 .wc2-worksreveal .wc2-works-note {
   position: absolute; left: 0; right: 0; bottom: 1.4vh;
-  width: min(100% - 3rem, 1240px); margin-inline: auto; padding-left: 4.5rem;
+  width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto; padding-left: var(--wc2-wrap-pad);
   font-size: .74rem; color: #6a6e78; opacity: .9;
 }
 
@@ -706,7 +709,8 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* ---- SERVICES（提供できること）：見出し＋本文＋5工程＋CTAを1画面に収める ----
    工程が3→5に増えたため、見出しは画面高にも連動させ、行は圧縮する */
 .wc2-c2s-services .wc2-h2 {
-  font-size: min(var(--wc2-h2-sm), 11.5vh); line-height: 1.16;   /* Tier2見出し（低い画面のみvhで頭打ち） */
+  /* Tier1見出し。5工程＋本文＋CTAが1画面に入らない低い画面のみ vh で頭打ち */
+  font-size: min(var(--wc2-h2-lg), 11.2vh); line-height: 1.14;
   margin-top: clamp(.3rem, 1.2vh, .9rem);
 }
 /* 明色背景なので濃い版のグラデーション（淡い --wc2-iri は白地で読めない） */
@@ -716,7 +720,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-services-body { margin-top: clamp(.6rem, 1.8vh, 1.2rem); max-width: 46rem; }
 .wc2-c2s-services .wc2-services-body p {
-  font-size: var(--wc2-body-sm); line-height: 1.75; letter-spacing: .02em;   /* Tier2本文 */
+  font-size: var(--wc2-body-lg); line-height: 1.8; letter-spacing: .02em;   /* Tier1本文 */
   color: #3a3d45;
 }
 .wc2-c2s-services .wc2-services-body p + p { margin-top: .35rem; }
@@ -794,17 +798,17 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* 左：見出しブロック（JSで上からバウンド着地） */
 .wc2-str-head {
   position: absolute; top: 50%; left: 0; z-index: 2;   /* left/transform は JS が駆動（キューブの2cm左へ） */
-  /* Tier2見出し(最大64px)の最長行「つないで仕上げる。」9文字が1行に入る幅を確保。
+  /* Tier1見出し(110px)の最長行「分けてつくらず」7文字が1行に入る幅を確保。
      JSは head.offsetWidth を読んで配置するので、広げても「見出し｜約2cm｜キューブ」は保たれる */
-  max-width: min(37rem, 44vw);
+  max-width: min(40rem, 46vw);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-str-head .wc2-label { color: #6b7686; }
 .wc2-str-head .wc2-h2 { color: #14161c; margin-bottom: 0; }
 /* ★見出しはキューブ左の狭いカラム（最大29rem）に収める必要があるため、
    基準サイズ(110px)は物理的に入らない。キューブ演出を優先した意図的な例外 */
-/* Tier2見出し。最長行「つないで仕上げる。」(9文字)がカラム幅に1行で収まること（上の max-width と対） */
-.wc2-str-head .wc2-h2 { font-size: var(--wc2-h2-sm); line-height: 1.22; }
+/* Tier1見出し（3行）。3行ぶん縦に伸びるので、低い画面のみ vh で頭打ちにする */
+.wc2-str-head .wc2-h2 { font-size: min(var(--wc2-h2-lg), 13vh); line-height: 1.14; }
 /* 明色背景なので濃い版のグラデーション */
 .wc2-str-head .wc2-h2 em {
   background: var(--wc2-iri-deep); background-size: 200% 100%;
@@ -813,7 +817,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-str-body { margin-top: clamp(.9rem, 2vh, 1.4rem); max-width: 30rem; }
 .wc2-str-head .wc2-str-body p {
   color: #4c5260;
-  font-size: var(--wc2-body-sm); line-height: 1.85; letter-spacing: .02em;   /* Tier2本文 */
+  font-size: var(--wc2-body-lg); line-height: 1.85; letter-spacing: .02em;   /* Tier1本文 */
 }
 .wc2-str-head .wc2-str-body p + p { margin-top: .5rem; }
 .wc2-str-cta {
@@ -883,7 +887,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* 通常グリッドは reduced-motion 時のみ表示（通常はキューブが担う） */
 .wc2-str-grid { display: none; }
 .wc2-str-grid--fb {
-  width: min(100% - 3rem, 1240px); margin-inline: auto;
+  width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto;
   grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(1.2rem, 2.6vw, 2.2rem);
 }
 .wc2-str-item { border-top: 1px solid rgb(20 40 70 / .14); padding-top: 1rem; }
@@ -1130,17 +1134,17 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-str-pin { height: auto; }
   .wc2-str-stage { position: static; height: auto; overflow: visible; display: block; padding: 4rem 0; }
   .wc2-cube-wrap, .wc2-cube-shadow { display: none; }
-  .wc2-str-head { position: static; opacity: 1 !important; transform: none !important; max-width: none; width: min(100% - 3rem, 1240px); margin-inline: auto; }
+  .wc2-str-head { position: static; opacity: 1 !important; transform: none !important; max-width: none; width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto; }
   .wc2-str-hint { display: none; }
   .wc2-str-grid--fb { display: grid; margin-top: clamp(1.8rem, 4vw, 3rem); }
   /* PROCESS：航路演出を無効化し、通常のステップ一覧で読ませる */
   .wc2-route-pin { height: auto; }
   .wc2-route-stage { position: static; height: auto; overflow: visible; background: none; padding: 4rem 0; }
   .wc2-route-world { position: static; opacity: 1 !important; transform: none !important; filter: none !important; }
-  .wc2-route-head { position: static; max-width: none; width: min(100% - 3rem, 1240px); margin: 0 auto 2rem; }
+  .wc2-route-head { position: static; max-width: none; width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin: 0 auto 2rem; }
   .wc2-route-hint { display: none; }
   .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
-  .wc2-route-stage .wc2-steps--fb { display: grid; width: min(100% - 3rem, 1240px); margin-inline: auto; }
+  .wc2-route-stage .wc2-steps--fb { display: grid; width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto; }
   /* CONTACT：出現演出を無効化し、通常表示 */
   .wc2-contact-pin { height: auto; }
   .wc2-contact-stage { position: static; height: auto; overflow: visible; display: block; padding: 4rem 0; }
@@ -1155,7 +1159,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-wipe { position: static; transform: none !important; background: transparent; box-shadow: none; }
   .wc2-wipe-inner {
     position: static; transform: none !important; opacity: 1 !important;
-    width: min(100% - 3rem, 1240px); margin-inline: auto;
+    width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto;
     padding: 4rem 0 4rem 4.5rem; display: block;
   }
   /* WORKS リビール層を通常フローの白セクションとして読ませる（縦積み） */
@@ -1166,7 +1170,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-worksreveal-track {
     position: static; display: grid; grid-template-columns: 1fr 1fr;
     left: auto; padding: 0; gap: 2.5rem;
-    width: min(100% - 3rem, 1240px); margin-inline: auto;
+    width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto;
   }
   .wc2-worksreveal-track .wc2-work { width: auto; }
   .wc2-marquee-track, .wc2-hl--grad > span, .wc2-talk-main em,
@@ -1196,6 +1200,8 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
    見出しは全幅で読ませ、中央揃えにする */
 @media (max-width: 679px) {
   .wc2-str-head { max-width: min(24rem, 86vw); text-align: center; }
+  /* 縦積み時は見出し3行ぶんが嵩む。上部ボタンとキューブの間に収まるサイズに抑える */
+  .wc2-str-head .wc2-h2 { font-size: min(clamp(1.5rem, 5.5vw, 2.6rem), 8vh); }
   .wc2-str-body { margin-inline: auto; max-width: 24rem; }
   .wc2-str-cta { margin-inline: auto; }
 
@@ -1204,12 +1210,12 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-route-pin { height: auto; }
   .wc2-route-stage { position: static; height: auto; overflow: visible; background: none; padding: 4rem 0; }
   .wc2-route-world { position: static; opacity: 1 !important; transform: none !important; filter: none !important; }
-  .wc2-route-head { position: static; max-width: none; width: min(100% - 3rem, 1240px); margin: 0 auto 2rem; }
+  .wc2-route-head { position: static; max-width: none; width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin: 0 auto 2rem; }
   .wc2-route-hint { display: none; }
   .wc2-route-svg, .wc2-station, .wc2-comet { display: none; }
   .wc2-route-stage .wc2-steps--fb {
     display: grid; grid-template-columns: 1fr; gap: 1.2rem;
-    width: min(100% - 3rem, 1240px); margin-inline: auto;
+    width: min(100% - 2.5rem, var(--wc2-wrap-max)); margin-inline: auto;
   }
 }
 /* CONTACT：狭い画面で「話しましょう」＋矢印が画面外にはみ出すため、文字と矢印を縮める */
