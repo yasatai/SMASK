@@ -333,7 +333,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
    .wc2-approach-sec スコープ（2クラス以上）で確実に効かせる。左寄せは .wc2-wrap のまま */
 .wc2-approach-sec .wc2-label { font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em; }
 /* 縦の余白は vh 連動：画面が低いほど自動で詰まり、1画面に収まり続ける */
-.wc2-approach-sec .wc2-h2 {
+/* ★スコープ注意：.wc2-approach-sec の中には WORKS/CONCERNS/SERVICES の層も同居している。
+   APPROACH の見出しだけに効かせるため、pin-sticky の直下 .wc2-wrap に限定する
+   （他の層の見出しは .wc2-worksreveal-head / .wc2-wipe-inner / .wc2-c2s-services 配下で、
+     この選択子には該当しない）。各セクションの見出しサイズは各タスクで個別に決める */
+.wc2-approach-sec .wc2-pin-sticky > .wc2-wrap .wc2-h2 {
   /* 基準サイズ clamp(2.7rem,8.6vw,7rem)。ただし画面が低い時だけ 15.5vh で頭打ちにして
      1画面（ピン）に収める（720px以上では基準値そのまま＝見た目は変わらない） */
   font-size: min(clamp(2.7rem, 8.6vw, 7rem), 15.5vh); line-height: 1.16;
