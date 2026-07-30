@@ -254,6 +254,20 @@ export default function Home() {
     const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
     const svcEmerge = ap.querySelector<HTMLElement>(".wc2-c2s-services .wc2-c2s-emerge");
     const svcRows = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-c2s-services .wc2-row"));
+    /* カード帯の寸法は毎フレーム測らずキャッシュする。
+       測定（getBoundingClientRect / clientWidth / getComputedStyle / offsetLeft）と
+       transform の書き込みを毎フレーム往復すると強制同期レイアウトが起きて、
+       横スクロールががくつく。サイズが変わった時だけ ResizeObserver で測り直す */
+    const trackGeo = { startX: 0, endX: 0 };
+    const measureTrack = () => {
+      if (!track) return;
+      const first = track.querySelector<HTMLElement>(".wc2-work");
+      const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
+      const cardW = first ? first.getBoundingClientRect().width : 380;
+      const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
+      trackGeo.startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
+      trackGeo.endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
+    };
     /* 爆発的な拡大：オーバーシュートして落ち着く（back-ease-out） */
     const backOut = (t: number) => { const c1 = 2.4, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
     const tick = () => {
@@ -282,16 +296,15 @@ export default function Home() {
          開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
          （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
+        /* 保険：初回計測がレイアウト確定前で空振りした場合（ResizeObserver 非対応環境など）
+           でも、ここで一度だけ測り直して正しい位置から始められるようにする */
+        if (trackGeo.endX === 0) measureTrack();
         const prog = seg(p, 0.58, 0.72);
-        const first = track.querySelector<HTMLElement>(".wc2-work");
-        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
-        const cardW = first ? first.getBoundingClientRect().width : 380;
-        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
-        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
-        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
-        const x = startX + (endX - startX) * prog;
+        const x = trackGeo.startX + (trackGeo.endX - trackGeo.startX) * prog;
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
-        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
+        /* カードは移動を始める前に不透明にしきる。ここが遅いと、定位置に来ても
+           白地が透けて「触れないもの」に見える（旧: 0.60→0.68 で定位置でもまだ約50%） */
+        track.style.opacity = seg(p, 0.50, 0.585).toFixed(3);
       }
       /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
          ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
@@ -350,12 +363,19 @@ export default function Home() {
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const onResize = () => { measureTrack(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    /* 測り直したら必ず描き直す（初回はレイアウト確定前で 0 を拾うため、
+       ResizeObserver の初回発火で正しい寸法に更新される） */
+    const ro = track ? new ResizeObserver(() => { measureTrack(); onScroll(); }) : null;
+    if (track && ro) ro.observe(track);
+    measureTrack();
     tick();
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
       cancelAnimationFrame(raf);
     };
   }, []);
