@@ -16,6 +16,15 @@
   /* 明色セクション（WORKS等）用の濃い版。淡い --wc2-iri は白地だと読めないため、
      同じ色相のまま明度を落としてコントラストを確保する */
   --wc2-iri-deep: linear-gradient(100deg, #0b6fd0 0%, #6b3fd4 30%, #cf3a75 55%, #a4620a 80%, #0b6fd0 100%);
+  /* ===== セクションのタイポ基準（2段・2026-07-29 代表決定「A案」） =====
+     Tier1＝通常セクション（Hero / ABOUT / APPROACH / CONCERNS）＝大見出し
+     Tier2＝演出セクション（WORKS / SERVICES / STRENGTHS / PROCESS）
+            ＝カード帯・5工程・キューブ等の制約で110pxが物理的に入らないため、
+              バラバラにせずこの1つの値に揃える */
+  --wc2-h2-lg:   clamp(2.7rem, 8.6vw, 7rem);      /* 約110〜112px */
+  --wc2-h2-sm:   clamp(2rem, 4.6vw, 4rem);        /* 約64px */
+  --wc2-body-lg: clamp(1.05rem, 1.4vw, 1.2rem);   /* 約18〜19px */
+  --wc2-body-sm: clamp(.95rem, 1.15vw, 1.05rem);  /* 約16〜17px */
   --wc2-display: "Unbounded", "Noto Sans JP", sans-serif;
   --wc2-body: "Inter", "Noto Sans JP", sans-serif;
 
@@ -173,11 +182,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
   margin-bottom: 0;
   /* プロジェクト基準の見出しサイズ（Hero大見出しと同じ clamp(2.7rem,8.6vw,7rem)）。
      既存の .wc2-h2（約58px）ではなく、統一基準を使う */
-  font-size: clamp(2.7rem, 8.6vw, 7rem); line-height: 1.16;
+  font-size: var(--wc2-h2-lg); line-height: 1.16;
 }
 .wc2-about-body { margin-top: 2.6rem; max-width: 40rem; }
 .wc2-about-sec .wc2-about-body p {
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
 .wc2-about-sec .wc2-about-body p + p { margin-top: 1.5rem; }
@@ -231,7 +240,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-hero-h1 {
   margin-top: 1.6rem;
   font-family: var(--wc2-display); font-weight: 700;
-  font-size: clamp(2.7rem, 8.6vw, 7rem); line-height: 1.16; letter-spacing: .005em;
+  font-size: var(--wc2-h2-lg); line-height: 1.16; letter-spacing: .005em;
   color: var(--wc2-ink);
 }
 /* Heroの文字はローダー明けの自動再生ではなく、スクロールに同期して立ち上がる
@@ -254,7 +263,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* Heroの本文（統合仕様の2文）。サブの直後にサブと同じフェードで出す */
 .wc2-hero-copy .wc2-hero-lead {
   margin-top: 1.5rem; max-width: 38rem;
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
 .wc2-hero-scroll {
@@ -343,13 +352,13 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-approach-sec .wc2-pin-sticky > .wc2-wrap .wc2-h2 {
   /* 基準サイズ clamp(2.7rem,8.6vw,7rem)。ただし画面が低い時だけ 15.5vh で頭打ちにして
      1画面（ピン）に収める（720px以上では基準値そのまま＝見た目は変わらない） */
-  font-size: min(clamp(2.7rem, 8.6vw, 7rem), 15.5vh); line-height: 1.16;
+  font-size: min(var(--wc2-h2-lg), 15.5vh); line-height: 1.16;
   margin-top: clamp(.4rem, 1.4vh, 1.1rem);
 }
 .wc2-approach-cols { margin-top: clamp(.9rem, 2.6vh, 2.2rem); max-width: 70rem; }
 .wc2-approach-body { max-width: 42rem; }
 .wc2-approach-sec .wc2-approach-body p {
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
 .wc2-approach-sec .wc2-approach-body p + p { margin-top: clamp(.6rem, 1.6vh, 1.1rem); }
@@ -424,9 +433,10 @@ html.wc2-page-active .wc2-bridge { display: none; }
   padding-right: clamp(150px, 15vw, 210px);
 }
 .wc2-works-headside { padding-bottom: .2rem; }
+.wc2-worksreveal-head .wc2-h2 { font-size: var(--wc2-h2-sm); }   /* Tier2見出し */
 .wc2-worksreveal-head .wc2-works-headside p {
   max-width: 30rem;
-  font-size: clamp(.9rem, 1.05vw, .98rem); line-height: 1.75; letter-spacing: .02em;
+  font-size: var(--wc2-body-sm); line-height: 1.75; letter-spacing: .02em;   /* Tier2本文 */
   color: #3a3d45;
 }
 .wc2-worksreveal-head .wc2-works-headside p + p { margin-top: .6rem; }
@@ -574,12 +584,12 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* ---- CONCERNS（企業が抱える課題）：プロジェクト基準のタイポで組む ----
    画面が低い時だけ見出しを 15.5vh で頭打ちにして1画面に収める（APPROACHと同じ方針） */
 .wc2-wipe-inner .wc2-h2 {
-  font-size: min(clamp(2.7rem, 8.6vw, 7rem), 15.5vh); line-height: 1.16;
+  font-size: min(var(--wc2-h2-lg), 15.5vh); line-height: 1.16;
   margin-top: clamp(.4rem, 1.4vh, 1.1rem);
 }
 .wc2-concerns-body { margin-top: clamp(.9rem, 2.4vh, 1.9rem); max-width: 42rem; }
 .wc2-wipe-inner .wc2-concerns-body p {
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
 .wc2-wipe-inner .wc2-concerns-body p + p { margin-top: clamp(.4rem, 1.2vh, .9rem); }
@@ -696,7 +706,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* ---- SERVICES（提供できること）：見出し＋本文＋5工程＋CTAを1画面に収める ----
    工程が3→5に増えたため、見出しは画面高にも連動させ、行は圧縮する */
 .wc2-c2s-services .wc2-h2 {
-  font-size: min(clamp(2.2rem, 7vw, 5rem), 11.5vh); line-height: 1.16;
+  font-size: min(var(--wc2-h2-sm), 11.5vh); line-height: 1.16;   /* Tier2見出し（低い画面のみvhで頭打ち） */
   margin-top: clamp(.3rem, 1.2vh, .9rem);
 }
 /* 明色背景なので濃い版のグラデーション（淡い --wc2-iri は白地で読めない） */
@@ -706,7 +716,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-services-body { margin-top: clamp(.6rem, 1.8vh, 1.2rem); max-width: 46rem; }
 .wc2-c2s-services .wc2-services-body p {
-  font-size: clamp(.95rem, 1.15vw, 1.05rem); line-height: 1.75; letter-spacing: .02em;
+  font-size: var(--wc2-body-sm); line-height: 1.75; letter-spacing: .02em;   /* Tier2本文 */
   color: #3a3d45;
 }
 .wc2-c2s-services .wc2-services-body p + p { margin-top: .35rem; }
@@ -784,16 +794,17 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* 左：見出しブロック（JSで上からバウンド着地） */
 .wc2-str-head {
   position: absolute; top: 50%; left: 0; z-index: 2;   /* left/transform は JS が駆動（キューブの2cm左へ） */
-  max-width: min(29rem, 40vw);
+  /* Tier2見出し(最大64px)の最長行「つないで仕上げる。」9文字が1行に入る幅を確保。
+     JSは head.offsetWidth を読んで配置するので、広げても「見出し｜約2cm｜キューブ」は保たれる */
+  max-width: min(37rem, 44vw);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-str-head .wc2-label { color: #6b7686; }
 .wc2-str-head .wc2-h2 { color: #14161c; margin-bottom: 0; }
 /* ★見出しはキューブ左の狭いカラム（最大29rem）に収める必要があるため、
    基準サイズ(110px)は物理的に入らない。キューブ演出を優先した意図的な例外 */
-/* 最長行「つないで仕上げる。」(9文字) がカラム幅 min(29rem,40vw) に1行で収まるサイズにする
-   （大きすぎると「る。」だけ次行に落ちて改行が崩れる） */
-.wc2-str-head .wc2-h2 { font-size: clamp(1.6rem, 4vw, 3rem); line-height: 1.22; }
+/* Tier2見出し。最長行「つないで仕上げる。」(9文字)がカラム幅に1行で収まること（上の max-width と対） */
+.wc2-str-head .wc2-h2 { font-size: var(--wc2-h2-sm); line-height: 1.22; }
 /* 明色背景なので濃い版のグラデーション */
 .wc2-str-head .wc2-h2 em {
   background: var(--wc2-iri-deep); background-size: 200% 100%;
@@ -802,7 +813,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-str-body { margin-top: clamp(.9rem, 2vh, 1.4rem); max-width: 30rem; }
 .wc2-str-head .wc2-str-body p {
   color: #4c5260;
-  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;   /* プロジェクト基準 */
+  font-size: var(--wc2-body-sm); line-height: 1.85; letter-spacing: .02em;   /* Tier2本文 */
 }
 .wc2-str-head .wc2-str-body p + p { margin-top: .5rem; }
 .wc2-str-cta {
@@ -898,7 +909,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
   z-index: 6; max-width: 20rem;
 }
 .wc2-route-head .wc2-label { color: #9aa6bd; }
-.wc2-route-head .wc2-h2 { margin-bottom: 0; }
+.wc2-route-head .wc2-h2 { margin-bottom: 0; font-size: var(--wc2-h2-sm); }   /* Tier2見出し */
 .wc2-route-hint {
   display: block; margin-top: 1.1rem;
   font-family: var(--wc2-display); font-size: .68rem; letter-spacing: .26em; color: #8b93a4;
