@@ -587,7 +587,9 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* ---- CONCERNS（企業が抱える課題）：プロジェクト基準のタイポで組む ----
    画面が低い時だけ見出しを 15.5vh で頭打ちにして1画面に収める（APPROACHと同じ方針） */
 .wc2-wipe-inner .wc2-h2 {
-  font-size: min(var(--wc2-h2-lg), 15.5vh); line-height: 1.16;
+  /* 縦は低い画面のみ vh で頭打ち。横は最長行「企業の中にある価値を」(10文字)が
+     コンテナに入るよう 8.2vw を上限にして改行崩れを防ぐ */
+  font-size: min(var(--wc2-h2-lg), 15.5vh, 8.2vw); line-height: 1.16;
   margin-top: clamp(.4rem, 1.4vh, 1.1rem);
 }
 .wc2-concerns-body { margin-top: clamp(.9rem, 2.4vh, 1.9rem); max-width: 42rem; }
@@ -798,17 +800,21 @@ html.wc2-page-active .wc2-bridge { display: none; }
 /* 左：見出しブロック（JSで上からバウンド着地） */
 .wc2-str-head {
   position: absolute; top: 50%; left: 0; z-index: 2;   /* left/transform は JS が駆動（キューブの2cm左へ） */
-  /* Tier1見出し(110px)の最長行「分けてつくらず」7文字が1行に入る幅を確保。
+  /* Tier1見出しの最長行「分けてつくらず」7文字が1行に入る幅を確保。
      JSは head.offsetWidth を読んで配置するので、広げても「見出し｜約2cm｜キューブ」は保たれる */
-  max-width: min(40rem, 46vw);
+  max-width: min(48rem, 50vw);
   opacity: 0; will-change: transform, opacity;
 }
 .wc2-str-head .wc2-label { color: #6b7686; }
 .wc2-str-head .wc2-h2 { color: #14161c; margin-bottom: 0; }
 /* ★見出しはキューブ左の狭いカラム（最大29rem）に収める必要があるため、
    基準サイズ(110px)は物理的に入らない。キューブ演出を優先した意図的な例外 */
-/* Tier1見出し（3行）。3行ぶん縦に伸びるので、低い画面のみ vh で頭打ちにする */
-.wc2-str-head .wc2-h2 { font-size: min(var(--wc2-h2-lg), 13vh); line-height: 1.14; }
+/* Tier1見出し（3行）。縦は低い画面のみ vh で頭打ち。
+   横は最長行「分けてつくらず」(7文字)がカラム幅 min(48rem,50vw) に入るよう
+   1文字ぶん＝幅/7 を上限にする（6.9rem/7.1vw）＝改行崩れを防ぐ */
+.wc2-str-head .wc2-h2 {
+  font-size: min(var(--wc2-h2-lg), 13vh, 6.8rem, 6.95vw); line-height: 1.14;
+}
 /* 明色背景なので濃い版のグラデーション */
 .wc2-str-head .wc2-h2 em {
   background: var(--wc2-iri-deep); background-size: 200% 100%;
@@ -910,12 +916,17 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-route-world { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: opacity, transform; }
 .wc2-route-head {
   position: absolute; top: clamp(2rem, 8vh, 5.5rem); left: clamp(1.5rem, 6vw, 7rem);
-  /* 寄港地は x=40〜64% に並びカードは右へ伸びるので、見出し帯はその手前で止める幅にする */
-  z-index: 6; max-width: min(22rem, 26vw);
+  /* 寄港地(x=52〜68%)のカードは右へ伸びるので、見出し帯はその手前で止める幅にする。
+     最長行「話すところから」(7文字)が1行に収まる幅が必要（下の font-size と対） */
+  z-index: 6; max-width: min(26rem, 30vw);
 }
 .wc2-route-head .wc2-label { color: #9aa6bd; }
-/* Tier2見出し。最長行「話すところから」(7文字)が上の max-width に1行で収まるよう幅にも連動 */
-.wc2-route-head .wc2-h2 { margin-bottom: 0; font-size: min(var(--wc2-h2-sm), 3.4vw); line-height: 1.2; }
+/* Tier2見出し。最長行「話すところから」(7文字)が上の max-width(min(26rem,30vw)) に
+   1行で収まること＝7文字ぶんが幅を超えないよう 3.9vw / 3.6rem で頭打ちにする */
+.wc2-route-head .wc2-h2 {
+  margin-bottom: 0; line-height: 1.2;
+  font-size: min(var(--wc2-h2-sm), 3.9vw, 3.6rem);
+}
 .wc2-route-body { margin-top: clamp(.7rem, 1.8vh, 1.2rem); }
 .wc2-route-head .wc2-route-body p {
   font-size: var(--wc2-body-sm); line-height: 1.8; letter-spacing: .02em;   /* Tier2本文 */
