@@ -13,6 +13,9 @@
   --wc2-line:      rgb(230 231 234 / .13);
   /* 薄膜イリデッセンス（3Dの虹と揃えるページ内アクセント） */
   --wc2-iri: linear-gradient(100deg, #7cd4ff 0%, #a78bfa 30%, #ff8fb2 55%, #ffd479 80%, #7cd4ff 100%);
+  /* 明色セクション（WORKS等）用の濃い版。淡い --wc2-iri は白地だと読めないため、
+     同じ色相のまま明度を落としてコントラストを確保する */
+  --wc2-iri-deep: linear-gradient(100deg, #0b6fd0 0%, #6b3fd4 30%, #cf3a75 55%, #a4620a 80%, #0b6fd0 100%);
   --wc2-display: "Unbounded", "Noto Sans JP", sans-serif;
   --wc2-body: "Inter", "Noto Sans JP", sans-serif;
 
@@ -404,6 +407,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-worksreveal-head .wc2-label { color: #7c808a; }
 .wc2-worksreveal-head .wc2-h2 { color: #101318; margin-bottom: 0; }
+/* 見出しの一部を他セクション同様にカラフルに。ただしWORKSは明色背景なので濃い版を使う */
+.wc2-worksreveal-head .wc2-h2 em {
+  background: var(--wc2-iri-deep); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 /* 見出し左／本文・CTA右の2カラム。
    ★このセクションの見出しだけ基準サイズ(110px)を使わない：カード帯(top:40vh)と
      固定MENUボタンに挟まれた帯が約200pxしかなく、110pxでは物理的に収まらないため。

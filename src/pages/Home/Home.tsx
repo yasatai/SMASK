@@ -995,7 +995,7 @@ export default function Home() {
                 <div className="wc2-works-headmain">
                   <span className="wc2-label">( 03 ) — WORKS</span>
                   {/* ルール②（行末に「、」を残さない） */}
-                  <h2 className="wc2-h2">つくったものと<br />そこに込めた考え。</h2>
+                  <h2 className="wc2-h2">つくったものと<br /><em>そこに込めた考え。</em></h2>
                 </div>
                 <div className="wc2-works-headside">
                   <p>制作したWebサイトと、それぞれの事業や課題に対して、どのような考え方で設計したのかを紹介します。</p>
