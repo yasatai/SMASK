@@ -15,14 +15,12 @@ import "./Home.css";
  */
 
 /* ---- 文言（現行 WebContent.tsx と同一） ---- */
+/* 統合仕様「5 企業が抱える課題」の主な課題（4項目） */
 const CONCERNS: string[] = [
-  "何をしている会社なのか外部に伝わりにくい",
-  "強みや実績が整理できていない",
-  "問い合わせにつながりにくい",
-  "サービス内容がわかりづらい",
-  "情報発信の導線が弱い",
-  "更新や運用がしづらい",
-  "一部の業務が属人的になっている",
+  "強みをうまく言葉にできない",
+  "情報が多く、何を優先すべきか分からない",
+  "デザインはあるが、行動につながらない",
+  "公開後に更新や改善が続かない",
 ];
 
 const SERVICES: [string, string, string][] = [
@@ -1095,13 +1093,16 @@ export default function Home() {
               </div>
               <div id="wc2-concerns" className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 04 ) — CONCERNS</span>
-                <h2 className="wc2-h2">こんなお悩みに対応します</h2>
+                {/* ルール②（行末に「、」を残さない） */}
+                <h2 className="wc2-h2">企業の中にある価値を<br /><em>伝わるかたちへ。</em></h2>
+                <div className="wc2-concerns-body">
+                  <p>事業やサービスに価値があっても、伝える内容や順番が整理されていなければ、Webを見た人に十分に届きません。</p>
+                  <p>SMASKは、企業の中にある情報を整理し、理解しやすく、次の行動へ進みやすいかたちへ整えます。</p>
+                </div>
                 <ul className="wc2-chips">
                   {CONCERNS.map((text, i) => <li key={text} data-n={`C-0${i + 1}`}>{text}</li>)}
                 </ul>
-                <p className="wc2-note">
-                  このような課題は、単にページを作るだけでは解決しないことがあります。SMASKは、情報の整理、ページ構成、導線設計、必要に応じた仕組みづくりまで含めて、事業に合った形に整えます。
-                </p>
+                <a className="wc2-concerns-cta" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
               </div>
             </div>
           </div>
