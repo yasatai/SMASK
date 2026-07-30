@@ -925,7 +925,7 @@ export default function Home() {
              3Dのスクロール振り付け（ピン留め）は足さない（普通のスクロールセクション） */}
         <section id="wc2-about-sec" className="wc2-sec wc2-about-sec">
           <div className="wc2-wrap wc2-about-copy">
-            <span className="wc2-label" data-reveal>ABOUT — SMASKとは</span>
+            <span className="wc2-label" data-reveal>( 01 ) — ABOUT</span>
             {/* ルール（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
             <h2 className="wc2-h2 wc2-about-head" data-reveal>Webをつくる前に<br /><em>事業を理解する。</em></h2>
             {/* 本文：1文1段落（「。」の後に文を続けない）。.wc2-page p に負けないようスコープ指定 */}
@@ -953,7 +953,7 @@ export default function Home() {
               </div>
             </div>
             <div className="wc2-wrap">
-              <span className="wc2-label">( 01 ) — APPROACH</span>
+              <span className="wc2-label">( 02 ) — APPROACH</span>
               {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
               <h2 className="wc2-h2 wc2-fill">情報を選び、つなぎ<br /><em>伝わる流れに整える。</em></h2>
               {/* .wc2-approach-cols は JS が opacity を駆動する容器（クラス名は変更しない）。
@@ -987,7 +987,7 @@ export default function Home() {
                左→右に流れる（trionn 準拠）。全てスクロール同期 */}
             <div id="wc2-works" className="wc2-worksreveal">
               <div className="wc2-worksreveal-head">
-                <span className="wc2-label">( 02 ) — WORKS</span>
+                <span className="wc2-label">( 03 ) — WORKS</span>
                 <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
                 <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
               </div>
@@ -1027,7 +1027,7 @@ export default function Home() {
                 <span className="wc2-bp-reg bl"></span><span className="wc2-bp-reg br"></span>
                 <div className="wc2-bp-dim"><b>W 1440</b></div>
                 <div className="wc2-bp-title">
-                  <div><span>SHEET</span><span>03 / CONCERNS</span></div>
+                  <div><span>SHEET</span><span>04 / CONCERNS</span></div>
                   <div><span>SCALE</span><span>1 : 1</span></div>
                   <div><span>REV</span><span>A — 2026.07</span></div>
                 </div>
@@ -1041,7 +1041,7 @@ export default function Home() {
               <div id="wc2-services" className="wc2-c2s-services">
                 <div className="wc2-c2s-emerge">
                   <div className="wc2-wrap wc2-services-headwrap">
-                    <span className="wc2-label">( 04 ) — SERVICES</span>
+                    <span className="wc2-label">( 05 ) — SERVICES</span>
                     <h2 className="wc2-h2">SMASKが提供できること</h2>
                   </div>
                   <div className="wc2-rows">
@@ -1059,7 +1059,7 @@ export default function Home() {
                 </div>
               </div>
               <div id="wc2-concerns" className="wc2-wipe-inner">
-                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 03 ) — CONCERNS</span>
+                <span className="wc2-label wc2-eyebrow-iri"><i></i>( 04 ) — CONCERNS</span>
                 <h2 className="wc2-h2">こんなお悩みに対応します</h2>
                 <ul className="wc2-chips">
                   {CONCERNS.map((text, i) => <li key={text} data-n={`C-0${i + 1}`}>{text}</li>)}
@@ -1078,7 +1078,7 @@ export default function Home() {
             <div className="wc2-str-stage">
               {/* 左：見出し（上から投げられたようにバウンドして着地） */}
               <div className="wc2-str-head">
-                <span className="wc2-label">( 05 ) — STRENGTHS</span>
+                <span className="wc2-label">( 06 ) — STRENGTHS</span>
                 <h2 className="wc2-h2">SMASKの強み</h2>
                 <p className="wc2-str-lead">
                   制作そのものを目的とせず、事業にとって本当に必要な形を整える。現場や運用の実情を踏まえ、見た目だけでなく日々の使いやすさまで含めて、過不足のない提案を行います。
@@ -1122,7 +1122,7 @@ export default function Home() {
               {/* ワープイン/アウト用ラッパ（ピン先頭で暗転→出現、末尾でズームアウト） */}
               <div className="wc2-route-world">
                 <div className="wc2-route-head">
-                  <span className="wc2-label">( 06 ) — PROCESS</span>
+                  <span className="wc2-label">( 07 ) — PROCESS</span>
                   <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
                   <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
                 </div>
@@ -1164,7 +1164,7 @@ export default function Home() {
           <div className="wc2-contact-pin">
             <div className="wc2-contact-stage">
               <div className="wc2-wrap wc2-contact-inner">
-                <span className="wc2-label">( 07 ) — CONTACT</span>
+                <span className="wc2-label">( 08 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
                   <span className="wc2-talk-main">話しましょう<em>.</em></span>
                   <span className="wc2-talk-arrow" aria-hidden="true">
