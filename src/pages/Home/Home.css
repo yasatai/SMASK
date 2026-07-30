@@ -791,7 +791,9 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-str-head .wc2-h2 { color: #14161c; margin-bottom: 0; }
 /* ★見出しはキューブ左の狭いカラム（最大29rem）に収める必要があるため、
    基準サイズ(110px)は物理的に入らない。キューブ演出を優先した意図的な例外 */
-.wc2-str-head .wc2-h2 { font-size: clamp(2rem, 4.4vw, 3.6rem); line-height: 1.2; }
+/* 最長行「つないで仕上げる。」(9文字) がカラム幅 min(29rem,40vw) に1行で収まるサイズにする
+   （大きすぎると「る。」だけ次行に落ちて改行が崩れる） */
+.wc2-str-head .wc2-h2 { font-size: clamp(1.6rem, 4vw, 3rem); line-height: 1.22; }
 /* 明色背景なので濃い版のグラデーション */
 .wc2-str-head .wc2-h2 em {
   background: var(--wc2-iri-deep); background-size: 200% 100%;
@@ -799,7 +801,8 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-str-body { margin-top: clamp(.9rem, 2vh, 1.4rem); max-width: 30rem; }
 .wc2-str-head .wc2-str-body p {
-  color: #4c5260; font-size: clamp(.9rem, 1.05vw, 1rem); line-height: 1.85; letter-spacing: .02em;
+  color: #4c5260;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem); line-height: 1.9; letter-spacing: .02em;   /* プロジェクト基準 */
 }
 .wc2-str-head .wc2-str-body p + p { margin-top: .5rem; }
 .wc2-str-cta {
