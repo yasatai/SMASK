@@ -693,6 +693,49 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-services-headwrap { margin-bottom: clamp(1.4rem, 3vw, 2.4rem); }
 
+/* ---- SERVICES（提供できること）：見出し＋本文＋5工程＋CTAを1画面に収める ----
+   工程が3→5に増えたため、見出しは画面高にも連動させ、行は圧縮する */
+.wc2-c2s-services .wc2-h2 {
+  font-size: min(clamp(2.2rem, 7vw, 5rem), 11.5vh); line-height: 1.16;
+  margin-top: clamp(.3rem, 1.2vh, .9rem);
+}
+/* 明色背景なので濃い版のグラデーション（淡い --wc2-iri は白地で読めない） */
+.wc2-c2s-services .wc2-h2 em {
+  background: var(--wc2-iri-deep); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.wc2-services-body { margin-top: clamp(.6rem, 1.8vh, 1.2rem); max-width: 46rem; }
+.wc2-c2s-services .wc2-services-body p {
+  font-size: clamp(.95rem, 1.15vw, 1.05rem); line-height: 1.75; letter-spacing: .02em;
+  color: #3a3d45;
+}
+.wc2-c2s-services .wc2-services-body p + p { margin-top: .35rem; }
+.wc2-c2s-services .wc2-rows { margin-top: clamp(.5rem, 1.5vh, 1.4rem); }
+/* ≤1080px では行が2カラム（番号｜見出し＋説明）に変わり、gap がそのまま
+   見出しと説明の縦の隙間になる。縦だけ詰めて5行が収まるようにする */
+.wc2-c2s-services .wc2-row-in { padding-block: clamp(.4rem, 1.1vh, .9rem); gap: .25rem 1.5rem; }
+.wc2-c2s-services .wc2-row h3 { font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.45; }
+.wc2-c2s-services .wc2-row p { font-size: clamp(.84rem, 1vw, .94rem); line-height: 1.6; }
+.wc2-services-ctawrap { margin-top: clamp(.7rem, 1.8vh, 1.3rem); }
+.wc2-services-cta {
+  display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
+  padding-bottom: .55rem;
+  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
+  color: #14161c; border-bottom: 1px solid rgb(9 11 16 / .28);
+  transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
+}
+.wc2-services-cta:hover { gap: 1.3rem; border-color: rgb(9 11 16 / .6); }
+.wc2-services-cta span {
+  font-size: 1.2rem;
+  background: var(--wc2-iri-deep); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* 中間幅（行が2カラムになる帯）はさらに圧縮して5行を1画面に収める */
+@media (max-width: 1080px) {
+  .wc2-c2s-services .wc2-h2 { font-size: min(clamp(2rem, 6vw, 4.4rem), 11vh); }
+  .wc2-c2s-services .wc2-services-body p { font-size: .9rem; line-height: 1.65; }
+  .wc2-services-body { margin-top: clamp(.4rem, 1.4vh, .9rem); }
+}
+
 .wc2-rows { margin-top: clamp(2.4rem, 5vw, 3.6rem); }
 .wc2-row {
   position: relative;
@@ -1176,7 +1219,13 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-c2s-services .wc2-services-headwrap { margin-bottom: 0.8rem; }
   .wc2-c2s-services .wc2-services-headwrap .wc2-h2 { font-size: clamp(1.5rem, 6.5vw, 2.2rem); line-height: 1.3; }
   .wc2-c2s-services .wc2-rows { margin-top: 0.4rem; }
-  .wc2-c2s-services .wc2-row-in { grid-template-columns: 2.6rem 1fr; padding-block: 0.5rem; gap: 0.1rem 0.7rem; }
+  /* 統合仕様の本文＋CTAをモバイル用に圧縮（工程が5行に増えたぶんの確保） */
+  .wc2-c2s-services .wc2-services-body p { font-size: 0.76rem; line-height: 1.6; }
+  .wc2-c2s-services .wc2-services-body p + p { margin-top: 0.25rem; }
+  .wc2-services-body { margin-top: 0.45rem; }
+  .wc2-services-ctawrap { margin-top: 0.5rem; }
+  .wc2-services-cta { font-size: 0.86rem; padding-bottom: 0.4rem; }
+  .wc2-c2s-services .wc2-row-in { grid-template-columns: 2.6rem 1fr; padding-block: 0.4rem; gap: 0.1rem 0.7rem; }
   .wc2-c2s-services .wc2-row h3 { font-size: 0.95rem; line-height: 1.35; }
   .wc2-c2s-services .wc2-row p { grid-column: 2; font-size: 0.74rem; line-height: 1.6; }
 
@@ -1187,6 +1236,25 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   /* ---- WORKS：見出しの上昇量はJS側で抑制済み。ここでは見出しを圧縮し、
          カードトラックを下げて見出し（＝上部ボタン圏外）と重ならないようにする ---- */
   .wc2-worksreveal-head .wc2-h2 { font-size: clamp(1.5rem, 6.5vw, 2.2rem); line-height: 1.25; }
-  .wc2-viewall { display: none; }
   .wc2-worksreveal-track { top: 52vh; bottom: 4vh; }
+}
+
+/* ============ 低い画面の追い込み（このファイルの最後に置くこと） ============
+   上のモバイル一括ブロックと同詳細度のため、後に置かないと勝てない */
+@media (max-width: 679px) and (max-height: 700px) {
+  /* SERVICES：工程が5行に増えたぶん、さらに詰めて1画面に収める */
+  .wc2-c2s-services .wc2-services-headwrap .wc2-h2 { font-size: min(clamp(1.3rem, 5.5vw, 2rem), 4.4vh); }
+  .wc2-c2s-services .wc2-services-body p { font-size: 0.72rem; line-height: 1.5; }
+  .wc2-c2s-services .wc2-row-in { padding-block: 0.24rem; }
+  .wc2-c2s-services .wc2-row h3 { font-size: 0.84rem; line-height: 1.3; }
+  .wc2-c2s-services .wc2-row p { font-size: 0.7rem; line-height: 1.45; }
+  .wc2-services-ctawrap { margin-top: 0.3rem; }
+  .wc2-services-cta { font-size: 0.8rem; padding-bottom: 0.35rem; }
+}
+/* スマホ幅より広い画面でも、縦が低い場合は SERVICES を追い込む */
+@media (min-width: 680px) and (max-height: 660px) {
+  .wc2-c2s-services .wc2-h2 { font-size: min(clamp(2rem, 6vw, 4.4rem), 10vh); }
+  .wc2-c2s-services .wc2-services-body p { font-size: .86rem; line-height: 1.6; }
+  .wc2-c2s-services .wc2-row-in { padding-block: .24rem; }
+  .wc2-c2s-services .wc2-rows { margin-top: .4rem; }
 }
