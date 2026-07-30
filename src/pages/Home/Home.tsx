@@ -23,22 +23,13 @@ const CONCERNS: string[] = [
   "公開後に更新や改善が続かない",
 ];
 
+/* 統合仕様「6 提供できること」の5工程 */
 const SERVICES: [string, string, string][] = [
-  [
-    "01",
-    "企業や事業の伝わり方を整える",
-    "企業サイト、サービス紹介ページ、採用ページ、実績・事例ページ、ランディングページなど、目的に応じたWebコンテンツを制作します。情報をただ並べるのではなく、相手に伝わる順番や見せ方を整理し、事業の内容や価値が伝わる構成へ落とし込みます。",
-  ],
-  [
-    "02",
-    "問い合わせ導線を整える",
-    "サイトを作るだけでは、問い合わせや相談にはつながりません。SMASKでは、ページ構成、導線設計、CTAの配置、スマートフォンでの見やすさ、必要な情報にたどり着きやすさまで見直し、行動につながる流れを整えます。",
-  ],
-  [
-    "03",
-    "運用や業務の流れを整える",
-    "Webは公開して終わりではなく、運用しやすいことも重要です。更新しやすい構成づくりに加え、必要に応じて簡易な仕組みの整備や、受付・管理フローの整理など、日々の運用や業務負担を見据えた支援も行います。",
-  ],
+  ["01", "事業を理解する", "事業や顧客を確認し、何を伝えるべきかを整理します。"],
+  ["02", "情報を設計する", "伝える順番とページの役割を整理し、導線を設計します。"],
+  ["03", "文章とデザインをつくる", "文章とデザインを、一つのWeb体験として制作します。"],
+  ["04", "実装へつなぐ", "画面や機能を実装仕様へ整理し、エンジニアと連携します。"],
+  ["05", "公開後を考える", "更新や改善まで見据え、使い続けられるWebを目指します。"],
 ];
 
 const STRENGTHS: [string, string, string][] = [
@@ -354,8 +345,11 @@ export default function Home() {
       }
       /* ⑥ 次セクションへ：SERVICESの行が SV-03 から順に左へフェードアウト（85%〜100%）→ 真っ白 */
       svcRows.forEach((row, i) => {
-        const order = svcRows.length - 1 - i;          // 最後(SV-03)から先に消す
-        const out = seg(pT, 0.85 + order * 0.04, 0.95 + order * 0.04);
+        const order = svcRows.length - 1 - i;          // 最後の行から先に消す
+        /* ずらし量は行数で割って全体の幅を一定に保つ（固定0.04だと行が増えたとき
+           最後の行が pT=1 までに消えきらない） */
+        const step = svcRows.length > 1 ? 0.10 / (svcRows.length - 1) : 0;
+        const out = seg(pT, 0.84 + order * step, 0.94 + order * step);
         row.style.transform = `translateX(${(-out * 30).toFixed(1)}vw)`;
         row.style.opacity = (1 - out).toFixed(3);
       });
@@ -1075,7 +1069,12 @@ export default function Home() {
                 <div className="wc2-c2s-emerge">
                   <div className="wc2-wrap wc2-services-headwrap">
                     <span className="wc2-label">( 05 ) — SERVICES</span>
-                    <h2 className="wc2-h2">SMASKが提供できること</h2>
+                    {/* ルール②（行末に「、」を残さない） */}
+                    <h2 className="wc2-h2">事業の理解から<br /><em>公開後の改善まで。</em></h2>
+                    <div className="wc2-services-body">
+                      <p>SMASKは、事業理解、情報整理、文章、導線、デザイン、実装連携、運用までを一つの流れとして考えます。</p>
+                      <p>必要な工程をつなぎ、伝える内容と実際のWebサイトにずれが生まれないように制作します。</p>
+                    </div>
                   </div>
                   <div className="wc2-rows">
                     {SERVICES.map(([num, title, body]) => (
@@ -1088,6 +1087,10 @@ export default function Home() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                  <div className="wc2-wrap wc2-services-ctawrap">
+                    {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
+                    <a className="wc2-services-cta" href="#services">事業内容を見る <span aria-hidden="true">→</span></a>
                   </div>
                 </div>
               </div>
