@@ -64,13 +64,14 @@ const ROUTE_POS: { x: number; y: number }[] = [
   { x: 64, y: 60 }, { x: 43, y: 76 }, { x: 61, y: 90 },
 ];
 
-/* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え） ---- */
-type Work = { num: string; title: string; en: string; tags: string[]; year: string; img?: string; hue: number };
+/* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え）
+   kind＝統合仕様の「表示区分」（CLIENT WORK／IN-HOUSE PROJECT／CONCEPT WORK） ---- */
+type Work = { num: string; kind: string; title: string; en: string; tags: string[]; year: string; img?: string; hue: number };
 const WORKS: Work[] = [
-  { num: "01", title: "SMASK コーポレートサイト", en: "SMASK CORPORATE", tags: ["Corporate Site", "Design / Build"], year: "2026", hue: 210 },
-  { num: "02", title: "貴金属価格管理システム", en: "PRICE MANAGEMENT", tags: ["Web App", "Admin / API"], year: "2026", hue: 280 },
-  { num: "03", title: "不動産会社コーポレートサイト", en: "REAL ESTATE", tags: ["Corporate Site"], year: "2025", hue: 160 },
-  { num: "04", title: "外壁塗装サービスLP", en: "EXTERIOR PAINTING", tags: ["Landing Page"], year: "2025", hue: 30 },
+  { num: "01", kind: "IN-HOUSE PROJECT", title: "SMASK コーポレートサイト", en: "SMASK CORPORATE", tags: ["Corporate Site", "Design / Build"], year: "2026", hue: 210 },
+  { num: "02", kind: "IN-HOUSE PROJECT", title: "貴金属価格管理システム", en: "PRICE MANAGEMENT", tags: ["Web App", "Admin / API"], year: "2026", hue: 280 },
+  { num: "03", kind: "CLIENT WORK", title: "不動産会社コーポレートサイト", en: "REAL ESTATE", tags: ["Corporate Site"], year: "2025", hue: 160 },
+  { num: "04", kind: "CLIENT WORK", title: "外壁塗装サービスLP", en: "EXTERIOR PAINTING", tags: ["Landing Page"], year: "2025", hue: 30 },
 ];
 
 const MARQUEE = "WEB CONTENT — DESIGN — DEVELOPMENT — OPERATION — ";
@@ -253,6 +254,20 @@ export default function Home() {
     const white = ap.querySelector<HTMLElement>(".wc2-c2s-white");
     const svcEmerge = ap.querySelector<HTMLElement>(".wc2-c2s-services .wc2-c2s-emerge");
     const svcRows = Array.from(ap.querySelectorAll<HTMLElement>(".wc2-c2s-services .wc2-row"));
+    /* カード帯の寸法は毎フレーム測らずキャッシュする。
+       測定（getBoundingClientRect / clientWidth / getComputedStyle / offsetLeft）と
+       transform の書き込みを毎フレーム往復すると強制同期レイアウトが起きて、
+       横スクロールががくつく。サイズが変わった時だけ ResizeObserver で測り直す */
+    const trackGeo = { startX: 0, endX: 0 };
+    const measureTrack = () => {
+      if (!track) return;
+      const first = track.querySelector<HTMLElement>(".wc2-work");
+      const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
+      const cardW = first ? first.getBoundingClientRect().width : 380;
+      const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
+      trackGeo.startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
+      trackGeo.endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
+    };
     /* 爆発的な拡大：オーバーシュートして落ち着く（back-ease-out） */
     const backOut = (t: number) => { const c1 = 2.4, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
     const tick = () => {
@@ -271,7 +286,9 @@ export default function Home() {
          モバイルは上部ボタンに掛からないよう上昇量を控えめに */
       if (head) {
         head.style.opacity = seg(p, 0.46, 0.55).toFixed(3);
-        const upFactor = window.innerWidth < 680 ? 0.22 : 0.32;
+        /* 見出しが上がりきった位置＝中心 (0.5 - upFactor)vh。使える帯は 0〜40vh（下はカード帯）
+           なので中心は 0.20vh＝upFactor 0.30 が最適。0.32 だと上に寄りすぎて頭が切れる */
+        const upFactor = window.innerWidth < 680 ? 0.26 : 0.30;
         const up = seg(p, 0.55, 0.64) * window.innerHeight * upFactor;
         head.style.transform = `translateY(calc(-50% - ${up.toFixed(1)}px))`;
       }
@@ -279,16 +296,15 @@ export default function Home() {
          開始時は先頭カードを画面右端に、終端は末尾カードを左端まで送りきる
          （右側が空いて次セクションへの余白になる）。95%で送り終え残りは静止＝余裕 */
       if (track) {
+        /* 保険：初回計測がレイアウト確定前で空振りした場合（ResizeObserver 非対応環境など）
+           でも、ここで一度だけ測り直して正しい位置から始められるようにする */
+        if (trackGeo.endX === 0) measureTrack();
         const prog = seg(p, 0.58, 0.72);
-        const first = track.querySelector<HTMLElement>(".wc2-work");
-        const last = track.querySelector<HTMLElement>(".wc2-work:last-child");
-        const cardW = first ? first.getBoundingClientRect().width : 380;
-        const padL = parseFloat(getComputedStyle(track).paddingLeft) || 72;
-        const startX = Math.max(0, track.clientWidth - cardW - padL - 24); // 先頭カードを右端へ
-        const endX = last ? padL - last.offsetLeft : -(track.scrollWidth - track.clientWidth); // 末尾カードを左端へ
-        const x = startX + (endX - startX) * prog;
+        const x = trackGeo.startX + (trackGeo.endX - trackGeo.startX) * prog;
         track.style.transform = `translateX(${x.toFixed(1)}px)`;
-        track.style.opacity = seg(p, 0.60, 0.68).toFixed(3);
+        /* カードは移動を始める前に不透明にしきる。ここが遅いと、定位置に来ても
+           白地が透けて「触れないもの」に見える（旧: 0.60→0.68 で定位置でもまだ約50%） */
+        track.style.opacity = seg(p, 0.50, 0.585).toFixed(3);
       }
       /* 次セクションへの転換＝CONCERNS（trionn と差別化：背景が先→あとで文字）：
          ① 暗色オーロラの「背景パネル」が右から左へスライドインし WORKS を覆う（70%〜82%）
@@ -347,12 +363,19 @@ export default function Home() {
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const onResize = () => { measureTrack(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    /* 測り直したら必ず描き直す（初回はレイアウト確定前で 0 を拾うため、
+       ResizeObserver の初回発火で正しい寸法に更新される） */
+    const ro = track ? new ResizeObserver(() => { measureTrack(); onScroll(); }) : null;
+    if (track && ro) ro.observe(track);
+    measureTrack();
     tick();
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -986,10 +1009,20 @@ export default function Home() {
             {/* WORKS：タイトルは中央→上へ移動（文字は上）。カードは下段で横スクロールして
                左→右に流れる（trionn 準拠）。全てスクロール同期 */}
             <div id="wc2-works" className="wc2-worksreveal">
+              {/* 見出し左／本文・CTA右の2カラム。カード帯（top:40vh）と固定MENUボタンに
+                  挟まれた帯（約200px）に収めるための構成 */}
               <div className="wc2-worksreveal-head">
-                <span className="wc2-label">( 03 ) — WORKS</span>
-                <h2 className="wc2-h2">Selected work<span className="wc2-amp">&amp;</span>explorations</h2>
-                <a className="wc2-viewall" href="#works">VIEW ALL PROJECTS <span aria-hidden="true">→</span></a>
+                <div className="wc2-works-headmain">
+                  <span className="wc2-label">( 03 ) — WORKS</span>
+                  {/* ルール②（行末に「、」を残さない） */}
+                  <h2 className="wc2-h2">つくったものと<br /><em>そこに込めた考え。</em></h2>
+                </div>
+                <div className="wc2-works-headside">
+                  <p>制作したWebサイトと、それぞれの事業や課題に対して、どのような考え方で設計したのかを紹介します。</p>
+                  <p>完成した画面だけでなく、SMASKが担当した範囲も明確に掲載します。</p>
+                  {/* TODO: 制作実績ページ（P-B）作成時に href を差し替える */}
+                  <a className="wc2-viewall" href="#works">制作実績を見る <span aria-hidden="true">→</span></a>
+                </div>
               </div>
               <div className="wc2-worksreveal-track">
                 {WORKS.map(w => (
@@ -1006,6 +1039,8 @@ export default function Home() {
                         )}
                       </div>
                       <div className="wc2-work-meta">
+                        {/* 表示区分（統合仕様） */}
+                        <span className="wc2-work-kind">{w.kind}</span>
                         <h3>{w.title}</h3>
                         <p>
                           {w.tags.map(t => <span key={t}>{t}</span>)}

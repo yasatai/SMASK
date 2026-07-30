@@ -13,6 +13,9 @@
   --wc2-line:      rgb(230 231 234 / .13);
   /* 薄膜イリデッセンス（3Dの虹と揃えるページ内アクセント） */
   --wc2-iri: linear-gradient(100deg, #7cd4ff 0%, #a78bfa 30%, #ff8fb2 55%, #ffd479 80%, #7cd4ff 100%);
+  /* 明色セクション（WORKS等）用の濃い版。淡い --wc2-iri は白地だと読めないため、
+     同じ色相のまま明度を落としてコントラストを確保する */
+  --wc2-iri-deep: linear-gradient(100deg, #0b6fd0 0%, #6b3fd4 30%, #cf3a75 55%, #a4620a 80%, #0b6fd0 100%);
   --wc2-display: "Unbounded", "Noto Sans JP", sans-serif;
   --wc2-body: "Inter", "Noto Sans JP", sans-serif;
 
@@ -333,7 +336,11 @@ html.wc2-page-active .wc2-bridge { display: none; }
    .wc2-approach-sec スコープ（2クラス以上）で確実に効かせる。左寄せは .wc2-wrap のまま */
 .wc2-approach-sec .wc2-label { font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em; }
 /* 縦の余白は vh 連動：画面が低いほど自動で詰まり、1画面に収まり続ける */
-.wc2-approach-sec .wc2-h2 {
+/* ★スコープ注意：.wc2-approach-sec の中には WORKS/CONCERNS/SERVICES の層も同居している。
+   APPROACH の見出しだけに効かせるため、pin-sticky の直下 .wc2-wrap に限定する
+   （他の層の見出しは .wc2-worksreveal-head / .wc2-wipe-inner / .wc2-c2s-services 配下で、
+     この選択子には該当しない）。各セクションの見出しサイズは各タスクで個別に決める */
+.wc2-approach-sec .wc2-pin-sticky > .wc2-wrap .wc2-h2 {
   /* 基準サイズ clamp(2.7rem,8.6vw,7rem)。ただし画面が低い時だけ 15.5vh で頭打ちにして
      1画面（ピン）に収める（720px以上では基準値そのまま＝見た目は変わらない） */
   font-size: min(clamp(2.7rem, 8.6vw, 7rem), 15.5vh); line-height: 1.16;
@@ -400,6 +407,61 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 .wc2-worksreveal-head .wc2-label { color: #7c808a; }
 .wc2-worksreveal-head .wc2-h2 { color: #101318; margin-bottom: 0; }
+/* 見出しの一部を他セクション同様にカラフルに。ただしWORKSは明色背景なので濃い版を使う */
+.wc2-worksreveal-head .wc2-h2 em {
+  background: var(--wc2-iri-deep); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+/* 見出し左／本文・CTA右の2カラム。
+   ★このセクションの見出しだけ基準サイズ(110px)を使わない：カード帯(top:40vh)と
+     固定MENUボタンに挟まれた帯が約200pxしかなく、110pxでは物理的に収まらないため。
+     演出（見出しの上昇・カードの横スクロール）を壊さないことを優先した意図的な例外 */
+.wc2-worksreveal-head {
+  /* 左を広めに：狭いと見出しが3行に折れて頭が画面外へ出る（1行×2行に収める） */
+  display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, .7fr);
+  gap: clamp(1.2rem, 3vw, 2.6rem); align-items: end;
+  /* 右カラムが固定MENUボタン（画面右端から約162px）に潜らないよう、右に逃げ幅を確保 */
+  padding-right: clamp(150px, 15vw, 210px);
+}
+.wc2-works-headside { padding-bottom: .2rem; }
+.wc2-worksreveal-head .wc2-works-headside p {
+  max-width: 30rem;
+  font-size: clamp(.9rem, 1.05vw, .98rem); line-height: 1.75; letter-spacing: .02em;
+  color: #3a3d45;
+}
+.wc2-worksreveal-head .wc2-works-headside p + p { margin-top: .6rem; }
+/* CTAはプロジェクト基準サイズ（約16px）に合わせる */
+.wc2-viewall { font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em; margin-top: 1.1rem; }
+.wc2-viewall span { font-size: 1.2rem; }
+/* カードの表示区分（CLIENT WORK / IN-HOUSE PROJECT / CONCEPT WORK） */
+.wc2-work-kind {
+  display: block; margin-bottom: .45rem;
+  font-family: var(--wc2-display); font-size: .72rem; letter-spacing: .2em;
+  color: #6b7078;
+}
+@media (max-width: 900px) {
+  /* 1カラムに落ちる＝右カラムがボタン域に来ないので逃げ幅は不要。
+     縦積みで嵩む分、カード帯（top:40vh）に掛からないよう本文を詰める */
+  .wc2-worksreveal-head { grid-template-columns: 1fr; gap: .4rem; align-items: start; padding-right: 1.5rem; }
+  /* 縦積みで嵩むため、見出しを画面幅と高さの両方に連動させて抑える
+     （上に伸びると overflow:hidden で頭が切れ、下はカード帯 top:40vh に掛かるため） */
+  .wc2-worksreveal-head .wc2-h2 { font-size: min(clamp(1.4rem, 4.3vw, 2.2rem), 5.6vh); line-height: 1.3; }
+  .wc2-worksreveal-head .wc2-works-headside p { font-size: .82rem; line-height: 1.55; }
+  .wc2-worksreveal-head .wc2-works-headside p + p { margin-top: .3rem; }
+  .wc2-viewall { margin-top: .5rem; font-size: .92rem; }
+  .wc2-viewall span { font-size: 1rem; }
+}
+/* 低い画面（ノートPCの小窓など）はさらに詰める */
+@media (max-width: 900px) and (max-height: 680px) {
+  .wc2-worksreveal-head .wc2-h2 { font-size: min(clamp(1.25rem, 3.8vw, 1.9rem), 4.6vh); }
+  .wc2-worksreveal-head .wc2-works-headside p { font-size: .76rem; line-height: 1.45; }
+  .wc2-viewall { margin-top: .35rem; font-size: .86rem; }
+}
+/* スマホ幅：見出し帯は上部MENUボタンとカード帯に挟まれて余地が少ないため、
+   本文は1文目だけに絞る（2文目は制作実績ページで読ませる） */
+@media (max-width: 679px) {
+  .wc2-worksreveal-head .wc2-works-headside p + p { display: none; }
+}
 .wc2-amp {
   margin-inline: .22em;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
