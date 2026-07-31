@@ -1277,12 +1277,16 @@ export default function Home() {
                 {/* 会社概要(08)の追加に伴い繰り下げ。※コラムセクション復活時は 09→10 に戻すこと */}
                 <span className="wc2-label">( 09 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
-                  <span className="wc2-talk-main">話しましょう<em>.</em></span>
+                  <span className="wc2-talk-main">話しましょう<em>。</em></span>
                   <span className="wc2-talk-arrow" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </span>
                 </a>
-                <p className="wc2-contact-lead">まずはお気軽にご相談ください。ご要望・ご予算に合わせて柔軟にご対応いたします。</p>
+                <div className="wc2-contact-body">
+                  <p>新しいWebサイトの制作、既存サイトの見直し、文章や導線の整理など、現在考えていることをお聞かせください。</p>
+                  <p>まだ要件が固まっていない段階でも、事業や課題について伺いながら、必要な内容をともに整理します。</p>
+                </div>
+                <a className="wc2-contact-cta" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
                 {/* 自社ロゴ（暗色背景用に反転＋色相補正＋screenで白背景を透過） */}
                 <img
                   className="wc2-contact-logo"

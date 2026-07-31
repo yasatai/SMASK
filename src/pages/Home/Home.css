@@ -1176,7 +1176,26 @@ html.wc2-page-active .wc2-bridge { display: none; }
   transform: rotate(45deg) scale(1.08);
   background: rgb(230 231 234 / .08); border-color: rgb(230 231 234 / .8);
 }
-.wc2-contact-lead { margin-top: 2.2rem; max-width: 40rem; margin-inline: auto; }
+/* 本文（統合仕様の2文）。CONTACTは中央寄せセクションなので margin-inline:auto */
+.wc2-contact-body { margin-top: clamp(1.4rem, 3vh, 2.2rem); max-width: 44rem; margin-inline: auto; }
+.wc2-contact-inner .wc2-contact-body p {
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;   /* Tier1本文 */
+  color: var(--wc2-ink-soft);
+}
+.wc2-contact-inner .wc2-contact-body p + p { margin-top: 1rem; }
+.wc2-contact-cta {
+  display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
+  margin-top: clamp(1.2rem, 2.6vh, 2rem); padding-bottom: .6rem;
+  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
+  color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
+  pointer-events: auto;
+  transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
+}
+.wc2-contact-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
+.wc2-contact-cta span {
+  font-size: 1.2rem;
+  background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
 /* 自社ロゴ：白背景JPGを暗色背景に載せる（反転→色相補正でオレンジ維持→screenで白地を透過） */
 .wc2-contact-logo {
   display: block; margin: clamp(2.2rem, 5vw, 3.6rem) auto 0;
