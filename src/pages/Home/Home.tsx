@@ -1125,7 +1125,7 @@ export default function Home() {
                   </div>
                   <div className="wc2-wrap wc2-services-ctawrap">
                     {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
-                    <a className="wc2-services-cta" href="#services">事業内容を見る <span aria-hidden="true">→</span></a>
+                    <a className="wc2-services-cta" href="/business">事業内容を見る <span aria-hidden="true">→</span></a>
                   </div>
                 </div>
               </div>
@@ -1161,7 +1161,7 @@ export default function Home() {
                   <p>各工程をつなぎ、伝える内容と実際のWebサイトが一貫するように制作します。</p>
                 </div>
                 {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
-                <a className="wc2-str-cta" href="#services">SMASKの制作について見る <span aria-hidden="true">→</span></a>
+                <a className="wc2-str-cta" href="/business">SMASKの制作について見る <span aria-hidden="true">→</span></a>
                 <span className="wc2-str-hint" aria-hidden="true">SCROLL — キューブが回転し、4つの強みが順に現れます</span>
               </div>
               {/* 床の設置影（落下・着地に合わせて濃く/大きく） */}
@@ -1209,7 +1209,7 @@ export default function Home() {
                     <p>対話を通じて必要な情報を整理し、案件に合った進め方を組み立てます。</p>
                   </div>
                   {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
-                  <a className="wc2-route-cta" href="#process">制作の進め方を見る <span aria-hidden="true">→</span></a>
+                  <a className="wc2-route-cta" href="/business">制作の進め方を見る <span aria-hidden="true">→</span></a>
                   <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
                 </div>
                 {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}

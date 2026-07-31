@@ -84,8 +84,7 @@ export default function Company() {
               <p>Webサイトの企画、情報設計、文章制作、導線設計、Webデザイン、実装連携、公開後の運用支援を行います。</p>
               <p>コーポレートサイト、サービスサイト、採用サイト、ランディングページなど、事業や目的に合わせたWebを制作します。</p>
             </div>
-            {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
-            <a className="cp-cta" href="#business" data-reveal>事業内容を見る <span aria-hidden="true">→</span></a>
+            <a className="cp-cta" href="/business" data-reveal>事業内容を見る <span aria-hidden="true">→</span></a>
           </div>
         </section>
 

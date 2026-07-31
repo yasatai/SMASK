@@ -5,6 +5,7 @@ import Footer from "./components/Footer";
 /* トップ（3D Home）は three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
 import { importHome } from "./pages/Home/lazy";
 const Home = lazy(importHome);
+import Business from "./pages/Business/Business";
 import Column from "./pages/Column/Column";
 import ColumnPost from "./pages/Column/ColumnPost";
 import Company from "./pages/Company/Company";
@@ -19,6 +20,7 @@ import "./App.css";
    トップは 3D Home が自前の演出を持つが、他ページから "/" へ戻る導線のために含める。 */
 const ROUTES = new Set([
   "/",
+  "/business",
   "/column",
   "/company",
   "/contact",
@@ -84,6 +86,7 @@ export default function App() {
         />
         {/* 旧 /business-web はトップへ昇格。ブックマーク等の保険リダイレクト */}
         <Route path="/business-web" element={<Navigate to="/" replace />} />
+        <Route path="/business" element={<Business />} />
         <Route path="/column" element={<Column />} />
         <Route path="/column/:slug" element={<ColumnPost />} />
         <Route path="/company" element={<Company />} />
