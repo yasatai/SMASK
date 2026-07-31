@@ -208,6 +208,39 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
+/* ============ COLUMN：コラムへの導線（PROCESS と CONTACT の間・通常スクロール） ============
+   ABOUT と同じ流儀（透過セクション・左寄せ・Tier1・data-reveal入場） */
+.wc2-column-copy { max-width: none; text-align: left; }
+.wc2-column-copy .wc2-label {
+  font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em;
+  color: var(--wc2-ink-soft);
+}
+.wc2-column-head {
+  margin-bottom: 0;
+  /* Tier1見出し。最長行「Webで事業をどう伝えるか」(12文字)が1行に入るよう横にも連動させる
+     （狭い画面ほど左右パディングの比率が上がるので 6.3vw まで下げる） */
+  font-size: min(var(--wc2-h2-lg), 6.3vw); line-height: 1.16;
+}
+.wc2-column-body { margin-top: 2.4rem; max-width: 42rem; }
+.wc2-column-sec .wc2-column-body p {
+  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
+  color: var(--wc2-ink-soft);
+}
+.wc2-column-sec .wc2-column-body p + p { margin-top: 1.4rem; }
+.wc2-column-cta {
+  display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
+  margin-top: 2.6rem; padding-bottom: .6rem;
+  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
+  color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
+  pointer-events: auto;
+  transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
+}
+.wc2-column-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
+.wc2-column-cta span {
+  font-size: 1.2rem;
+  background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
 /* ============ HERO：PS2オープニング ============
    セクション自体を縦に長く取り、その間ずっと画面に張り付く（sticky）。
    スクロール量が「靄へのダイブ」の進行度になる。 */
@@ -1278,6 +1311,10 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 
   /* ---- 設計図の装飾（表題欄・寸法線・見当）は本文と重なるので隠す ---- */
   .wc2-bp-title, .wc2-bp-dim, .wc2-bp-reg { display: none; }
+
+  /* ---- スマホ幅では Tier1見出しが長い行で折れるため、最長行が1行に収まるサイズに抑える ---- */
+  .wc2-about-head { font-size: clamp(1.6rem, 8.2vw, 2.6rem); }                              /* 最長「事業を理解する。」8文字 */
+  .wc2-approach-sec .wc2-pin-sticky > .wc2-wrap .wc2-h2 { font-size: clamp(1.5rem, 7vw, 2.4rem); }  /* 最長「伝わる流れに整える。」10文字 */
 
   /* ---- CONCERNS：上部ボタンを避けて上詰め＋チップ/本文を圧縮して画面内に収める ---- */
   .wc2-wipe-inner { justify-content: flex-start; padding-top: 3.4rem; padding-bottom: 1rem; }
