@@ -916,9 +916,10 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-route-world { position: absolute; inset: 0; transform-origin: 50% 50%; will-change: opacity, transform; }
 .wc2-route-head {
   position: absolute; top: clamp(2rem, 8vh, 5.5rem); left: clamp(1.5rem, 6vw, 7rem);
-  /* 寄港地(x=52〜68%)のカードは右へ伸びるので、見出し帯はその手前で止める幅にする。
-     最長行「話すところから」(7文字)が1行に収まる幅が必要（下の font-size と対） */
-  z-index: 6; max-width: min(26rem, 30vw);
+  /* 寄港地(x=40〜56%)のカードは右へ伸びるので、見出し帯はその手前で止める幅にする。
+     最長行「話すところから」(7文字)が1行に収まる幅が必要（下の font-size と対）。
+     中央が空いて見えるため広めに取る（2026-07-29 代表指摘） */
+  z-index: 6; max-width: min(32rem, 30vw);
 }
 .wc2-route-head .wc2-label { color: #9aa6bd; }
 /* Tier2見出し。最長行「話すところから」(7文字)が上の max-width(min(26rem,30vw)) に

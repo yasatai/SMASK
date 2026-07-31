@@ -51,12 +51,13 @@ const PROCESS: [string, string, string][] = [
 ];
 /* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。カードは中心から外側へ出す（重なり回避） */
 /* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。
-   ★カードの向きは x<50 なら左・50以上なら右（JS側 data-side）。左へ出ると左上の見出し帯と
-     重なるため、全ノードを50%以上に置いてカードを右方向に統一する。
-     右端は node + 26px + カード幅(min(17.5rem,26vw)) が画面内に収まる範囲（〜68%）に留めること。 */
+   カードは常に右へ開く（JS側 data-side="r" 固定）。
+   ・左列：左の見出し帯より右に置く（node+26px がテキスト右端を越えること）
+   ・右列：node + 26px + カード幅(min(17.5rem,26vw)) が画面内に収まる範囲（〜56%）に留めること
+   ※中央が空いて見えたため 52〜68% から 40〜56% へ左へ寄せた（2026-07-29 代表指摘） */
 const ROUTE_POS: { x: number; y: number }[] = [
-  { x: 52, y: 12 }, { x: 68, y: 27 }, { x: 54, y: 42 },
-  { x: 68, y: 57 }, { x: 55, y: 72 }, { x: 67, y: 86 },
+  { x: 40, y: 12 }, { x: 56, y: 27 }, { x: 42, y: 42 },
+  { x: 56, y: 57 }, { x: 43, y: 72 }, { x: 55, y: 86 },
 ];
 
 /* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え）
@@ -587,7 +588,8 @@ export default function Home() {
     stations.forEach((el, i) => {
       el.style.left = `${ROUTE_POS[i].x}%`;
       el.style.top = `${ROUTE_POS[i].y}%`;
-      el.dataset.side = ROUTE_POS[i].x < 50 ? "l" : "r";
+      /* カードは常に右へ開く。左へ開くと左側の見出し帯と重なるため（向きは固定） */
+      el.dataset.side = "r";
     });
     /* 全体の薄い航路線（固定） */
     if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
