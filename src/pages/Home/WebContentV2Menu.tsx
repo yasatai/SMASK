@@ -6,14 +6,17 @@ interface MenuItem {
   id: string;
 }
 
+/* トップの実セクションと1対1で対応させること（セクションを増やしたらここにも足す） */
 const MENU_ITEMS: MenuItem[] = [
   { label: "HERO", id: "wc2-hero" },
+  { label: "ABOUT", id: "wc2-about-sec" },
   { label: "APPROACH", id: "wc2-approach-sec" },
   { label: "WORKS", id: "wc2-works" },
   { label: "CONCERNS", id: "wc2-concerns" },
   { label: "SERVICES", id: "wc2-services" },
   { label: "STRENGTHS", id: "wc2-strengths-sec" },
   { label: "PROCESS", id: "wc2-route-sec" },
+  { label: "COLUMN", id: "wc2-column" },
   { label: "CONTACT", id: "wc2-contact-pin" },
 ];
 

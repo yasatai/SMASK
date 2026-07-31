@@ -945,7 +945,7 @@ export default function Home() {
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
         {/* ============ HERO：PS2オープニング（縦に長い区間＝靄へのダイブ） ============ */}
-        <section className="wc2-hero">
+        <section id="wc2-hero" className="wc2-hero">
           <div className="wc2-hero-sticky">
             <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
               <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
@@ -993,7 +993,7 @@ export default function Home() {
              前半＝文字の染色→本文フェード（帯は画面上部に常駐）。
              後半＝固定したまま白帯が「下から上へ」伸びて画面全体が白になり、
              白になりかけで WORKS の見出しがフェードイン ============ */}
-        <section className="wc2-sec wc2-approach-sec wc2-pin">
+        <section id="wc2-approach-sec" className="wc2-sec wc2-approach-sec wc2-pin">
           <div className="wc2-pin-sticky">
             {/* 帯：ピン画面の上部に常駐（文字の染色中も見えている） */}
             <div className="wc2-marquee wc2-marquee--pin" aria-hidden="true">
@@ -1147,7 +1147,7 @@ export default function Home() {
         </section>
 
         {/* ============ STRENGTHS：見出しが上から投げられてバウンド／4側面に強みを持つ白キューブが落ちて回転ショーケース ============ */}
-        <section className="wc2-sec wc2-strengths-sec">
+        <section id="wc2-strengths-sec" className="wc2-sec wc2-strengths-sec">
           <div className="wc2-str-pin">
             <div className="wc2-str-stage">
               {/* 左：見出し（上から投げられたようにバウンドして着地） */}
@@ -1195,7 +1195,7 @@ export default function Home() {
         </section>
 
         {/* ============ PROCESS：宇宙の航路（スクロールで彗星が 01→06 を巡り、寄港地が点灯） ============ */}
-        <section className="wc2-sec wc2-route-sec">
+        <section id="wc2-route-sec" className="wc2-sec wc2-route-sec">
           <div className="wc2-route-pin">
             <div className="wc2-route-stage">
               {/* ワープイン/アウト用ラッパ（ピン先頭で暗転→出現、末尾でズームアウト） */}
@@ -1245,12 +1245,27 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ============ COLUMN：コラムへの導線（通常スクロールの透過セクション／ABOUTと同じ流儀） ============ */}
+        <section id="wc2-column" className="wc2-sec wc2-column-sec">
+          <div className="wc2-wrap wc2-column-copy">
+            <span className="wc2-label" data-reveal>( 08 ) — COLUMN</span>
+            {/* ルール②（行末に「、」を残さない） */}
+            <h2 className="wc2-h2 wc2-column-head" data-reveal>Webで事業をどう伝えるか<br /><em>考え続ける。</em></h2>
+            <div className="wc2-column-body" data-reveal-stagger>
+              <p>Web制作、文章、導線、デザイン、運用など、企業がWebをより良く活用するための考え方を紹介します。</p>
+              <p>制作の現場で得た気づきや、伝わるWebをつくるための視点を発信します。</p>
+            </div>
+            <a className="wc2-column-cta" href="/column" data-reveal>コラムを読む <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
+
         {/* ============ CONTACT：PROCESSがフェードアウト→中心から「話しましょう」が出現（巨大CTA） ============ */}
         <section className="wc2-sec wc2-contact">
-          <div className="wc2-contact-pin">
+          <div id="wc2-contact-pin" className="wc2-contact-pin">
             <div className="wc2-contact-stage">
               <div className="wc2-wrap wc2-contact-inner">
-                <span className="wc2-label">( 08 ) — CONTACT</span>
+                {/* コラム(08)を追加したため繰り下げ。会社概要(09)追加時にさらに ( 10 ) へ */}
+                <span className="wc2-label">( 09 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
                   <span className="wc2-talk-main">話しましょう<em>.</em></span>
                   <span className="wc2-talk-arrow" aria-hidden="true">
