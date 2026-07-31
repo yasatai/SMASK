@@ -918,15 +918,15 @@ html.wc2-page-active .wc2-bridge { display: none; }
   position: absolute; top: clamp(2rem, 8vh, 5.5rem); left: clamp(1.5rem, 6vw, 7rem);
   /* 寄港地(x=40〜56%)のカードは右へ伸びるので、見出し帯はその手前で止める幅にする。
      最長行「話すところから」(7文字)が1行に収まる幅が必要（下の font-size と対）。
-     中央が空いて見えるため広めに取る（2026-07-29 代表指摘） */
-  z-index: 6; max-width: min(32rem, 30vw);
+     ※広げすぎるとカードの左右交互配置（Home.tsx の layout()）が成立しなくなるため 26vw に留める */
+  z-index: 6; max-width: min(32rem, 26vw);
 }
 .wc2-route-head .wc2-label { color: #9aa6bd; }
-/* Tier2見出し。最長行「話すところから」(7文字)が上の max-width(min(26rem,30vw)) に
-   1行で収まること＝7文字ぶんが幅を超えないよう 3.9vw / 3.6rem で頭打ちにする */
+/* Tier2見出し。最長行「話すところから」(7文字)が上の max-width(min(32rem,26vw)) に
+   1行で収まること＝26vw/7≒3.71vw が上限。余裕をみて 3.5vw / 3.6rem で頭打ちにする */
 .wc2-route-head .wc2-h2 {
   margin-bottom: 0; line-height: 1.2;
-  font-size: min(var(--wc2-h2-sm), 3.9vw, 3.6rem);
+  font-size: min(var(--wc2-h2-sm), 3.5vw, 3.6rem);
 }
 .wc2-route-body { margin-top: clamp(.7rem, 1.8vh, 1.2rem); }
 .wc2-route-head .wc2-route-body p {
@@ -977,7 +977,8 @@ html.wc2-page-active .wc2-bridge { display: none; }
 }
 /* カード（星雲の上に浮かぶ暗ガラス）。今いる寄港地だけ濃く出す（--cardで制御） */
 .wc2-st-card {
-  position: absolute; top: 50%; transform: translateY(-50%); width: min(17.5rem, 26vw);
+  /* 幅は左右交互配置の計算（Home.tsx の layout()）と対。変える時は両方直すこと */
+  position: absolute; top: 50%; transform: translateY(-50%); width: min(24rem, 26vw);
   opacity: var(--card, 0);
   padding: 1rem 1.2rem; border-radius: 12px;
   background: linear-gradient(180deg, rgb(14 20 38 / .78), rgb(10 14 28 / .74));

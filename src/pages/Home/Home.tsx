@@ -584,15 +584,36 @@ export default function Home() {
     const trail = pin.querySelector<SVGPolylineElement>(".wc2-route-trail");
     const N = ROUTE_POS.length;
 
-    /* 寄港地を座標に配置（カードは中心から外側へ出す＝隣同士が重ならない） */
-    stations.forEach((el, i) => {
-      el.style.left = `${ROUTE_POS[i].x}%`;
-      el.style.top = `${ROUTE_POS[i].y}%`;
-      /* カードは常に右へ開く。左へ開くと左側の見出し帯と重なるため（向きは固定） */
-      el.dataset.side = "r";
-    });
-    /* 全体の薄い航路線（固定） */
-    if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
+    /* ---- 寄港地の配置をレイアウトから計算する ----
+       カードは左右交互（外向き）に開くのが基本。ただし左開きのカードは左上の見出し帯と
+       ぶつかるため、「見出しの右端＋カード幅」が収まる場合だけ交互にし、
+       収まらない狭い画面では全て右開きにフォールバックする。
+       x は毎回計算するので、以降の描画（線・彗星）も pos を参照する。 */
+    const pos = ROUTE_POS.map((p) => ({ ...p }));
+    const stageEl = pin.querySelector<HTMLElement>(".wc2-route-stage");
+    const headEl = pin.querySelector<HTMLElement>(".wc2-route-head");
+    const layout = () => {
+      /* transform の影響を受けない layout 値で測る（world が縮小されているため） */
+      const stageW = stageEl?.offsetWidth || window.innerWidth;
+      const cardW = Math.min(384, window.innerWidth * 0.26);
+      const headRight = headEl ? headEl.offsetLeft + headEl.offsetWidth : 0;
+      const NODE = 26;                                  // ノードとカードの隙間（CSSと対）
+      const areaL = headRight + 32;                     // 見出しの右にとる最小の間隔
+      const areaR = stageW - 16;
+      const leftX = areaL + cardW + NODE;               // 左開きカードの左端が areaL に来るノード位置
+      const rightX = areaR - cardW - NODE;              // 右開きカードの右端が areaR に来るノード位置
+      const alt = rightX - leftX >= 80;                 // 左右交互に置けるだけの幅があるか
+      stations.forEach((el, i) => {
+        const isL = i % 2 === 0;
+        pos[i].y = ROUTE_POS[i].y;
+        pos[i].x = alt ? ((isL ? leftX : rightX) / stageW) * 100 : ROUTE_POS[i].x;
+        el.dataset.side = alt ? (isL ? "l" : "r") : "r";
+        el.style.left = `${pos[i].x.toFixed(2)}%`;
+        el.style.top = `${pos[i].y}%`;
+      });
+      if (base) base.setAttribute("points", pos.map((n) => `${n.x.toFixed(2)},${n.y}`).join(" "));
+    };
+    layout();
 
     let raf = 0;
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -620,8 +641,8 @@ export default function Home() {
       const seg = travel * (N - 1);                             // 進行度（0〜N-1）
       const ci = Math.min(N - 1, Math.floor(seg));
       const cf = seg - ci;
-      const a = ROUTE_POS[ci];
-      const b = ROUTE_POS[Math.min(N - 1, ci + 1)];
+      const a = pos[ci];
+      const b = pos[Math.min(N - 1, ci + 1)];
       const cx = a.x + (b.x - a.x) * cf;                        // 彗星の現在位置（%）
       const cy = a.y + (b.y - a.y) * cf;
 
@@ -629,7 +650,7 @@ export default function Home() {
       /* 走破線：通過済みノード＋彗星の先端まで */
       if (trail) {
         const pts: string[] = [];
-        for (let i = 0; i <= ci; i++) pts.push(`${ROUTE_POS[i].x},${ROUTE_POS[i].y}`);
+        for (let i = 0; i <= ci; i++) pts.push(`${pos[i].x.toFixed(2)},${pos[i].y}`);
         pts.push(`${cx.toFixed(2)},${cy.toFixed(2)}`);
         trail.setAttribute("points", pts.join(" "));
       }
@@ -644,12 +665,18 @@ export default function Home() {
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    /* 幅が変わると「交互に置けるか」の判定と各xが変わるので、リサイズで配置し直す */
+    const onResize = () => { layout(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    /* 見出しの実寸が確定してから配置を確定させる（初回はレイアウト確定前で 0 を拾うため） */
+    const ro = headEl ? new ResizeObserver(() => { layout(); onScroll(); }) : null;
+    if (headEl && ro) ro.observe(headEl);
     tick();
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
       cancelAnimationFrame(raf);
     };
   }, []);
