@@ -1,14 +1,16 @@
 /* Company.css — 会社概要ページ専用
- * VISION は左に縦線を添えた項目、会社情報は淡いピンクの見出し列を持つ表。
- * 赤のアクセントはこのページ内スコープで定義し、他ページには影響させない。
- * スクロール連動の演出は付けない（素直に読める状態）。
+ * VALUES は左に縦線を添えた項目、会社情報は薄いガラス面の見出し列を持つ表。
+ * 地色・墨色・金はトークン側（PageAtmos.css の .is-dark-page）が持つので、
+ * ここではこのページ固有のアクセントと罫線だけを定義する。
+ * 背景と演出はトップと同じ暗い世界（PageAtmos ＋ [data-reveal]）。
  */
 .cp-page {
-  --cp-accent: oklch(55% 0.205 32);      /* 英字ラベルの赤 */
-  --cp-tint:   oklch(96.8% 0.014 25);    /* 表の見出し列（淡いピンク） */
-  --cp-line:   oklch(90% 0.005 60);      /* 罫線 */
-  --cp-rule:   oklch(88% 0.006 60);      /* VISION の縦線 */
-  background: var(--color-paper);
+  /* 英字ラベル・矢印。トップの虹（--wc2-iri）の起点色に合わせた淡い青 */
+  --cp-accent: #7cd4ff;
+  --cp-tint:   rgb(230 231 234 / .05);   /* 表の見出し列（薄いガラス面） */
+  --cp-line:   rgb(230 231 234 / .14);   /* 罫線 */
+  --cp-rule:   rgb(230 231 234 / .26);   /* VALUES の縦線 */
+  background: transparent;
 }
 
 .cp-wrap { width: min(100% - 2.5rem, 58rem); margin-inline: auto; }
@@ -93,6 +95,7 @@
 /* ============ 会社情報 ============ */
 .cp-profile {
   margin: 0;
+  background: rgb(230 231 234 / .022);
   border: 1px solid var(--cp-line); border-radius: 8px;
   overflow: hidden;   /* 角丸から罫線がはみ出さないように */
 }

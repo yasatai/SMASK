@@ -1,0 +1,74 @@
+/* PageAtmos.css — 下層ページ共通の「暗い世界」（2026-07-31 代表指示）
+ *
+ * ここが下層ページのダーク化の唯一の入口。ページ側は <PageAtmos /> を置くだけでよく、
+ * ヘッダー・フッター・入場カーテンは共通トークン経由で自動的に追従する。
+ * 個別ページのCSSでダーク用の色をばらばらに書かないこと（今後の新規ページも同じ）。
+ */
+
+/* ============ 共通トークンをダーク側へ差し替え ============ */
+html.is-dark-page {
+  background: #05060a;
+
+  --color-paper:      #05060a;                  /* ページ地・反転文字色として使われる */
+  --color-paper-2:    #0a0c13;
+  --color-paper-3:    rgb(230 231 234 / .07);   /* ホバー面 */
+  --color-ink:        #e6e7ea;
+  --color-ink-soft:   #a7abb4;
+  --color-ink-mute:   #868b96;
+
+  /* 金は暗い地では沈むので明度を上げる（色相はそのまま＝ブランドの金を保つ） */
+  --color-gold:       oklch(80% 0.105 84);
+  --color-gold-deep:  oklch(72% 0.100 82);
+  --color-gold-line:  oklch(58% 0.065 84);
+  --color-gold-glow:  oklch(38% 0.045 86);
+}
+html.is-dark-page body { background: #05060a; color: var(--color-ink); }
+
+/* ============ 背景レイヤー（全面固定・最背面） ============ */
+.page-atmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+.page-atmos canvas { width: 100%; height: 100%; display: block; }
+/* 周辺を黒く落として中心の靄だけ見せる（トップの .wc2-scene::after と同じ考え方） */
+.page-atmos::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 66% 64% at 50% 42%,
+    transparent 0 34%,
+    rgb(5 6 10 / .55) 72%,
+    #05060a 100%);
+}
+
+/* 本文とフッターは背景の上へ。地色は透過させて世界をひと続きにする */
+html.is-dark-page main { position: relative; z-index: 1; background: transparent; }
+html.is-dark-page .site-footer { position: relative; z-index: 1; background: transparent; }
+
+/* ロゴ素材は白地JPGのため、暗い地では反転して載せる（トップの .is-fp-dark と同じ処理） */
+html.is-dark-page .site-logo img {
+  mix-blend-mode: screen;
+  filter: invert(1) hue-rotate(180deg);
+}
+
+/* ============ リビール（入場カーテンが開いてから下から上へ） ============
+   [data-reveal] を付けた要素が対象。付けなければ何も起きない。 */
+html.is-dark-page:not(.is-entering) [data-reveal] {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity 1s var(--ease-out), transform 1s var(--ease-expo);
+}
+html.is-dark-page:not(.is-entering) [data-reveal].is-in { opacity: 1; transform: none; }
+
+html.is-dark-page:not(.is-entering) [data-reveal-stagger] > * {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .85s var(--ease-out), transform .85s var(--ease-expo);
+}
+html.is-dark-page:not(.is-entering) [data-reveal-stagger].is-in > * { opacity: 1; transform: none; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(2) { transition-delay: .07s; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(3) { transition-delay: .14s; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(4) { transition-delay: .21s; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(5) { transition-delay: .28s; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(6) { transition-delay: .35s; }
+html.is-dark-page [data-reveal-stagger].is-in > :nth-child(7) { transition-delay: .42s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-dark-page [data-reveal],
+  html.is-dark-page [data-reveal-stagger] > * {
+    opacity: 1 !important; transform: none !important; transition: none !important;
+  }
+}
