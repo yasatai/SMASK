@@ -1259,13 +1259,37 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ============ COMPANY：会社概要への導線（通常スクロールの透過セクション） ============ */}
+        <section id="wc2-company" className="wc2-sec wc2-company-sec">
+          <div className="wc2-wrap wc2-company-copy">
+            <span className="wc2-label" data-reveal>( 09 ) — COMPANY</span>
+            {/* ルール②（行末に「、」を残さない） */}
+            <h2 className="wc2-h2 wc2-company-head" data-reveal>Webを<br /><em>事業に使えるかたちへ。</em></h2>
+            <div className="wc2-company-body" data-reveal-stagger>
+              <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
+              <p>企業やサービスが持つ価値を整理し、次の行動へ進みやすいWebサイトを制作します。</p>
+            </div>
+            {/* 表示情報（※設立日は未確定のため掲載しない。確定後に追加すること） */}
+            <dl className="wc2-company-info" data-reveal>
+              <div><dt>会社名</dt><dd>株式会社スマスク</dd></div>
+              <div><dt>代表者</dt><dd>代表取締役　若林 晃行</dd></div>
+              <div><dt>所在地</dt><dd>神奈川県相模原市</dd></div>
+              <div>
+                <dt>事業内容</dt>
+                <dd>Webコンテンツ制作<span>Webサイトの企画、情報設計、文章制作、デザイン、実装連携、運用支援</span></dd>
+              </div>
+            </dl>
+            <a className="wc2-company-cta" href="/company" data-reveal>会社概要を見る <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
+
         {/* ============ CONTACT：PROCESSがフェードアウト→中心から「話しましょう」が出現（巨大CTA） ============ */}
         <section className="wc2-sec wc2-contact">
           <div id="wc2-contact-pin" className="wc2-contact-pin">
             <div className="wc2-contact-stage">
               <div className="wc2-wrap wc2-contact-inner">
-                {/* コラム(08)を追加したため繰り下げ。会社概要(09)追加時にさらに ( 10 ) へ */}
-                <span className="wc2-label">( 09 ) — CONTACT</span>
+                {/* コラム(08)・会社概要(09)の追加に伴い繰り下げ済み（採番ルールの最終値） */}
+                <span className="wc2-label">( 10 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
                   <span className="wc2-talk-main">話しましょう<em>.</em></span>
                   <span className="wc2-talk-arrow" aria-hidden="true">

@@ -17,6 +17,7 @@ const MENU_ITEMS: MenuItem[] = [
   { label: "STRENGTHS", id: "wc2-strengths-sec" },
   { label: "PROCESS", id: "wc2-route-sec" },
   { label: "COLUMN", id: "wc2-column" },
+  { label: "COMPANY", id: "wc2-company" },
   { label: "CONTACT", id: "wc2-contact-pin" },
 ];
 
