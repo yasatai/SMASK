@@ -40,18 +40,24 @@ const STRENGTHS: [string, string, string][] = [
   ["04", "公開後まで考える", "更新や改善も見据え、事業の中で使い続けられるWebを目指します。"],
 ];
 
+/* 統合仕様「8 制作の流れ」の6ステップ（航路の6寄港地に対応） */
 const PROCESS: [string, string, string][] = [
-  ["01", "現状確認", "現在のWebサイトや情報発信の状況、運用方法、感じている課題を確認します。"],
-  ["02", "課題整理", "何を改善すべきか、どこを優先すべきかを整理します。"],
-  ["03", "構成・方針提案", "目的に応じて、必要なページ構成や導線、実装方針をご提案します。"],
-  ["04", "制作・実装", "決定した内容に沿って、ページ制作や必要な仕組みの整備を進めます。"],
-  ["05", "公開・運用開始", "公開後の運用を見据えた状態で、無理なくスタートできるよう整えます。"],
-  ["06", "必要に応じた改善", "公開して終わりではなく、必要に応じて見直しや改善につなげます。"],
+  ["01", "相談する", "事業、課題、実現したいことを確認します。"],
+  ["02", "理解する", "顧客、競合、既存資料を確認し、制作の前提を整理します。"],
+  ["03", "設計する", "ページ構成、文章、導線、必要な機能を設計します。"],
+  ["04", "制作する", "文章、デザイン、画像などを制作します。"],
+  ["05", "実装へつなぐ", "実装仕様を整理し、エンジニアと連携します。"],
+  ["06", "公開後を支える", "更新や改善に必要な方法を整理します。"],
 ];
 /* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。カードは中心から外側へ出す（重なり回避） */
+/* 宇宙の航路：各寄港地の座標（ステージ幅・高さに対する%）。
+   カードは常に右へ開く（JS側 data-side="r" 固定）。
+   ・左列：左の見出し帯より右に置く（node+26px がテキスト右端を越えること）
+   ・右列：node + 26px + カード幅(min(17.5rem,26vw)) が画面内に収まる範囲（〜56%）に留めること
+   ※中央が空いて見えたため 52〜68% から 40〜56% へ左へ寄せた（2026-07-29 代表指摘） */
 const ROUTE_POS: { x: number; y: number }[] = [
-  { x: 40, y: 14 }, { x: 62, y: 29 }, { x: 42, y: 44 },
-  { x: 64, y: 60 }, { x: 43, y: 76 }, { x: 61, y: 90 },
+  { x: 40, y: 12 }, { x: 56, y: 27 }, { x: 42, y: 42 },
+  { x: 56, y: 57 }, { x: 43, y: 72 }, { x: 55, y: 86 },
 ];
 
 /* ---- SELECTED WORKS（サンプル。実案件名・掲載可否・画像は代表確認のうえ差し替え）
@@ -578,14 +584,36 @@ export default function Home() {
     const trail = pin.querySelector<SVGPolylineElement>(".wc2-route-trail");
     const N = ROUTE_POS.length;
 
-    /* 寄港地を座標に配置（カードは中心から外側へ出す＝隣同士が重ならない） */
-    stations.forEach((el, i) => {
-      el.style.left = `${ROUTE_POS[i].x}%`;
-      el.style.top = `${ROUTE_POS[i].y}%`;
-      el.dataset.side = ROUTE_POS[i].x < 50 ? "l" : "r";
-    });
-    /* 全体の薄い航路線（固定） */
-    if (base) base.setAttribute("points", ROUTE_POS.map((n) => `${n.x},${n.y}`).join(" "));
+    /* ---- 寄港地の配置をレイアウトから計算する ----
+       カードは左右交互（外向き）に開くのが基本。ただし左開きのカードは左上の見出し帯と
+       ぶつかるため、「見出しの右端＋カード幅」が収まる場合だけ交互にし、
+       収まらない狭い画面では全て右開きにフォールバックする。
+       x は毎回計算するので、以降の描画（線・彗星）も pos を参照する。 */
+    const pos = ROUTE_POS.map((p) => ({ ...p }));
+    const stageEl = pin.querySelector<HTMLElement>(".wc2-route-stage");
+    const headEl = pin.querySelector<HTMLElement>(".wc2-route-head");
+    const layout = () => {
+      /* transform の影響を受けない layout 値で測る（world が縮小されているため） */
+      const stageW = stageEl?.offsetWidth || window.innerWidth;
+      const cardW = Math.min(384, window.innerWidth * 0.26);
+      const headRight = headEl ? headEl.offsetLeft + headEl.offsetWidth : 0;
+      const NODE = 26;                                  // ノードとカードの隙間（CSSと対）
+      const areaL = headRight + 32;                     // 見出しの右にとる最小の間隔
+      const areaR = stageW - 16;
+      const leftX = areaL + cardW + NODE;               // 左開きカードの左端が areaL に来るノード位置
+      const rightX = areaR - cardW - NODE;              // 右開きカードの右端が areaR に来るノード位置
+      const alt = rightX - leftX >= 80;                 // 左右交互に置けるだけの幅があるか
+      stations.forEach((el, i) => {
+        const isL = i % 2 === 0;
+        pos[i].y = ROUTE_POS[i].y;
+        pos[i].x = alt ? ((isL ? leftX : rightX) / stageW) * 100 : ROUTE_POS[i].x;
+        el.dataset.side = alt ? (isL ? "l" : "r") : "r";
+        el.style.left = `${pos[i].x.toFixed(2)}%`;
+        el.style.top = `${pos[i].y}%`;
+      });
+      if (base) base.setAttribute("points", pos.map((n) => `${n.x.toFixed(2)},${n.y}`).join(" "));
+    };
+    layout();
 
     let raf = 0;
     const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -613,8 +641,8 @@ export default function Home() {
       const seg = travel * (N - 1);                             // 進行度（0〜N-1）
       const ci = Math.min(N - 1, Math.floor(seg));
       const cf = seg - ci;
-      const a = ROUTE_POS[ci];
-      const b = ROUTE_POS[Math.min(N - 1, ci + 1)];
+      const a = pos[ci];
+      const b = pos[Math.min(N - 1, ci + 1)];
       const cx = a.x + (b.x - a.x) * cf;                        // 彗星の現在位置（%）
       const cy = a.y + (b.y - a.y) * cf;
 
@@ -622,7 +650,7 @@ export default function Home() {
       /* 走破線：通過済みノード＋彗星の先端まで */
       if (trail) {
         const pts: string[] = [];
-        for (let i = 0; i <= ci; i++) pts.push(`${ROUTE_POS[i].x},${ROUTE_POS[i].y}`);
+        for (let i = 0; i <= ci; i++) pts.push(`${pos[i].x.toFixed(2)},${pos[i].y}`);
         pts.push(`${cx.toFixed(2)},${cy.toFixed(2)}`);
         trail.setAttribute("points", pts.join(" "));
       }
@@ -637,12 +665,18 @@ export default function Home() {
       });
     };
     const onScroll = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    /* 幅が変わると「交互に置けるか」の判定と各xが変わるので、リサイズで配置し直す */
+    const onResize = () => { layout(); onScroll(); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll, { passive: true });
+    window.addEventListener("resize", onResize, { passive: true });
+    /* 見出しの実寸が確定してから配置を確定させる（初回はレイアウト確定前で 0 を拾うため） */
+    const ro = headEl ? new ResizeObserver(() => { layout(); onScroll(); }) : null;
+    if (headEl && ro) ro.observe(headEl);
     tick();
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -1168,7 +1202,14 @@ export default function Home() {
               <div className="wc2-route-world">
                 <div className="wc2-route-head">
                   <span className="wc2-label">( 07 ) — PROCESS</span>
-                  <h2 className="wc2-h2">ご相談から制作までの流れ</h2>
+                  {/* ルール②（行末に「、」を残さない） */}
+                  <h2 className="wc2-h2">話すところから<br /><em>公開後まで。</em></h2>
+                  <div className="wc2-route-body">
+                    <p>要件が固まっていない段階でも、まずは事業や課題についてお聞かせください。</p>
+                    <p>対話を通じて必要な情報を整理し、案件に合った進め方を組み立てます。</p>
+                  </div>
+                  {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
+                  <a className="wc2-route-cta" href="#process">制作の進め方を見る <span aria-hidden="true">→</span></a>
                   <span className="wc2-route-hint" aria-hidden="true">SCROLL — 航路をたどって 01 → 06</span>
                 </div>
                 {/* 航路：薄い全体線＋発光する走破線（座標は%、非スケール描画） */}
