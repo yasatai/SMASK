@@ -208,35 +208,60 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
-/* ============ COLUMN：コラムへの導線（PROCESS と CONTACT の間・通常スクロール） ============
-   ABOUT と同じ流儀（透過セクション・左寄せ・Tier1・data-reveal入場） */
-.wc2-column-copy { max-width: none; text-align: left; }
-.wc2-column-copy .wc2-label {
+/* ============ COMPANY：会社概要への導線（COLUMN と CONTACT の間・通常スクロール） ============ */
+.wc2-company-copy { max-width: none; text-align: left; }
+.wc2-company-copy .wc2-label {
   font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em;
   color: var(--wc2-ink-soft);
 }
-.wc2-column-head {
+.wc2-company-head {
   margin-bottom: 0;
-  /* Tier1見出し。最長行「Webで事業をどう伝えるか」(12文字)が1行に入るよう横にも連動させる
-     （狭い画面ほど左右パディングの比率が上がるので 6.3vw まで下げる） */
-  font-size: min(var(--wc2-h2-lg), 6.3vw); line-height: 1.16;
+  /* Tier1見出し。最長行「事業に使えるかたちへ。」(11文字)が1行に入るよう横にも連動させる */
+  font-size: min(var(--wc2-h2-lg), 6.9vw); line-height: 1.16;
 }
-.wc2-column-body { margin-top: 2.4rem; max-width: 42rem; }
-.wc2-column-sec .wc2-column-body p {
+.wc2-company-body { margin-top: 2.4rem; max-width: 46rem; }
+.wc2-company-sec .wc2-company-body p {
   font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
-.wc2-column-sec .wc2-column-body p + p { margin-top: 1.4rem; }
-.wc2-column-cta {
+.wc2-company-sec .wc2-company-body p + p { margin-top: 1.4rem; }
+/* 会社情報（定義リスト）。狭い画面では縦積みにする */
+.wc2-company-info { margin: 2.4rem 0 0; max-width: 46rem; }
+.wc2-company-info > div {
+  display: grid; grid-template-columns: 7.5rem 1fr; gap: 1.4rem;
+  padding-block: .9rem; border-top: 1px solid var(--wc2-line);
+}
+/* グリッド項目は既定の min-width:auto だと長い文が縮まず横に溢れるので解除 */
+.wc2-company-info > div > * { min-width: 0; overflow-wrap: anywhere; }
+.wc2-company-info > div:last-child { border-bottom: 1px solid var(--wc2-line); }
+.wc2-company-info dt {
+  font-family: var(--wc2-display); font-size: .78rem; letter-spacing: .18em;
+  color: var(--wc2-ink-mute); padding-top: .18em;
+}
+.wc2-company-sec .wc2-company-info dd {
+  margin: 0; font-size: var(--wc2-body-sm); line-height: 1.75; color: var(--wc2-ink);
+}
+.wc2-company-sec .wc2-company-info dd span {
+  display: block; margin-top: .3rem;
+  font-size: .88em; line-height: 1.7; color: var(--wc2-ink-soft);
+}
+.wc2-company-cta {
   display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
-  margin-top: 2.6rem; padding-bottom: .6rem;
+  margin-top: 2.4rem; padding-bottom: .6rem;
   font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
   color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
   pointer-events: auto;
   transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
 }
-.wc2-column-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
-.wc2-column-cta span {
+/* 狭い画面は「項目名／内容」を縦積みに（2カラムのままだと横に溢れる） */
+@media (max-width: 620px) {
+  .wc2-company-info > div { grid-template-columns: 1fr; gap: .25rem; padding-block: .8rem; }
+  .wc2-company-body { margin-top: 1.6rem; }
+  .wc2-company-info { margin-top: 1.8rem; }
+  .wc2-company-cta { margin-top: 1.8rem; }
+}
+.wc2-company-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
+.wc2-company-cta span {
   font-size: 1.2rem;
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }

@@ -46,8 +46,8 @@ export default function Footer() {
       </div>
 
       {/* 巻末インデックス：スクロール導線に乗らない3ページへの入口 */}
+      {/* ※コラムは内容の整備待ちのため導線から外している（整備後にリンクを戻す） */}
       <nav className="footer-index" aria-label="サイト案内">
-        <a href="/column"><span className="fi-en">Column</span><span className="fi-jp">コラム</span></a>
         <a href="/company"><span className="fi-en">Company</span><span className="fi-jp">会社概要</span></a>
         <a href="/contact"><span className="fi-en">Contact</span><span className="fi-jp">お問い合わせ</span></a>
       </nav>

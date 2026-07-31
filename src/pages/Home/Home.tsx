@@ -1245,17 +1245,27 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ COLUMN：コラムへの導線（通常スクロールの透過セクション／ABOUTと同じ流儀） ============ */}
-        <section id="wc2-column" className="wc2-sec wc2-column-sec">
-          <div className="wc2-wrap wc2-column-copy">
-            <span className="wc2-label" data-reveal>( 08 ) — COLUMN</span>
+        {/* ============ COMPANY：会社概要への導線（通常スクロールの透過セクション） ============ */}
+        <section id="wc2-company" className="wc2-sec wc2-company-sec">
+          <div className="wc2-wrap wc2-company-copy">
+            <span className="wc2-label" data-reveal>( 08 ) — COMPANY</span>
             {/* ルール②（行末に「、」を残さない） */}
-            <h2 className="wc2-h2 wc2-column-head" data-reveal>Webで事業をどう伝えるか<br /><em>考え続ける。</em></h2>
-            <div className="wc2-column-body" data-reveal-stagger>
-              <p>Web制作、文章、導線、デザイン、運用など、企業がWebをより良く活用するための考え方を紹介します。</p>
-              <p>制作の現場で得た気づきや、伝わるWebをつくるための視点を発信します。</p>
+            <h2 className="wc2-h2 wc2-company-head" data-reveal>Webを<br /><em>事業に使えるかたちへ。</em></h2>
+            <div className="wc2-company-body" data-reveal-stagger>
+              <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
+              <p>企業やサービスが持つ価値を整理し、次の行動へ進みやすいWebサイトを制作します。</p>
             </div>
-            <a className="wc2-column-cta" href="/column" data-reveal>コラムを読む <span aria-hidden="true">→</span></a>
+            {/* 表示情報（※設立日は未確定のため掲載しない。確定後に追加すること） */}
+            <dl className="wc2-company-info" data-reveal>
+              <div><dt>会社名</dt><dd>株式会社スマスク</dd></div>
+              <div><dt>代表者</dt><dd>代表取締役　若林 晃行</dd></div>
+              <div><dt>所在地</dt><dd>神奈川県相模原市</dd></div>
+              <div>
+                <dt>事業内容</dt>
+                <dd>Webコンテンツ制作<span>Webサイトの企画、情報設計、文章制作、デザイン、実装連携、運用支援</span></dd>
+              </div>
+            </dl>
+            <a className="wc2-company-cta" href="/company" data-reveal>会社概要を見る <span aria-hidden="true">→</span></a>
           </div>
         </section>
 
@@ -1264,7 +1274,7 @@ export default function Home() {
           <div id="wc2-contact-pin" className="wc2-contact-pin">
             <div className="wc2-contact-stage">
               <div className="wc2-wrap wc2-contact-inner">
-                {/* コラム(08)を追加したため繰り下げ。会社概要(09)追加時にさらに ( 10 ) へ */}
+                {/* 会社概要(08)の追加に伴い繰り下げ。※コラムセクション復活時は 09→10 に戻すこと */}
                 <span className="wc2-label">( 09 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
                   <span className="wc2-talk-main">話しましょう<em>.</em></span>

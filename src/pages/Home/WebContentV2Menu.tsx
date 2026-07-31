@@ -16,7 +16,8 @@ const MENU_ITEMS: MenuItem[] = [
   { label: "SERVICES", id: "wc2-services" },
   { label: "STRENGTHS", id: "wc2-strengths-sec" },
   { label: "PROCESS", id: "wc2-route-sec" },
-  { label: "COLUMN", id: "wc2-column" },
+  /* COLUMN セクションは内容の整備待ちのため一旦削除（復活時はここにも戻す） */
+  { label: "COMPANY", id: "wc2-company" },
   { label: "CONTACT", id: "wc2-contact-pin" },
 ];
 
@@ -28,9 +29,9 @@ interface PageLink {
   href: string;
 }
 
+/* ※コラムは内容の整備待ちのため導線から外している（整備後に { label:"コラム", en:"COLUMN", href:"/column" } を戻す） */
 const PAGE_LINKS: PageLink[] = [
   { label: "会社概要", en: "COMPANY", href: "/company" },
-  { label: "コラム", en: "COLUMN", href: "/column" },
   { label: "お問い合わせ", en: "CONTACT", href: "/contact" },
 ];
 

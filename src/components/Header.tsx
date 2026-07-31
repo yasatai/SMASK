@@ -12,10 +12,10 @@ const BASE = import.meta.env.BASE_URL;
  */
 type PageItem = { label: string; en: string; href: string };
 
+/* ※コラムは内容の整備待ちのため導線から外している（整備後に { label:"コラム", en:"Column", href:"/column" } を戻す） */
 const ITEMS: PageItem[] = [
   { label: "ホーム", en: "Home", href: "/" },
   { label: "会社概要", en: "Company", href: "/company" },
-  { label: "コラム", en: "Column", href: "/column" },
   { label: "お問い合わせ", en: "Contact", href: "/contact" },
 ];
 
