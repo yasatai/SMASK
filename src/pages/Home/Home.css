@@ -208,39 +208,6 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 
-/* ============ COLUMN：コラムへの導線（PROCESS と CONTACT の間・通常スクロール） ============
-   ABOUT と同じ流儀（透過セクション・左寄せ・Tier1・data-reveal入場） */
-.wc2-column-copy { max-width: none; text-align: left; }
-.wc2-column-copy .wc2-label {
-  font-size: clamp(.95rem, 1.25vw, 1.08rem); letter-spacing: .2em;
-  color: var(--wc2-ink-soft);
-}
-.wc2-column-head {
-  margin-bottom: 0;
-  /* Tier1見出し。最長行「Webで事業をどう伝えるか」(12文字)が1行に入るよう横にも連動させる
-     （狭い画面ほど左右パディングの比率が上がるので 6.3vw まで下げる） */
-  font-size: min(var(--wc2-h2-lg), 6.3vw); line-height: 1.16;
-}
-.wc2-column-body { margin-top: 2.4rem; max-width: 42rem; }
-.wc2-column-sec .wc2-column-body p {
-  font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
-  color: var(--wc2-ink-soft);
-}
-.wc2-column-sec .wc2-column-body p + p { margin-top: 1.4rem; }
-.wc2-column-cta {
-  display: inline-flex; align-items: center; gap: .9rem; width: fit-content;
-  margin-top: 2.6rem; padding-bottom: .6rem;
-  font-family: var(--wc2-display); font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
-  color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
-  pointer-events: auto;
-  transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
-}
-.wc2-column-cta:hover { gap: 1.3rem; border-color: rgb(230 231 234 / .6); }
-.wc2-column-cta span {
-  font-size: 1.2rem;
-  background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-
 /* ============ COMPANY：会社概要への導線（COLUMN と CONTACT の間・通常スクロール） ============ */
 .wc2-company-copy { max-width: none; text-align: left; }
 .wc2-company-copy .wc2-label {

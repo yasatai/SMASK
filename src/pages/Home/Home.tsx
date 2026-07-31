@@ -1245,24 +1245,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ============ COLUMN：コラムへの導線（通常スクロールの透過セクション／ABOUTと同じ流儀） ============ */}
-        <section id="wc2-column" className="wc2-sec wc2-column-sec">
-          <div className="wc2-wrap wc2-column-copy">
-            <span className="wc2-label" data-reveal>( 08 ) — COLUMN</span>
-            {/* ルール②（行末に「、」を残さない） */}
-            <h2 className="wc2-h2 wc2-column-head" data-reveal>Webで事業をどう伝えるか<br /><em>考え続ける。</em></h2>
-            <div className="wc2-column-body" data-reveal-stagger>
-              <p>Web制作、文章、導線、デザイン、運用など、企業がWebをより良く活用するための考え方を紹介します。</p>
-              <p>制作の現場で得た気づきや、伝わるWebをつくるための視点を発信します。</p>
-            </div>
-            <a className="wc2-column-cta" href="/column" data-reveal>コラムを読む <span aria-hidden="true">→</span></a>
-          </div>
-        </section>
-
         {/* ============ COMPANY：会社概要への導線（通常スクロールの透過セクション） ============ */}
         <section id="wc2-company" className="wc2-sec wc2-company-sec">
           <div className="wc2-wrap wc2-company-copy">
-            <span className="wc2-label" data-reveal>( 09 ) — COMPANY</span>
+            <span className="wc2-label" data-reveal>( 08 ) — COMPANY</span>
             {/* ルール②（行末に「、」を残さない） */}
             <h2 className="wc2-h2 wc2-company-head" data-reveal>Webを<br /><em>事業に使えるかたちへ。</em></h2>
             <div className="wc2-company-body" data-reveal-stagger>
@@ -1288,8 +1274,8 @@ export default function Home() {
           <div id="wc2-contact-pin" className="wc2-contact-pin">
             <div className="wc2-contact-stage">
               <div className="wc2-wrap wc2-contact-inner">
-                {/* コラム(08)・会社概要(09)の追加に伴い繰り下げ済み（採番ルールの最終値） */}
-                <span className="wc2-label">( 10 ) — CONTACT</span>
+                {/* 会社概要(08)の追加に伴い繰り下げ。※コラムセクション復活時は 09→10 に戻すこと */}
+                <span className="wc2-label">( 09 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
                   <span className="wc2-talk-main">話しましょう<em>.</em></span>
                   <span className="wc2-talk-arrow" aria-hidden="true">

@@ -16,7 +16,7 @@ const MENU_ITEMS: MenuItem[] = [
   { label: "SERVICES", id: "wc2-services" },
   { label: "STRENGTHS", id: "wc2-strengths-sec" },
   { label: "PROCESS", id: "wc2-route-sec" },
-  { label: "COLUMN", id: "wc2-column" },
+  /* COLUMN セクションは内容の整備待ちのため一旦削除（復活時はここにも戻す） */
   { label: "COMPANY", id: "wc2-company" },
   { label: "CONTACT", id: "wc2-contact-pin" },
 ];
