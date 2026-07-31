@@ -1,70 +1,101 @@
 import { useEffect } from "react";
 import LoadCurtain from "../../components/LoadCurtain";
+import PageAtmos from "../../components/PageAtmos";
+import { useReveal } from "../../useReveal";
 import { useSiteSettings } from "../../data/SiteSettingsContext";
 import "./Company.css";
 
-/* VISION：目指しているかたち */
-const VISION: [string, string][] = [
-  [
-    "本質を見極める",
-    "表面的な価格や見た目だけでなく、その背景にある価値・文脈・意味まで丁寧に確認します。「なぜその価値があるのか」を理解することが、すべての出発点です。",
-  ],
-  [
-    "価値が正しく伝わる社会へ",
-    "価値があっても、伝わらなければ届きません。情報を整理し、導線を設計し、受け取る側にとって自然な形に整えることを大切にしています。",
-  ],
-  [
-    "持続できる事業の形",
-    "一度きりの取引ではなく、長く続けられる関係を大切にします。信頼は積み重ねによって生まれるものだと考えています。",
-  ],
-  [
-    "誠実な取引の積み重ね",
-    "急いで形にするのではなく、準備が整った状態で、正しい方法で届けます。「できること」と「できないこと」を明確にし、誠実に向き合います。",
-  ],
+/* 制作で大切にしていること（統合仕様 D）。旧・買取事業前提のVISIONから差し替え */
+const VALUES: [string, string][] = [
+  ["事業を理解する", "ページやデザインを先に決めるのではなく、事業、顧客、目的を理解することから始めます。"],
+  ["情報を整理する", "企業の中にある情報を選び、誰に何を伝えるべきかを整理します。"],
+  ["工程をつなぐ", "文章、導線、デザイン、実装仕様を分断せず、一貫したWebサイトへまとめます。"],
+  ["公開後を考える", "公開を完成とせず、更新や改善を含めて、事業の中で使われ続ける状態を目指します。"],
 ];
 
-/* 会社情報。事業内容は複数行のため配列で持つ */
+/* 対応領域（統合仕様 D） */
+const FIELDS: string[] = [
+  "コーポレートサイト",
+  "サービスサイト",
+  "採用サイト",
+  "ランディングページ",
+  "Webサイトのリニューアル",
+  "Webサイト内の文章・コンテンツ制作",
+  "公開後の運用・改善",
+];
+
+/* 会社情報。事業内容は複数行のため配列で持つ。
+   ※事業はWebコンテンツ制作に一本化したため、旧・貴金属/ジュエリーの記載と
+     それに紐づく古物商許可番号は掲載しない（統合仕様の削除方針） */
 const PROFILE: [string, string | string[]][] = [
   ["会社名", "株式会社スマスク"],
-  ["代表者", "若林　晃行"],
+  ["代表者", "代表取締役　若林　晃行"],
+  ["所在地", "神奈川県相模原市"],
   ["設立", "2013年5月26日"],
   ["資本金", "990万円"],
-  [
-    "事業内容",
-    [
-      "貴金属・ジュエリー等の買取事業",
-      "ジュエリーの企画・オーダーメイド制作事業",
-      "Webサイト及びデジタルコンテンツの企画・制作事業",
-    ],
-  ],
-  ["古物商許可番号", "神奈川県公安委員会許可　第452780017461号"],
+  ["事業内容", ["Webコンテンツ制作", "Webサイトの企画、情報設計、文章制作、デザイン、実装連携、運用支援"]],
 ];
 
 export default function Company() {
   const { company_name } = useSiteSettings();
   useEffect(() => { document.title = "会社概要 ｜ SMASK"; }, []);
-  /* スクロール連動の演出は付けない（素直に読める状態） */
+  /* 背景・演出はトップと同じ世界観に揃える（2026-07-31 代表指示）。
+     PageAtmos が漆黒＋青い靄＋星屑を敷き、useReveal が下から上へのフェードインを付ける。 */
+  useReveal();
   /* 会社名だけはサイト設定から差し替え（他項目はコピー扱いで対象外） */
   const profile = PROFILE.map(([label, value]) => label === "会社名" ? [label, company_name] as const : [label, value] as const);
 
   return (
     <>
       <LoadCurtain />
+      <PageAtmos />
       <main className="cp-page">
 
         {/* ============ Hero ============ */}
         <section className="cp-hero">
-          <span className="cp-eyebrow">COMPANY</span>
-          <h1>会社概要</h1>
+          <span className="cp-eyebrow" data-reveal>COMPANY</span>
+          {/* ルール②（行末に「、」を残さない） */}
+          <h1 data-reveal>Webを<br />事業に使えるかたちへ。</h1>
+          <div className="cp-lead" data-reveal>
+            <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
+            <p>企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。</p>
+          </div>
         </section>
 
-        {/* ============ VISION ============ */}
+        {/* ============ SMASKについて ============ */}
         <section className="cp-sec">
           <div className="cp-wrap">
-            <span className="cp-eyebrow">VISION</span>
-            <h2 className="cp-h2">目指しているかたち</h2>
-            <div className="cp-vision">
-              {VISION.map(([title, body]) => (
+            <span className="cp-eyebrow" data-reveal>ABOUT</span>
+            <h2 className="cp-h2" data-reveal>価値を見極め<br />かたちにする。</h2>
+            <div className="cp-body" data-reveal>
+              <p>企業やサービスの中には、まだ言葉やWebのかたちになっていない価値があります。</p>
+              <p>SMASKは、対話や調査を通じてその価値を整理し、文章、導線、デザイン、実装仕様へつなげます。</p>
+              <p>Webだけを切り離して考えず、事業の見え方と、選ばれるまでの流れを整えます。</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ 私たちの事業 ============ */}
+        <section className="cp-sec">
+          <div className="cp-wrap">
+            <span className="cp-eyebrow" data-reveal>BUSINESS</span>
+            <h2 className="cp-h2" data-reveal>Webコンテンツ制作</h2>
+            <div className="cp-body" data-reveal>
+              <p>Webサイトの企画、情報設計、文章制作、導線設計、Webデザイン、実装連携、公開後の運用支援を行います。</p>
+              <p>コーポレートサイト、サービスサイト、採用サイト、ランディングページなど、事業や目的に合わせたWebを制作します。</p>
+            </div>
+            {/* TODO: 事業内容ページ（P-A）作成時に href を差し替える */}
+            <a className="cp-cta" href="#business" data-reveal>事業内容を見る <span aria-hidden="true">→</span></a>
+          </div>
+        </section>
+
+        {/* ============ 制作で大切にしていること ============ */}
+        <section className="cp-sec">
+          <div className="cp-wrap">
+            <span className="cp-eyebrow" data-reveal>VALUES</span>
+            <h2 className="cp-h2" data-reveal>制作で大切にしていること</h2>
+            <div className="cp-vision" data-reveal-stagger>
+              {VALUES.map(([title, body]) => (
                 <div className="cp-vision-item" key={title}>
                   <h3>{title}</h3>
                   <p>{body}</p>
@@ -75,9 +106,11 @@ export default function Company() {
         </section>
 
         {/* ============ 会社情報 ============ */}
-        <section className="cp-sec cp-sec--profile">
+        <section className="cp-sec">
           <div className="cp-wrap">
-            <dl className="cp-profile">
+            <span className="cp-eyebrow" data-reveal>PROFILE</span>
+            <h2 className="cp-h2" data-reveal>会社情報</h2>
+            <dl className="cp-profile" data-reveal>
               {profile.map(([label, value]) => (
                 <div className="cp-row" key={label}>
                   <dt>{label}</dt>
@@ -89,6 +122,29 @@ export default function Company() {
                 </div>
               ))}
             </dl>
+          </div>
+        </section>
+
+        {/* ============ 対応領域 ============ */}
+        <section className="cp-sec">
+          <div className="cp-wrap">
+            <span className="cp-eyebrow" data-reveal>FIELDS</span>
+            <h2 className="cp-h2" data-reveal>対応領域</h2>
+            <ul className="cp-fields" data-reveal-stagger>
+              {FIELDS.map(f => <li key={f}>{f}</li>)}
+            </ul>
+          </div>
+        </section>
+
+        {/* ============ 最終CTA ============ */}
+        <section className="cp-sec cp-sec--end">
+          <div className="cp-wrap">
+            <h2 className="cp-h2" data-reveal>会社のことを知ったうえで<br />次は事業について話しましょう。</h2>
+            <div className="cp-body" data-reveal>
+              <p>新しいWebサイトの制作や、既存サイトの見直しについて、現在考えていることをお聞かせください。</p>
+              <p>要件が固まっていない段階でも、事業や課題を伺いながら必要な内容を整理します。</p>
+            </div>
+            <a className="cp-cta cp-cta--main" href="/contact" data-reveal>制作について相談する <span aria-hidden="true">→</span></a>
           </div>
         </section>
 
