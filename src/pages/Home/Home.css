@@ -346,7 +346,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
    （JSがtransform/opacityを直接駆動。戻すと逆再生されるスクラブ式） */
 .wc2-hl { display: block; overflow: hidden; }
 .wc2-hl > span { display: inline-block; transform: translateY(110%); will-change: transform; }
-.wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead { opacity: 0; will-change: opacity; }
+.wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead, .wc2-hero-cta { opacity: 0; will-change: opacity; }
 .wc2-hl--grad > span {
   background: var(--wc2-iri); background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -365,8 +365,26 @@ html.wc2-page-active .wc2-bridge { display: none; }
   font-size: var(--wc2-body-lg); line-height: 1.9; letter-spacing: .02em;
   color: var(--wc2-ink-soft);
 }
+/* Heroの主導線2本。サイズはCTA基準（課題表のタイポグラフィ基準） */
+.wc2-hero-cta {
+  margin-top: clamp(1.6rem, 3.4vh, 2.4rem);
+  display: flex; flex-wrap: wrap; gap: clamp(1.2rem, 3vw, 2.4rem);
+}
+.wc2-hero-cta a {
+  display: inline-flex; align-items: center; gap: .7rem; padding-bottom: .45rem;
+  font-size: clamp(1rem, 1.25vw, 1.12rem); letter-spacing: .16em;
+  color: var(--wc2-ink); border-bottom: 1px solid rgb(230 231 234 / .28);
+  transition: gap .5s var(--ease-expo), border-color .4s var(--ease-out);
+}
+.wc2-hero-cta a:hover { gap: 1.1rem; border-color: rgb(230 231 234 / .7); }
+.wc2-hero-cta span {
+  font-size: 1.2rem;
+  background: var(--wc2-iri); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
 .wc2-hero-scroll {
-  margin-top: clamp(3rem, 7vh, 5.5rem);
+  /* CTAを足したぶん、SCROLLヒントまでの間隔を詰める（Heroは1画面に収める） */
+  margin-top: clamp(1.6rem, 4vh, 3rem);
   display: inline-flex; align-items: center; gap: 1rem;
   font-family: var(--wc2-display); font-size: .62rem; letter-spacing: .34em;
   color: var(--wc2-ink-mute);
@@ -381,6 +399,36 @@ html.wc2-page-active .wc2-bridge { display: none; }
   animation: wc2ScrollHint 2.4s var(--ease-in-out) infinite;
 }
 @keyframes wc2ScrollHint { 60%, 100% { transform: translateX(100%); } }
+
+/* 画面が低いときのHero圧縮。
+   主導線2本（.wc2-hero-cta）を足したぶん縦が伸び、660〜720px高で1画面に収まらなくなった。
+   見出しをvhで頭打ちにし（共通の作法）、各段の間隔と上下パディングを詰める。 */
+@media (max-height: 780px) {
+  .wc2-hero-sticky { padding-block: 5rem 2.4rem; }
+  .wc2-hero-h1 { margin-top: 1.1rem; font-size: min(var(--wc2-h2-lg), 14.5vh); }
+  .wc2-hero-copy .wc2-hero-sub  { margin-top: 1.2rem; }
+  .wc2-hero-copy .wc2-hero-lead { margin-top: 1rem; }
+  .wc2-hero-cta    { margin-top: 1.2rem; }
+  .wc2-hero-scroll { margin-top: 1.3rem; }
+}
+/* さらに低い画面（横向きスマホ・小型ノート）は本文も頭打ちにする。
+   「画面が低い時は頭打ちにする」共通の作法を、見出しだけでなくサブ・本文にも適用。 */
+@media (max-height: 700px) {
+  .wc2-hero-sticky { padding-block: 4.2rem 2rem; }
+  .wc2-hero-copy .wc2-hero-tag  { font-size: .92rem; }
+  .wc2-hero-h1 { margin-top: .9rem; }
+  .wc2-hero-copy .wc2-hero-sub  { font-size: min(clamp(1.3rem, 2.3vw, 1.85rem), 3.4vh); margin-top: .9rem; }
+  .wc2-hero-copy .wc2-hero-lead { font-size: min(var(--wc2-body-lg), 2.4vh); line-height: 1.75; margin-top: .85rem; }
+  .wc2-hero-cta    { margin-top: .95rem; gap: .5rem 1.4rem; }
+  .wc2-hero-cta a  { font-size: min(1rem, 2.3vh); }
+  .wc2-hero-scroll { margin-top: .95rem; }
+}
+/* 極端に小さい端末（320x568級）は本文が入りきらないため、
+   装飾であるSCROLLヒント（aria-hidden）を落として本文を優先する。 */
+@media (max-height: 600px) and (max-width: 400px) {
+  .wc2-hero-scroll { display: none; }
+  .wc2-hero-sticky { padding-block: 3.6rem 1.6rem; }
+}
 
 /* ============ MARQUEE ============ */
 .wc2-marquee {
@@ -1268,7 +1316,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 
 @media (prefers-reduced-motion: reduce) {
   .wc2-page, .wc2-page [data-reveal], .wc2-page [data-reveal-stagger] > *,
-  .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead,
+  .wc2-hl > span, .wc2-hero-tag, .wc2-hero-sub, .wc2-hero-lead, .wc2-hero-cta,
   .wc2-approach-cols, .wc2-worksreveal-head, .wc2-worksreveal-track,
   .wc2-work, .wc2-inright { opacity: 1 !important; transform: none !important; transition: none !important; }
   .wc2-aurora { opacity: 1; }

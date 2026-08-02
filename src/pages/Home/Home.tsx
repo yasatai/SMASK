@@ -173,6 +173,7 @@ export default function Home() {
     const sub = hero.querySelector<HTMLElement>(".wc2-hero-sub");
     const lead = hero.querySelector<HTMLElement>(".wc2-hero-lead");
     const hint = hero.querySelector<HTMLElement>(".wc2-hero-scroll");
+    const cta = hero.querySelector<HTMLElement>(".wc2-hero-cta");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
     const seg = (p: number, a: number, b: number) => ss(Math.min(1, Math.max(0, (p - a) / (b - a))));
@@ -195,6 +196,7 @@ export default function Home() {
         });
         if (sub) sub.style.opacity = (seg(p, 0.18, 0.30) * out).toFixed(3);
         if (lead) lead.style.opacity = (seg(p, 0.22, 0.34) * out).toFixed(3);
+        if (cta) cta.style.opacity = (seg(p, 0.26, 0.38) * out).toFixed(3);
         /* SCROLLヒントは最初から見えていて、動き出したら退く */
         if (hint) hint.style.opacity = (1 - seg(p, 0.04, 0.12)).toFixed(3);
       }
@@ -958,6 +960,11 @@ export default function Home() {
                 SMASKは、事業を理解し、情報・文章・導線・デザイン・実装・運用をつなぐWebコンテンツ制作会社です。<br />
                 企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。
               </p>
+              {/* T-1で保留していたHero CTA。事業内容(P-A)・制作実績(P-B)が揃ったので配線 */}
+              <div className="wc2-hero-cta">
+                <a href="/business">事業内容を見る <span aria-hidden="true">→</span></a>
+                <a href="/works">制作実績を見る <span aria-hidden="true">→</span></a>
+              </div>
               <div className="wc2-hero-scroll" aria-hidden="true">
                 <span>SCROLL</span>
                 <i></i>
@@ -1048,7 +1055,7 @@ export default function Home() {
                   <p>制作したWebサイトと、それぞれの事業や課題に対して、どのような考え方で設計したのかを紹介します。</p>
                   <p>完成した画面だけでなく、SMASKが担当した範囲も明確に掲載します。</p>
                   {/* TODO: 制作実績ページ（P-B）作成時に href を差し替える */}
-                  <a className="wc2-viewall" href="#works">制作実績を見る <span aria-hidden="true">→</span></a>
+                  <a className="wc2-viewall" href="/works">制作実績を見る <span aria-hidden="true">→</span></a>
                 </div>
               </div>
               <div className="wc2-worksreveal-track">

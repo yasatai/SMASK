@@ -11,6 +11,8 @@ import ColumnPost from "./pages/Column/ColumnPost";
 import Company from "./pages/Company/Company";
 import Contact from "./pages/Contact/Contact";
 import Privacy from "./pages/Privacy/Privacy";
+import Works from "./pages/Works/Works";
+import WorkDetail from "./pages/Works/WorkDetail";
 import { prefersReduced } from "./motion";
 import { useJaTypography } from "./useJaTypography";
 import { SiteSettingsProvider } from "./data/SiteSettingsContext";
@@ -21,6 +23,7 @@ import "./App.css";
 const ROUTES = new Set([
   "/",
   "/business",
+  "/works",
   "/column",
   "/company",
   "/contact",
@@ -92,6 +95,8 @@ export default function App() {
         <Route path="/company" element={<Company />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/works" element={<Works />} />
+        <Route path="/works/:slug" element={<WorkDetail />} />
       </Routes>
       <Footer />
     </SiteSettingsProvider>

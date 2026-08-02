@@ -232,6 +232,7 @@
   /* 下層ページの「左サイドナビ用の左余白」を解除して通常の中央寄せに戻す（上部ヘッダーに変更したため） */
   .nav-top .cl-page .cl-wrap, .nav-top .cl-page .cl-hero,
   .nav-top .cp-page .cp-wrap, .nav-top .cp-page .cp-hero,
+  .nav-top .wk-page .wk-wrap, .nav-top .wk-page .wk-hero,
   .nav-top .ct-page .ct-wrap, .nav-top .ct-page .ct-hero,
   .nav-top .jw-page .jw-wrap, .nav-top .jw-page .jw-hero,
   .nav-top .pm-page .pm-wrap,
@@ -242,6 +243,7 @@
   /* 短いHeroの情報ページは、固定ヘッダー(4.6rem)ぶん上に余白を足して見出しが隠れないように。
      事業ページ（pm/jw/wc）のHeroは全画面・中央寄せなので対象外（ヘッダーは余白部分に重なるだけ）。 */
   .nav-top .bz-hero,
+  .nav-top .wk-hero,
   .nav-top .cp-hero,
   .nav-top .ct-hero,
   .nav-top .cl-hero,
