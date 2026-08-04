@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
+/* FVの改行の比較用（検証専用・確定したら HERO_LINES 参照を1案のJSXへ戻す） */
+import { HERO_LINES, currentBr } from "../../heroLab";
 import Scene3D from "./Scene3D";
 import WebContentV2Menu from "./WebContentV2Menu";
 import Opening from "./Opening";
@@ -952,8 +954,17 @@ export default function Home() {
             <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
               <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
               <h1 className="wc2-hero-h1">
-                <span className="wc2-hl"><span>価値を見極め、</span></span>
-                <span className="wc2-hl wc2-hl--grad"><span>かたちにする。</span></span>
+                {HERO_LINES[currentBr()].map((ln, i) =>
+                  "text" in ln ? (
+                    <span key={i} className={"wc2-hl" + (ln.grad ? " wc2-hl--grad" : "")}>
+                      <span>{ln.text}</span>
+                    </span>
+                  ) : (
+                    <span key={i} className="wc2-hl">
+                      <span>{ln.head}<i className="wc2-hl-tail">{ln.tail}</i></span>
+                    </span>
+                  )
+                )}
               </h1>
               <p className="wc2-hero-sub">伝わるWebを、動かすまで。</p>
               <p className="wc2-hero-lead">
