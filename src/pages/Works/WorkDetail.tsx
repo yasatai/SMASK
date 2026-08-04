@@ -110,6 +110,7 @@ export default function WorkDetail() {
             </div>
             <div className="wk-actions" data-reveal>
               <a className="wk-cta" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
+              <a className="wk-cta wk-cta--back" href="/business">事業内容を見る <span aria-hidden="true">→</span></a>
               <a className="wk-cta wk-cta--back" href="/works">実績一覧へ戻る <span aria-hidden="true">→</span></a>
             </div>
           </div>

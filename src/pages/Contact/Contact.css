@@ -210,6 +210,23 @@
 .ct-home-btn:hover, .ct-home-btn:focus-visible { background: var(--ct-accent-d); }
 .ct-home-btn:active { transform: translateY(1px); }
 
+/* 送信完了後の主導線（返信待ちの間に見てもらう） */
+.ct-thanks-links {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .8rem clamp(1.4rem, 4vw, 2.4rem);
+  margin-top: clamp(1.4rem, 3vw, 2rem);
+}
+.ct-thanks-links a {
+  padding-bottom: .35rem;
+  font-family: var(--font-jp); font-size: .86rem; letter-spacing: .08em;
+  color: var(--color-ink-soft);
+  border-bottom: 1px solid var(--ct-line, oklch(90% 0.006 70));
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+.ct-thanks-links a:hover, .ct-thanks-links a:focus-visible {
+  color: var(--color-ink); border-color: var(--ct-accent);
+}
+
 /* ---- メールアドレス ---- */
 .ct-mail { margin-top: 2.2rem; text-align: right; }
 .ct-mail-label {

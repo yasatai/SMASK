@@ -66,6 +66,10 @@
 .cp-cta:hover { gap: 1.2rem; border-color: var(--cp-accent); }
 .cp-cta span { color: var(--cp-accent); font-size: 1.05rem; }
 
+/* 主導線を横に並べる。副導線は一段落とす（主＝相談を目立たせる） */
+.cp-actions { display: flex; flex-wrap: wrap; gap: 0 clamp(1.5rem, 4vw, 3rem); }
+.cp-cta--sub { color: var(--color-ink-soft); }
+
 /* 対応領域 */
 .cp-fields {
   margin: clamp(1.6rem, 3.4vw, 2.2rem) 0 0; padding: 0; list-style: none;

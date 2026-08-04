@@ -169,6 +169,11 @@ export default function Contact() {
                 <h3>送信が完了しました</h3>
                 <p>お問い合わせありがとうございます。担当者より順次ご連絡いたしますので、いましばらくお待ちください。</p>
                 <a href="/" className="ct-home-btn">ホームへ戻る</a>
+                {/* 送信後は行き止まりにしない。返信を待つ間に見てもらえる主導線2本を置く */}
+                <div className="ct-thanks-links">
+                  <a href="/business">事業内容を見る</a>
+                  <a href="/works">制作実績を見る</a>
+                </div>
               </div>
             ) : (
             <form className="ct-form" onSubmit={onSubmit} noValidate>

@@ -98,7 +98,11 @@ export default function Works() {
               <p>事業や課題によって、必要なページ、文章、導線、デザインは異なります。</p>
               <p>現在考えていることを伺いながら、必要な制作内容を整理します。</p>
             </div>
-            <a className="wk-cta" href="/contact" data-reveal>制作について相談する <span aria-hidden="true">→</span></a>
+            {/* 主導線3本のうち、このページで未提示の「事業内容」を並べる */}
+            <div className="wk-actions" data-reveal>
+              <a className="wk-cta" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
+              <a className="wk-cta wk-cta--back" href="/business">事業内容を見る <span aria-hidden="true">→</span></a>
+            </div>
           </div>
         </section>
 
