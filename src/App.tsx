@@ -32,6 +32,9 @@ const ROUTES = new Set([
   "/privacy",
 ]);
 
+/* 可変部分を持つルート（実績詳細・コラム記事）。ROUTES と同じく自前で遷移させる */
+const DYNAMIC_ROUTES = [/^\/works\/[^/]+$/, /^\/column\/[^/]+$/];
+
 export default function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -55,7 +58,10 @@ export default function App() {
       const href = a.getAttribute("href");
       if (!href || href.charAt(0) === "#" || /^(mailto:|tel:)/.test(href)) return;
       if (a.host !== window.location.host) return;
-      if (!ROUTES.has(a.pathname)) return;
+      /* 実績詳細のような動的URLも自前で遷移させる。
+         ここで拾わないとブラウザが素の href（例 /works/xxx）へ全画面遷移し、
+         サブパス配信（GitHub Pages の /SMASK/）では404になる。 */
+      if (!ROUTES.has(a.pathname) && !DYNAMIC_ROUTES.some(re => re.test(a.pathname))) return;
       e.preventDefault();
       if (a.pathname === window.location.pathname) return;
       if (prefersReduced) { navigate(a.pathname); return; }
