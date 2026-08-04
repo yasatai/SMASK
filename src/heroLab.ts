@@ -1,7 +1,7 @@
 /**
  * トップFV（Hero）の配置・改行の比較用スイッチ（**検証専用・確定したら丸ごと削除する**）。
  *
- *   ?pos=left | center | left-bottom | center-bottom
+ *   ?pos=left | center
  *   ?br=2 | 1 | 3
  *
  * 2軸は独立して切り替えられる（配置を変えながら改行だけ試す、が出来るように）。
@@ -14,14 +14,15 @@
  *   4. 採用した配置を Home.css の .wc2-hero-* 本体へ本移植する
  */
 
-export type HeroPos = "left" | "center" | "left-bottom" | "center-bottom";
+export type HeroPos = "left" | "center";
 export type HeroBr = "2" | "1" | "3";
 
+/* 下寄せ（left-bottom / center-bottom）は廃止（2026-07-31 代表判断）。
+   Heroの中身が696pxあり配置に使える領域が724pxしかないため、
+   1440x900では中央と下寄せで6pxしか動かず、選択肢として成立しなかった。 */
 export const HERO_POS: { id: HeroPos; label: string; note: string }[] = [
-  { id: "left",          label: "左（現行）",   note: "左寄せ・上下中央" },
-  { id: "center",        label: "中央",         note: "中央寄せ・上下中央" },
-  { id: "left-bottom",   label: "左・下",       note: "左寄せ・下寄せ（靄を上に大きく見せる）" },
-  { id: "center-bottom", label: "中央・下",     note: "中央寄せ・下寄せ" },
+  { id: "left",   label: "左（現行）", note: "左寄せ・上下中央" },
+  { id: "center", label: "中央",       note: "中央寄せ・上下中央" },
 ];
 
 export const HERO_BR: { id: HeroBr; label: string; note: string }[] = [

@@ -6,36 +6,23 @@
  */
 
 /* ============ 中央寄せ ============ */
-html[data-hero-pos="center"] .wc2-hero-copy,
-html[data-hero-pos="center-bottom"] .wc2-hero-copy {
+html[data-hero-pos="center"] .wc2-hero-copy {
   /* 左サイド用の余白を外し、コピー全体を画面中央に置く */
   padding-left: 0;
   max-width: min(100% - 2.5rem, var(--wc2-wrap-max));
   text-align: center;
 }
 html[data-hero-pos="center"] .wc2-hero-copy .wc2-hero-sub,
-html[data-hero-pos="center-bottom"] .wc2-hero-copy .wc2-hero-sub,
-html[data-hero-pos="center"] .wc2-hero-copy .wc2-hero-lead,
-html[data-hero-pos="center-bottom"] .wc2-hero-copy .wc2-hero-lead {
+html[data-hero-pos="center"] .wc2-hero-copy .wc2-hero-lead {
   margin-inline: auto;
 }
-html[data-hero-pos="center"] .wc2-hero-cta,
-html[data-hero-pos="center-bottom"] .wc2-hero-cta { justify-content: center; }
-html[data-hero-pos="center"] .wc2-hero-scroll,
-html[data-hero-pos="center-bottom"] .wc2-hero-scroll {
+html[data-hero-pos="center"] .wc2-hero-cta { justify-content: center; }
+html[data-hero-pos="center"] .wc2-hero-scroll {
   /* inline-flex なので text-align:center が効く。念のため中央寄せを明示 */
   margin-inline: auto;
 }
 /* 見出しの行は overflow:hidden のブロック。中央寄せでは行内を中央に */
-html[data-hero-pos="center"] .wc2-hl,
-html[data-hero-pos="center-bottom"] .wc2-hl { text-align: center; }
-
-/* ============ 下寄せ（靄を上に大きく見せる） ============ */
-html[data-hero-pos="left-bottom"] .wc2-hero-sticky,
-html[data-hero-pos="center-bottom"] .wc2-hero-sticky {
-  align-items: flex-end;
-  padding-bottom: clamp(3rem, 8vh, 6rem);
-}
+html[data-hero-pos="center"] .wc2-hl { text-align: center; }
 
 /* ============ 1行版：見出しを幅に連動させる ============
    「価値を見極め、かたちにする。」は句読点込み14文字＝実測14.03em。基準の110pxのままだと
