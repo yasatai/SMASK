@@ -143,7 +143,12 @@ export default function Company() {
               <p>新しいWebサイトの制作や、既存サイトの見直しについて、現在考えていることをお聞かせください。</p>
               <p>要件が固まっていない段階でも、事業や課題を伺いながら必要な内容を整理します。</p>
             </div>
-            <a className="cp-cta cp-cta--main" href="/contact" data-reveal>制作について相談する <span aria-hidden="true">→</span></a>
+            {/* 主導線3本のうち、このページで未提示の「制作実績」を並べる
+                （事業内容はBUSINESSセクションのCTAで既に提示済み） */}
+            <div className="cp-actions" data-reveal>
+              <a className="cp-cta cp-cta--main" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
+              <a className="cp-cta cp-cta--sub" href="/works">制作実績を見る <span aria-hidden="true">→</span></a>
+            </div>
           </div>
         </section>
 

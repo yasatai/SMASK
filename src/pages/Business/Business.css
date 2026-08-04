@@ -66,6 +66,9 @@
 .bz-cta:hover { gap: 1.2rem; border-color: var(--bz-accent); }
 .bz-cta span { color: var(--bz-accent); font-size: 1.05rem; }
 .bz-hero .bz-cta { margin-inline: auto; }
+/* 主導線を横に並べる。副導線は一段落とす（主＝相談を目立たせる） */
+.bz-actions { display: flex; flex-wrap: wrap; gap: 0 clamp(1.5rem, 4vw, 3rem); }
+.bz-cta--sub { color: var(--color-ink-soft); }
 
 /* ============ 6工程 ============
    番号の列と本文の列。番号側に縦線を通し、6つがひと続きの流れに見えるようにする。 */

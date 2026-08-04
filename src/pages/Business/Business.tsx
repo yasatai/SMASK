@@ -137,7 +137,12 @@ export default function Business() {
             <div className="bz-body" data-reveal>
               <p>現在の事業や課題を伺いながら、必要なページ、内容、制作範囲を整理します。</p>
             </div>
-            <a className="bz-cta" href="/contact" data-reveal>制作について相談する <span aria-hidden="true">→</span></a>
+            {/* 主導線3本（事業内容を知る／制作実績を確認する／相談する）のうち、
+                このページで未提示の「制作実績」を並べて次の一手を切らさない */}
+            <div className="bz-actions" data-reveal>
+              <a className="bz-cta" href="/contact">制作について相談する <span aria-hidden="true">→</span></a>
+              <a className="bz-cta bz-cta--sub" href="/works">制作実績を見る <span aria-hidden="true">→</span></a>
+            </div>
           </div>
         </section>
 
