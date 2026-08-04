@@ -225,3 +225,21 @@ a.wc2-menu-page {
     gap: 0.4rem;
   }
 }
+
+/* 画面が低いときの圧縮。
+   ページリンクに「事業内容」「制作実績」を足したぶん中身が伸び、
+   1366x768 で190pxはみ出してスクロールしないと下の項目に届かなくなったため。
+   トップの余白（固定MENUボタンを避けるぶん）と各項目の上下を詰める。
+   ※幅のメディアクエリが padding ショートハンドで指定しているため、
+     後勝ちになるようファイル末尾に置いている。 */
+@media (max-height: 900px) {
+  .wc2-menu-list { padding-top: 4.6rem; padding-bottom: 1.2rem; }
+  .wc2-menu-item { padding-block: 0.72rem; }
+  .wc2-menu-heading { margin-top: 0.5rem; padding-top: 0.9rem; }
+  .wc2-menu-pages { padding-bottom: 1.2rem; }
+}
+@media (max-height: 800px) {
+  .wc2-menu-list { padding-top: 4.2rem; }
+  .wc2-menu-item { padding-block: 0.56rem; }
+}
+

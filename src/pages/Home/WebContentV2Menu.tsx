@@ -31,6 +31,8 @@ interface PageLink {
 
 /* ※コラムは内容の整備待ちのため導線から外している（整備後に { label:"コラム", en:"COLUMN", href:"/column" } を戻す） */
 const PAGE_LINKS: PageLink[] = [
+  { label: "事業内容", en: "BUSINESS", href: "/business" },
+  { label: "制作実績", en: "WORKS", href: "/works" },
   { label: "会社概要", en: "COMPANY", href: "/company" },
   { label: "お問い合わせ", en: "CONTACT", href: "/contact" },
 ];
