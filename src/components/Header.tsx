@@ -12,9 +12,13 @@ const BASE = import.meta.env.BASE_URL;
  */
 type PageItem = { label: string; en: string; href: string };
 
-/* ※コラムは内容の整備待ちのため導線から外している（整備後に { label:"コラム", en:"Column", href:"/column" } を戻す） */
+/* 統合仕様のグローバルナビ：TOP／事業内容／制作実績／コラム／会社概要／話しましょう
+   ※コラムは内容の整備待ちのため導線から外している
+     （整備後に会社概要の手前へ { label:"コラム", en:"Column", href:"/column" } を戻す） */
 const ITEMS: PageItem[] = [
   { label: "ホーム", en: "Home", href: "/" },
+  { label: "事業内容", en: "Business", href: "/business" },
+  { label: "制作実績", en: "Works", href: "/works" },
   { label: "会社概要", en: "Company", href: "/company" },
   { label: "お問い合わせ", en: "Contact", href: "/contact" },
 ];
