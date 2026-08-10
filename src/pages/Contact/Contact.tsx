@@ -17,28 +17,12 @@ const IconShield = () => (
   </svg>
 );
 
-/* ご相談内容（複数選択可） */
+/* ご相談内容（複数選択可）。
+   事業をWebコンテンツ制作へ一本化したため、貴金属買取・ジュエリー製作の項目は削除した。
+   あわせて「お問い合わせ種別」と「想定取引規模」（重量＝貴金属買取前提）も廃止。 */
 const TOPIC_GROUPS: { label: string; items: string[] }[] = [
-  { label: "貴金属買取", items: ["金（ゴールド）", "プラチナ", "銀（シルバー）", "その他貴金属"] },
   { label: "Webコンテンツ制作", items: ["企業・サービスサイト制作", "問い合わせ・導線改善", "運用・業務改善"] },
-  { label: "ジュエリー製作", items: ["Pristine Diamondについて", "ジュエリー製作全般について"] },
   { label: "その他", items: ["その他"] },
-];
-
-const INQUIRY_TYPES = [
-  "貴金属について",
-  "ジュエリー制作について",
-  "Webコンテンツについて",
-  "その他",
-];
-
-/* 想定取引規模は金額ではなく重量（貴金属買取が主のため） */
-const SCALES = [
-  "100g未満",
-  "100〜500g",
-  "500〜1,000g",
-  "1,000〜5,000g",
-  "5,000g以上",
 ];
 
 const MAX_MESSAGE = 500;
@@ -54,9 +38,7 @@ export default function Contact() {
   const [person, setPerson] = useState("");
   const [email, setEmail] = useState("");
   const [tel, setTel] = useState("");
-  const [inquiryType, setInquiryType] = useState("");
   const [topics, setTopics] = useState<string[]>([]);
-  const [scale, setScale] = useState("");
   const [message, setMessage] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [website, setWebsite] = useState(""); // ハニーポット（人は触らない・botよけ）
@@ -86,7 +68,6 @@ export default function Contact() {
       if (!/^\d+$/.test(telDigits)) e.push("電話番号は数字でご入力ください。");
       else if (telDigits.length < 10 || telDigits.length > 11) e.push("電話番号は10〜11桁でご入力ください（固定電話10桁・携帯11桁）。");
     }
-    if (!inquiryType) e.push("お問い合わせ種別を選択してください。");
     if (!message.trim()) e.push("お問い合わせ内容を入力してください。");
     if (!agreed) e.push("プライバシーポリシーへの同意が必要です。");
     return e;
@@ -110,7 +91,7 @@ export default function Contact() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
           company: company.trim(), person: person.trim(), email: email.trim(), tel: tel.trim(),
-          inquiry_type: inquiryType, topics, scale, message: message.trim(), agreed,
+          topics, message: message.trim(), agreed,
           website, // ハニーポット
         }),
       });
@@ -226,19 +207,6 @@ export default function Contact() {
                 </div>
               </div>
 
-              {/* お問い合わせ種別 */}
-              <div className="ct-field">
-                <label htmlFor="inquiryType">お問い合わせ種別 <span className="ct-req">※</span></label>
-                <select
-                  id="inquiryType" name="inquiryType"
-                  className={errors.length && !inquiryType ? "is-error" : undefined}
-                  value={inquiryType} onChange={e => setInquiryType(e.target.value)}
-                >
-                  <option value="">選択してください</option>
-                  {INQUIRY_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                </select>
-              </div>
-
               {/* ご相談内容 */}
               <fieldset className="ct-topics">
                 <legend>ご相談内容（複数選択可）</legend>
@@ -264,21 +232,12 @@ export default function Contact() {
                 ))}
               </fieldset>
 
-              {/* 想定取引規模 */}
-              <div className="ct-field">
-                <label htmlFor="scale">想定取引規模</label>
-                <select id="scale" name="scale" value={scale} onChange={e => setScale(e.target.value)}>
-                  <option value="">選択してください（任意）</option>
-                  {SCALES.map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-
               {/* お問い合わせ内容 */}
               <div className="ct-field">
                 <label htmlFor="message">お問い合わせ内容 <span className="ct-req">※</span></label>
                 <textarea
                   id="message" name="message" rows={6} maxLength={MAX_MESSAGE}
-                  placeholder="取引内容・数量・ご要望などをご記入ください。"
+                  placeholder="現在の課題、つくりたいもの、公開時期のご希望などをご記入ください。"
                   value={message} onChange={e => setMessage(e.target.value)}
                 ></textarea>
                 <span className="ct-count">{message.length} / {MAX_MESSAGE}文字</span>
