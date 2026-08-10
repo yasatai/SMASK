@@ -2,8 +2,6 @@ import { useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-/* FVの配置・改行の比較用（検証専用・確定したら HeroLab 一式ごと削除する） */
-import HeroLab from "./components/HeroLab";
 /* トップ（3D Home）は three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
 import { importHome } from "./pages/Home/lazy";
 const Home = lazy(importHome);
@@ -107,8 +105,6 @@ export default function App() {
         <Route path="/works/:slug" element={<WorkDetail />} />
       </Routes>
       <Footer />
-      {/* FVの検証UIはトップでだけ出す（他ページには効かないため） */}
-      {pathname === "/" && <HeroLab />}
     </SiteSettingsProvider>
   );
 }
