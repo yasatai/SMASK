@@ -951,9 +951,11 @@ export default function Home() {
           <div className="wc2-hero-sticky">
             <div className="wc2-wrap wc2-hero-copy" ref={heroCopyRef}>
               <p className="wc2-hero-tag"><i>●</i> SMASK — WEB CONTENT STUDIO</p>
+              {/* 1行組み（2026-07-31 代表決定）。虹色は後半「かたちにする。」だけに掛ける */}
               <h1 className="wc2-hero-h1">
-                <span className="wc2-hl"><span>価値を見極め、</span></span>
-                <span className="wc2-hl wc2-hl--grad"><span>かたちにする。</span></span>
+                <span className="wc2-hl">
+                  <span>価値を見極め、<i className="wc2-hl-tail">かたちにする。</i></span>
+                </span>
               </h1>
               <p className="wc2-hero-sub">伝わるWebを、動かすまで。</p>
               <p className="wc2-hero-lead">
