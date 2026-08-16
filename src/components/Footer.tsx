@@ -1,20 +1,23 @@
 import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
-import { useSiteSettings } from "../data/SiteSettingsContext";
 import "./Footer.css";
 
-const WORD = "SMASK";
+const BASE = import.meta.env.BASE_URL;
 
 /**
  * 全画面クロージング（12-office式：黒で締めず、明るいまま巨大ロゴのアニメで締める）。
- * 巨大ワードマークが下からせり上がって決まる。イージングは既存の --ease-expo。
+ * 巨大ロゴが下からせり上がって決まる。イージングは既存の --ease-expo。
+ *
+ * ロゴは「文字」と「◆マーク」の2枚に分けて重ねている（2026-07-31 代表指示）。
+ * 1枚のPNGだと (1)明るいページで黒・暗いページで白に反転できない
+ * (2)ホバーで文字だけ色を変えられない ため。
+ * 文字はマスクで塗るので色を自由に変えられ、◆はオレンジのまま残る。
  * ホーム（デスクトップ・フルページ）は Home 側の reveal() が .is-revealed を付与する。
  * 下層ページ／モバイルは、フッターが画面に入ったら IntersectionObserver で始動。
  * ※後日 SVG ロゴに差し替えて「線画ドロー」に発展させる予定（課題）。
  */
 export default function Footer() {
   const ref = useRef<HTMLElement>(null);
-  const { company_name } = useSiteSettings();
 
   useEffect(() => {
     const el = ref.current;
@@ -37,10 +40,15 @@ export default function Footer() {
   return (
     <footer className="site-footer" ref={ref}>
       <div className="footer-stage">
-        <a className="footer-wordmark" href="/" aria-label="SMASK トップへ戻る">
-          {WORD.split("").map((ch, i) => (
-            <span className="fw-ch" key={i} style={{ "--i": i } as CSSProperties}>{ch}</span>
-          ))}
+        <a
+          className="footer-wordmark" href="/" aria-label="SMASK トップへ戻る"
+          style={{
+            "--fw-letters": `url(${BASE}assets/logo-letters.png)`,
+            "--fw-mark": `url(${BASE}assets/logo-mark.png)`,
+          } as CSSProperties}
+        >
+          <span className="fw-letters" aria-hidden="true"></span>
+          <span className="fw-mark" aria-hidden="true"></span>
         </a>
         <span className="footer-lead">価値を見極め、かたちにする。</span>
       </div>
@@ -58,10 +66,8 @@ export default function Footer() {
         <a href="/privacy">プライバシーポリシー</a>
       </nav>
       <hr className="footer-rule" />
-      {/* 著作権表記は登記上の社名。年はサイト公開年 */}
-      <p className="footer-copy">
-        © 2026 <span className="footer-copy-name">{company_name}</span> All Rights Reserved.
-      </p>
+      {/* 著作権表記（2026-07-31 代表指定の文面。年号・末尾のピリオドは入れない） */}
+      <p className="footer-copy">©SMASK Co., Ltd. All Rights Reserved</p>
     </footer>
   );
 }
