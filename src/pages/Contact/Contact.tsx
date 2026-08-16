@@ -1,21 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import LoadCurtain from "../../components/LoadCurtain";
-import { useSiteSettings } from "../../data/SiteSettingsContext";
+import PageAtmos from "../../components/PageAtmos";
+import { useReveal } from "../../useReveal";
 import "./Contact.css";
-
-/* ---- 線画アイコン ---- */
-const IconClock = () => (
-  <svg viewBox="0 0 24 24" className="ct-ic" aria-hidden="true">
-    <circle cx="12" cy="12" r="7.6" fill="none" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M12 7.8v4.4l2.9 1.7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-);
-const IconShield = () => (
-  <svg viewBox="0 0 24 24" className="ct-ic" aria-hidden="true">
-    <path d="M12 4.6 5.6 7v4.5c0 3.9 2.6 6.5 6.4 7.9 3.8-1.4 6.4-4 6.4-7.9V7L12 4.6Z" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-    <path d="m9.4 11.9 1.9 1.9 3.3-3.7" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
 
 /* ご相談内容（複数選択可）。
    事業をWebコンテンツ制作へ一本化したため、貴金属買取・ジュエリー製作の項目は削除した。
@@ -33,7 +20,6 @@ const API_BASE = import.meta.env.VITE_PRICE_API_BASE ?? "";
 type Errors = string[];
 
 export default function Contact() {
-  const { email: contactEmail, business_hours: businessHours } = useSiteSettings();
   const [company, setCompany] = useState("");
   const [person, setPerson] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +35,8 @@ export default function Contact() {
   const errorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { document.title = "お問い合わせ ｜ SMASK"; }, []);
+  /* 背景・演出は他の下層ページと同じ暗い世界に揃える（下層ページ共通の作法） */
+  useReveal();
 
   const toggleTopic = (name: string) => {
     setTopics(prev => prev.includes(name) ? prev.filter(t => t !== name) : [...prev, name]);
@@ -98,7 +86,7 @@ export default function Contact() {
       if (!res.ok) throw new Error(String(res.status));
       setSubmitted(true);
     } catch {
-      setSubmitError("送信に失敗しました。お手数ですが、時間をおいて再度お試しいただくか、下記メールアドレスへご連絡ください。");
+      setSubmitError("送信に失敗しました。お手数ですが、時間をおいて再度お試しください。");
     } finally {
       setSubmitting(false);
     }
@@ -107,43 +95,25 @@ export default function Contact() {
   return (
     <>
       <LoadCurtain />
+      <PageAtmos />
       <main className="ct-page">
 
-        {/* ============ Hero（暗色） ============ */}
+        {/* ============ Hero ============ */}
         <section className="ct-hero">
-          <span className="ct-hero-eyebrow">CONTACT US</span>
-          <h1>お問い合わせ</h1>
-          <p>取引相談・ご質問など、お気軽にお問い合わせください。</p>
-        </section>
-
-        {/* ============ 対応時間・安心の取引 ============ */}
-        <section className="ct-sec ct-sec--tint">
-          <div className="ct-wrap ct-info">
-            <div className="ct-info-card">
-              <span className="ct-info-ic"><IconClock /></span>
-              <div>
-                <h2>対応時間</h2>
-                <p>{businessHours}</p>
-                <p>土日祝日は翌営業日対応</p>
-              </div>
-            </div>
-            <div className="ct-info-card">
-              <span className="ct-info-ic"><IconShield /></span>
-              <div>
-                <h2>安心の取引</h2>
-                <p>古物商許可取得済み</p>
-                <p>透明性の高い売買</p>
-              </div>
-            </div>
+          <span className="ct-eyebrow" data-reveal>CONTACT</span>
+          <h1 data-reveal>話しましょう。</h1>
+          <div className="ct-lead" data-reveal>
+            <p>新しいWebサイトの制作や、既存サイトの見直しについて、現在考えていることをお聞かせください。</p>
+            <p>要件が固まっていない段階でも、事業や課題を伺いながら必要な内容を整理します。</p>
           </div>
         </section>
 
         {/* ============ フォーム ============ */}
         <section className="ct-sec">
           <div className="ct-wrap">
-            <span className="ct-eyebrow">INQUIRY FORM</span>
-            <h2 className="ct-h2">お問い合わせ</h2>
-            <p className="ct-required-note"><span className="ct-req">※</span> は必須項目です</p>
+            <span className="ct-eyebrow" data-reveal>INQUIRY FORM</span>
+            <h2 className="ct-h2" data-reveal>お問い合わせフォーム</h2>
+            <p className="ct-required-note" data-reveal><span className="ct-req">※</span> は必須項目です</p>
 
             {submitted ? (
               <div className="ct-thanks" role="status">
@@ -296,12 +266,6 @@ export default function Contact() {
               </div>
             </form>
             )}
-
-            {/* メールアドレス */}
-            <div className="ct-mail">
-              <span className="ct-mail-label">メールアドレス</span>
-              <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
-            </div>
           </div>
         </section>
 
