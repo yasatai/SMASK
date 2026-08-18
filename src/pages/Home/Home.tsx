@@ -1186,7 +1186,11 @@ export default function Home() {
                       <span className="wc2-fb">{body}</span>
                     </span>
                   ))}
-                  <span className="wc2-face wc2-face-top"><span className="wc2-fmark">SMASK</span></span>
+                  {/* 上面は会社ロゴ（FB-7）。面が白系グラデーションなので通常版を使う
+                      （白版ロゴは白い面では見えない）。素材は拡張子が.jpgだが実体は透過PNG */}
+                  <span className="wc2-face wc2-face-top">
+                    <img className="wc2-fmark" src={`${import.meta.env.BASE_URL}assets/logo.jpg`} alt="" />
+                  </span>
                   <span className="wc2-face wc2-face-bottom"></span>
                 </div>
               </div>
