@@ -985,7 +985,7 @@ export default function Home() {
           <div className="wc2-wrap wc2-about-copy">
             <span className="wc2-label" data-reveal>( 01 ) — ABOUT</span>
             {/* ルール（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
-            <h2 className="wc2-h2 wc2-about-head" data-reveal>Webをつくる前に<br /><em>事業を理解する。</em></h2>
+            <h2 className="wc2-h2 wc2-about-head" data-reveal>Webをつくる前に<br /><em>事業を理解する</em></h2>
             {/* 本文：1文1段落（「。」の後に文を続けない）。.wc2-page p に負けないようスコープ指定 */}
             <div className="wc2-about-body" data-reveal-stagger>
               <p>Webサイトは、情報を並べ、見た目を整えるだけでは、事業の価値まで十分に伝えられません。</p>
@@ -1013,7 +1013,7 @@ export default function Home() {
             <div className="wc2-wrap">
               <span className="wc2-label">( 02 ) — APPROACH</span>
               {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
-              <h2 className="wc2-h2 wc2-fill">情報を選び・つなぎ<br /><em>伝わる流れに整える。</em></h2>
+              <h2 className="wc2-h2 wc2-fill">情報を選び・つなぎ<br /><em>伝わる流れに整える</em></h2>
               {/* .wc2-approach-cols は JS が opacity を駆動する容器（クラス名は変更しない）。
                   中身だけ「本文2文 ＋ 3小項目（見極める/つなぐ/動かす）」に組み替える */}
               <div className="wc2-approach-cols">
@@ -1050,7 +1050,7 @@ export default function Home() {
                 <div className="wc2-works-headmain">
                   <span className="wc2-label">( 03 ) — WORKS</span>
                   {/* ルール②（行末に「、」を残さない） */}
-                  <h2 className="wc2-h2">つくったものと<br /><em>そこに込めた考え。</em></h2>
+                  <h2 className="wc2-h2">つくったものと<br /><em>そこに込めた考え</em></h2>
                 </div>
                 <div className="wc2-works-headside">
                   <p>制作したWebサイトと、それぞれの事業や課題に対して、どのような考え方で設計したのかを紹介します。</p>
@@ -1108,7 +1108,7 @@ export default function Home() {
                   <div className="wc2-wrap wc2-services-headwrap">
                     <span className="wc2-label">( 05 ) — SERVICES</span>
                     {/* ルール②（行末に「、」を残さない） */}
-                    <h2 className="wc2-h2">事業の理解から<br /><em>公開後の改善まで。</em></h2>
+                    <h2 className="wc2-h2">事業の理解から<br /><em>公開後の改善まで</em></h2>
                     <div className="wc2-services-body">
                       <p>SMASKは、事業理解、情報整理、文章、導線、デザイン、実装連携、運用までを一つの流れとして考えます。</p>
                       <p>必要な工程をつなぎ、伝える内容と実際のWebサイトにずれが生まれないように制作します。</p>
@@ -1138,7 +1138,7 @@ export default function Home() {
               <div id="wc2-concerns" className="wc2-wipe-inner">
                 <span className="wc2-label wc2-eyebrow-iri"><i></i>( 04 ) — CONCERNS</span>
                 {/* ルール②（行末に「、」を残さない） */}
-                <h2 className="wc2-h2">企業の中にある価値を<br /><em>伝わるかたちへ。</em></h2>
+                <h2 className="wc2-h2">企業の中にある価値を<br /><em>伝わるかたちへ</em></h2>
                 <div className="wc2-concerns-body">
                   <p>事業やサービスに価値があっても、伝える内容や順番が整理されていなければ、Webを見た人に十分に届きません。</p>
                   <p>SMASKは、企業の中にある情報を整理し、理解しやすく、次の行動へ進みやすいかたちへ整えます。</p>
@@ -1161,7 +1161,7 @@ export default function Home() {
                 <span className="wc2-label">( 06 ) — STRENGTHS</span>
                 {/* ルール②（行末に「、」を残さない） */}
                 {/* キューブが真横にいるため1行あたりを短くし3行に割る＝Tier1(110px)でも構図が保てる */}
-                <h2 className="wc2-h2">分けてつくらず<br /><em>つないで<br />仕上げる。</em></h2>
+                <h2 className="wc2-h2">分けてつくらず<br /><em>つないで<br />仕上げる</em></h2>
                 <div className="wc2-str-body">
                   <p>SMASKは、事業理解、文章、導線、デザイン、実装を別々に考えません。</p>
                   <p>各工程をつなぎ、伝える内容と実際のWebサイトが一貫するように制作します。</p>
@@ -1215,7 +1215,7 @@ export default function Home() {
                 <div className="wc2-route-head">
                   <span className="wc2-label">( 07 ) — PROCESS</span>
                   {/* ルール②（行末に「、」を残さない） */}
-                  <h2 className="wc2-h2">話すところから<br /><em>公開後まで。</em></h2>
+                  <h2 className="wc2-h2">話すところから<br /><em>公開後まで</em></h2>
                   <div className="wc2-route-body">
                     <p>要件が固まっていない段階でも、まずは事業や課題についてお聞かせください。</p>
                     <p>対話を通じて必要な情報を整理し、案件に合った進め方を組み立てます。</p>
@@ -1262,7 +1262,7 @@ export default function Home() {
           <div className="wc2-wrap wc2-company-copy">
             <span className="wc2-label" data-reveal>( 08 ) — COMPANY</span>
             {/* ルール②（行末に「、」を残さない） */}
-            <h2 className="wc2-h2 wc2-company-head" data-reveal>Webを<br /><em>事業に使えるかたちへ。</em></h2>
+            <h2 className="wc2-h2 wc2-company-head" data-reveal>Webを<br /><em>事業に使えるかたちへ</em></h2>
             <div className="wc2-company-body" data-reveal-stagger>
               <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
               <p>企業やサービスが持つ価値を整理し、次の行動へ進みやすいWebサイトを制作します。</p>

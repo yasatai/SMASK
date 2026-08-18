@@ -104,7 +104,7 @@ export default function WorkDetail() {
         {/* ============ 最終CTA ============ */}
         <section className="wk-sec wk-sec--end">
           <div className="wk-wrap">
-            <h2 className="wk-h2 wk-h2--end" data-reveal>同じものをつくるのではなく<br />その事業に合うWebを考えます。</h2>
+            <h2 className="wk-h2 wk-h2--end" data-reveal>同じものをつくるのではなく<br />その事業に合うWebを考えます</h2>
             <div className="wk-body" data-reveal>
               <p>事業や課題によって、必要なページ、文章、導線、デザインは異なります。</p>
             </div>

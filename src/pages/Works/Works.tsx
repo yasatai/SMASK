@@ -93,7 +93,7 @@ export default function Works() {
         {/* ============ 最終CTA ============ */}
         <section className="wk-sec wk-sec--end">
           <div className="wk-wrap">
-            <h2 className="wk-h2 wk-h2--end" data-reveal>同じものをつくるのではなく<br />その事業に合うWebを考えます。</h2>
+            <h2 className="wk-h2 wk-h2--end" data-reveal>同じものをつくるのではなく<br />その事業に合うWebを考えます</h2>
             <div className="wk-body" data-reveal>
               <p>事業や課題によって、必要なページ、文章、導線、デザインは異なります。</p>
               <p>現在考えていることを伺いながら、必要な制作内容を整理します。</p>
