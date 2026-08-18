@@ -115,7 +115,7 @@ export default function Home() {
     }
   });
 
-  useEffect(() => { document.title = "SMASK ｜ 価値を見極め、かたちにする。"; }, []);
+  useEffect(() => { document.title = "SMASK ｜ 価値を見極め、かたちにする"; }, []);
 
   /* このページはフルスクリーン演出のため、ヘッダー（ロゴ・ナビ・バー）を常時非表示。
      ダーク基調用の is-fp-dark も付ける（他要素のダーク対応のため残す） */
@@ -957,7 +957,7 @@ export default function Home() {
               {/* 1行組み（2026-07-31 代表決定）。虹色は後半「かたちにする。」だけに掛ける */}
               <h1 className="wc2-hero-h1">
                 <span className="wc2-hl">
-                  <span>価値を見極め、<i className="wc2-hl-tail">かたちにする。</i></span>
+                  <span>価値を見極め、<i className="wc2-hl-tail">かたちにする</i></span>
                 </span>
               </h1>
               <p className="wc2-hero-sub">伝わるWebを、動かすまで。</p>

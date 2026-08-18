@@ -54,7 +54,7 @@ export default function Company() {
         <section className="cp-hero">
           <span className="cp-eyebrow" data-reveal>COMPANY</span>
           {/* ルール②（行末に「、」を残さない） */}
-          <h1 data-reveal>Webを<br />事業に使えるかたちへ。</h1>
+          <h1 data-reveal>Webを<br />事業に使えるかたちへ</h1>
           <div className="cp-lead" data-reveal>
             <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
             <p>企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。</p>

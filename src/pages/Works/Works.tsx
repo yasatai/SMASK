@@ -25,7 +25,7 @@ export default function Works() {
         {/* ============ Hero ============ */}
         <section className="wk-hero">
           <span className="wk-eyebrow" data-reveal>WORKS</span>
-          <h1 data-reveal>つくったものと<br />そこに込めた考え。</h1>
+          <h1 data-reveal>つくったものと<br />そこに込めた考え</h1>
           <div className="wk-lead" data-reveal>
             <p>完成したWebサイトだけでなく、事業や課題をどのように理解し、情報、文章、導線、デザインへつなげたのかを紹介します。</p>
             <p>それぞれの制作でSMASKが担当した範囲を明確にし、制作の背景と考え方が分かる実績として掲載します。</p>

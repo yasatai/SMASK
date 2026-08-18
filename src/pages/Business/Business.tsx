@@ -87,7 +87,7 @@ export default function Business() {
         {/* ============ Hero ============ */}
         <section className="bz-hero">
           <span className="bz-eyebrow" data-reveal>BUSINESS</span>
-          <h1 data-reveal>伝わるWebを<br />動かすまで。</h1>
+          <h1 data-reveal>伝わるWebを<br />動かすまで</h1>
           <div className="bz-lead" data-reveal>
             <p>SMASKは、事業を理解するところから、情報整理、文章、導線、デザイン、実装連携、公開後の運用までをつなぐWebコンテンツ制作会社です。</p>
             <p>見た目を整えるだけではなく、誰に何を伝え、どの行動につなげるのかを考え、事業に使えるWebサイトを制作します。</p>
