@@ -1,5 +1,15 @@
 import { useState, useEffect } from "react";
-import "./WebContentV2Menu.css";
+import { useLocation } from "react-router-dom";
+import "./SiteMenu.css";
+
+/**
+ * サイト共通メニュー（2026-08-01 代表指示）。
+ * 下層ページの上部ヘッダーバーを廃止し、全ページでトップと同じ右上のMENUに統一した。
+ *
+ * - トップ（"/"）：セクションジャンプ＋別ページへの導線
+ * - 下層ページ：セクションが存在しないため、別ページへの導線だけを出す
+ *   （先頭に「TOP」を足してトップへ戻れるようにする）
+ */
 
 interface MenuItem {
   label: string;
@@ -8,7 +18,7 @@ interface MenuItem {
 
 /* トップの実セクションと1対1で対応させること（セクションを増やしたらここにも足す） */
 const MENU_ITEMS: MenuItem[] = [
-  { label: "HERO", id: "wc2-hero" },
+  { label: "TOP", id: "wc2-hero" },   /* 旧「HERO」（FB-2で改称） */
   { label: "ABOUT", id: "wc2-about-sec" },
   { label: "APPROACH", id: "wc2-approach-sec" },
   { label: "WORKS", id: "wc2-works" },
@@ -37,9 +47,20 @@ const PAGE_LINKS: PageLink[] = [
   { label: "お問い合わせ", en: "CONTACT", href: "/contact" },
 ];
 
-export default function WebContentV2Menu() {
+/* 下層ページではトップへ戻る導線が要る（トップではセクションの「TOP」が担う） */
+const HOME_LINK: PageLink = { label: "トップ", en: "TOP", href: "/" };
+
+export default function SiteMenu() {
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+  const sections = isHome ? MENU_ITEMS : [];
+  const pages = isHome ? PAGE_LINKS : [HOME_LINK, ...PAGE_LINKS];
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
+
+  /* ページを移ったらメニューを閉じる */
+  useEffect(() => { setIsOpen(false); }, [pathname]);
 
   /* メニュー選択時のセクションジャンプ */
   const onMenuClick = (id: string) => {
@@ -97,7 +118,7 @@ export default function WebContentV2Menu() {
           <div className="wc2-menu-backdrop" aria-hidden="true"></div>
           <nav className="wc2-menu-nav" role="navigation">
             <ul className="wc2-menu-list">
-              {MENU_ITEMS.map((item) => (
+              {sections.map((item) => (
                 <li key={item.id}>
                   <button
                     className={`wc2-menu-item ${activeSection === item.id ? "is-active" : ""}`}
@@ -109,10 +130,11 @@ export default function WebContentV2Menu() {
               ))}
             </ul>
 
-            {/* 別ページへの導線（ページ内ジャンプと視覚的に区切る） */}
-            <p className="wc2-menu-heading">PAGES</p>
+            {/* 別ページへの導線（ページ内ジャンプと視覚的に区切る）。
+                下層ページはセクションが無いので見出しの罫線も出さない */}
+            <p className={"wc2-menu-heading" + (sections.length ? "" : " is-bare")}>PAGES</p>
             <ul className="wc2-menu-list wc2-menu-pages">
-              {PAGE_LINKS.map((p) => (
+              {pages.map((p) => (
                 <li key={p.href}>
                   <a
                     className="wc2-menu-item wc2-menu-page"

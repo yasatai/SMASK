@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
-import WebContentV2Menu from "./WebContentV2Menu";
 import Opening from "./Opening";
 import "./Home.css";
 
@@ -122,8 +121,8 @@ export default function Home() {
      ダーク基調用の is-fp-dark も付ける（他要素のダーク対応のため残す） */
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.add("is-fp-dark", "wc2-chrome-off", "wc2-page-active");
-    return () => { root.classList.remove("is-fp-dark", "wc2-chrome-off", "wc2-page-active"); };
+    root.classList.add("is-fp-dark", "wc2-page-active");
+    return () => { root.classList.remove("is-fp-dark", "wc2-page-active"); };
   }, []);
 
   /* スクロール抑制：ローダー表示中 かつ オープニング再生中は止める。
@@ -938,7 +937,6 @@ export default function Home() {
       {!introDone && <Opening onDone={() => setIntroDone(true)} />}
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
-        <WebContentV2Menu />
         <Scene3D />
         {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
            以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}

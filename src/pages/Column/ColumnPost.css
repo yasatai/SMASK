@@ -79,5 +79,4 @@
 
 /* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす（Columnと同じ） ============ */
 @media (min-width: 761px) {
-  .cp-page .cp-wrap { padding-left: 6.3rem; }
 }

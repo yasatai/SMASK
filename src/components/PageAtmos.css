@@ -40,12 +40,6 @@ html.is-dark-page body { background: #05060a; color: var(--color-ink); }
 html.is-dark-page main { position: relative; z-index: 1; background: transparent; }
 html.is-dark-page .site-footer { position: relative; z-index: 1; background: transparent; }
 
-/* ロゴ素材は白地JPGのため、暗い地では反転して載せる（トップの .is-fp-dark と同じ処理） */
-html.is-dark-page .site-logo img {
-  mix-blend-mode: screen;
-  filter: invert(1) hue-rotate(180deg);
-}
-
 /* ============ リビール（入場カーテンが開いてから下から上へ） ============
    [data-reveal] を付けた要素が対象。付けなければ何も起きない。 */
 html.is-dark-page:not(.is-entering) [data-reveal] {
