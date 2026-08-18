@@ -121,8 +121,8 @@ export default function Home() {
      ダーク基調用の is-fp-dark も付ける（他要素のダーク対応のため残す） */
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.add("is-fp-dark", "wc2-chrome-off", "wc2-page-active");
-    return () => { root.classList.remove("is-fp-dark", "wc2-chrome-off", "wc2-page-active"); };
+    root.classList.add("is-fp-dark", "wc2-page-active");
+    return () => { root.classList.remove("is-fp-dark", "wc2-page-active"); };
   }, []);
 
   /* スクロール抑制：ローダー表示中 かつ オープニング再生中は止める。

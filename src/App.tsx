@@ -1,6 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
-import Header from "./components/Header";
 import Footer from "./components/Footer";
 import SiteMenu from "./components/SiteMenu";
 /* トップ（3D Home）は three.js ごと遅延読み込みし、他ページのバンドルに影響させない */
@@ -83,7 +82,6 @@ export default function App() {
 
   return (
     <SiteSettingsProvider>
-      <Header />
       {/* 右上のMENU。全ページ共通（下層の上部ヘッダーバーは廃止・FB-2） */}
       <SiteMenu />
       <Routes>
