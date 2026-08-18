@@ -897,7 +897,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-c2s-services .wc2-rows { margin-top: clamp(.5rem, 1.5vh, 1.4rem); }
 /* ≤1080px では行が2カラム（番号｜見出し＋説明）に変わり、gap がそのまま
    見出しと説明の縦の隙間になる。縦だけ詰めて5行が収まるようにする */
-.wc2-c2s-services .wc2-row-in { padding-block: clamp(.4rem, 1.1vh, .9rem); gap: .25rem 1.5rem; }
+.wc2-c2s-services .wc2-row-in { padding-block: clamp(.4rem, 1.1vh, .9rem); gap: .25rem .9rem; }
 .wc2-c2s-services .wc2-row h3 { font-size: clamp(1rem, 1.5vw, 1.2rem); line-height: 1.45; }
 .wc2-c2s-services .wc2-row p { font-size: clamp(.84rem, 1vw, .94rem); line-height: 1.6; }
 .wc2-services-ctawrap { margin-top: clamp(.7rem, 1.8vh, 1.3rem); }
@@ -934,16 +934,18 @@ html.wc2-page-active .wc2-bridge { display: none; }
   transform: scaleX(0); transform-origin: left center;
   will-change: transform;
 }
-.wc2-row-in {
-  display: grid; grid-template-columns: 5rem 1fr 1.2fr; gap: 2.5rem;
-  align-items: start;
-  padding-block: 2.6rem;
-}
 .wc2-row-num {
   font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
-  font-weight: 400; font-size: .74rem; letter-spacing: .14em;
+  font-weight: 400; font-size: clamp(.9rem, 1.1vw, 1.05rem); letter-spacing: .1em;
   color: rgb(120 190 255 / .7);   /* 図面の部品符号トーン */
-  padding-top: .7rem;
+  line-height: 1.45;              /* 見出しと同じ行送りにして頭を揃える */
+}
+/* 番号の列は内容ぴったり（auto＝2桁ぶん）。固定幅だと余りが空白になり、
+   番号と見出しが離れて見える */
+.wc2-row-in {
+  display: grid; grid-template-columns: auto 1fr 1.2fr; gap: 2.5rem;
+  align-items: start;
+  padding-block: 2.6rem;
 }
 .wc2-row h3 {
   font-family: var(--wc2-display); font-weight: 500;
@@ -1400,7 +1402,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
 /* ============ レスポンシブ ============ */
 @media (max-width: 1080px) {
   .wc2-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .wc2-row-in { grid-template-columns: 3.4rem 1fr; }
+  .wc2-row-in { grid-template-columns: auto 1fr; }   /* 番号は内容ぴったり */
   .wc2-row p { grid-column: 2; }
 }
 @media (max-width: 900px) {
@@ -1493,8 +1495,9 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-services-body { margin-top: 0.45rem; }
   .wc2-services-ctawrap { margin-top: 0.5rem; }
   .wc2-services-cta { font-size: 0.86rem; padding-bottom: 0.4rem; }
-  .wc2-c2s-services .wc2-row-in { grid-template-columns: 2.6rem 1fr; padding-block: 0.4rem; gap: 0.1rem 0.7rem; }
+  .wc2-c2s-services .wc2-row-in { grid-template-columns: auto 1fr; padding-block: 0.4rem; gap: 0.1rem 0.7rem; }
   .wc2-c2s-services .wc2-row h3 { font-size: 0.95rem; line-height: 1.35; }
+  .wc2-c2s-services .wc2-row-num { font-size: 0.8rem; line-height: 1.35; }
   .wc2-c2s-services .wc2-row p { grid-column: 2; font-size: 0.74rem; line-height: 1.6; }
 
   /* ---- STRENGTHS：見出しを圧縮（ヒント非表示・本文縮小）して縦積みが収まるように ---- */
@@ -1517,6 +1520,7 @@ html:not(.is-entering) .wc2-page [data-reveal-stagger].is-in > * { opacity: 1; t
   .wc2-c2s-services .wc2-services-body p { font-size: 0.72rem; line-height: 1.5; }
   .wc2-c2s-services .wc2-row-in { padding-block: 0.24rem; }
   .wc2-c2s-services .wc2-row h3 { font-size: 0.84rem; line-height: 1.3; }
+  .wc2-c2s-services .wc2-row-num { font-size: 0.72rem; line-height: 1.3; }
   .wc2-c2s-services .wc2-row p { font-size: 0.7rem; line-height: 1.45; }
   .wc2-services-ctawrap { margin-top: 0.3rem; }
   .wc2-services-cta { font-size: 0.8rem; padding-bottom: 0.35rem; }

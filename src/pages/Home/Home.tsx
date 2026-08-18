@@ -1014,7 +1014,7 @@ export default function Home() {
             <div className="wc2-wrap">
               <span className="wc2-label">( 02 ) — APPROACH</span>
               {/* ルール②（行末に「、」を残さない）：デザイン改行の読点は落とし、改行が間を担う */}
-              <h2 className="wc2-h2 wc2-fill">情報を選び、つなぎ<br /><em>伝わる流れに整える。</em></h2>
+              <h2 className="wc2-h2 wc2-fill">情報を選び・つなぎ<br /><em>伝わる流れに整える。</em></h2>
               {/* .wc2-approach-cols は JS が opacity を駆動する容器（クラス名は変更しない）。
                   中身だけ「本文2文 ＋ 3小項目（見極める/つなぐ/動かす）」に組み替える */}
               <div className="wc2-approach-cols">
@@ -1125,7 +1125,10 @@ export default function Home() {
                       <div className="wc2-row" key={num}>
                         <span className="wc2-row-rule" aria-hidden="true"></span>
                         <div className="wc2-wrap wc2-row-in">
-                          <span className="wc2-row-num">SV-{num}</span>
+                          {/* 接頭辞「SV-」は外し、番号だけ残す（FB-9・2026-08-01 代表指示）。
+                              この列は .wc2-row-in の3列グリッド（5rem/1fr/1.2fr）の1列目。
+                              消すと見出しが番号の列に入り込んで崩れるので、必ず要素は置くこと */}
+                          <span className="wc2-row-num">{num}</span>
                           <h3>{title}</h3>
                           <p>{body}</p>
                         </div>
@@ -1286,7 +1289,7 @@ export default function Home() {
                 {/* 会社概要(08)の追加に伴い繰り下げ。※コラムセクション復活時は 09→10 に戻すこと */}
                 <span className="wc2-label">( 09 ) — CONTACT</span>
                 <a className="wc2-talk" href="/contact">
-                  <span className="wc2-talk-main">話しましょう<em>。</em></span>
+                  <span className="wc2-talk-main"><em>話</em>しましょう</span>
                   <span className="wc2-talk-arrow" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><path d="M5 19 19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </span>
