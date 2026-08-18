@@ -171,7 +171,6 @@ export default function Home() {
     const lines = Array.from(hero.querySelectorAll<HTMLElement>(".wc2-hl > span"));
     const sub = hero.querySelector<HTMLElement>(".wc2-hero-sub");
     const lead = hero.querySelector<HTMLElement>(".wc2-hero-lead");
-    const hint = hero.querySelector<HTMLElement>(".wc2-hero-scroll");
     const cta = hero.querySelector<HTMLElement>(".wc2-hero-cta");
     let raf = 0;
     const ss = (t: number) => t * t * (3 - 2 * t);   // smoothstep
@@ -196,8 +195,6 @@ export default function Home() {
         if (sub) sub.style.opacity = (seg(p, 0.18, 0.30) * out).toFixed(3);
         if (lead) lead.style.opacity = (seg(p, 0.22, 0.34) * out).toFixed(3);
         if (cta) cta.style.opacity = (seg(p, 0.26, 0.38) * out).toFixed(3);
-        /* SCROLLヒントは最初から見えていて、動き出したら退く */
-        if (hint) hint.style.opacity = (1 - seg(p, 0.04, 0.12)).toFixed(3);
       }
 
       /* 暗転：ダイブ終盤(72%〜)で立ち上がり、終端で1。抜けたら0.55画面ぶんで明ける */
@@ -596,7 +593,7 @@ export default function Home() {
     const layout = () => {
       /* transform の影響を受けない layout 値で測る（world が縮小されているため） */
       const stageW = stageEl?.offsetWidth || window.innerWidth;
-      const cardW = Math.min(384, window.innerWidth * 0.26);
+      const cardW = Math.min(432, window.innerWidth * 0.29);   /* CSS .wc2-st-card の width と対 */
       const headRight = headEl ? headEl.offsetLeft + headEl.offsetWidth : 0;
       const NODE = 26;                                  // ノードとカードの隙間（CSSと対）
       const areaL = headRight + 32;                     // 見出しの右にとる最小の間隔
@@ -634,7 +631,9 @@ export default function Home() {
         const scale = 0.5 + 0.5 * intro - 0.06 * outro;        // 奥(0.5)→定位置(1)→軽く引く(0.94)
         const blur = (1 - intro) * 12;                         // イン時だけボケ→クリアに（アウトはボケなし）
         world.style.transform = `scale(${scale.toFixed(3)})`;
-        world.style.filter = `blur(${blur.toFixed(1)}px)`;
+        /* ぼけが要らない区間では filter を外す。blur(0px) でも掛けたままだと
+           フィルタ経由で再サンプリングされ、カードの文字が甘くなる（FB-10） */
+        world.style.filter = blur > 0.05 ? `blur(${blur.toFixed(1)}px)` : "none";
       }
 
       /* 彗星の航行は中盤（0.14〜0.88）に割り当て、イン/アウトの余白を確保 */
@@ -941,6 +940,12 @@ export default function Home() {
         {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
            以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}
         <div className="wc2-aurora" aria-hidden="true"></div>
+        {/* スクロール誘導。MENUの真下に常時固定する（FB-8）。
+            以前はHeroの中にあり、スクロールすると消えていた */}
+        <div className="wc2-scroll-hint" aria-hidden="true">
+          <span>SCROLL</span>
+          <i></i>
+        </div>
         <div className="wc2-cursor-dot" ref={dotRef} aria-hidden="true"></div>
         <div className="wc2-cursor-ring" ref={ringRef} aria-hidden="true"></div>
 
@@ -964,10 +969,6 @@ export default function Home() {
               <div className="wc2-hero-cta">
                 <a href="/business">事業内容を見る <span aria-hidden="true">→</span></a>
                 <a href="/works">制作実績を見る <span aria-hidden="true">→</span></a>
-              </div>
-              <div className="wc2-hero-scroll" aria-hidden="true">
-                <span>SCROLL</span>
-                <i></i>
               </div>
             </div>
           </div>
