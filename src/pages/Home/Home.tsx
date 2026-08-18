@@ -1125,6 +1125,10 @@ export default function Home() {
                       <div className="wc2-row" key={num}>
                         <span className="wc2-row-rule" aria-hidden="true"></span>
                         <div className="wc2-wrap wc2-row-in">
+                          {/* 接頭辞「SV-」は外し、番号だけ残す（FB-9・2026-08-01 代表指示）。
+                              この列は .wc2-row-in の3列グリッド（5rem/1fr/1.2fr）の1列目。
+                              消すと見出しが番号の列に入り込んで崩れるので、必ず要素は置くこと */}
+                          <span className="wc2-row-num">{num}</span>
                           <h3>{title}</h3>
                           <p>{body}</p>
                         </div>

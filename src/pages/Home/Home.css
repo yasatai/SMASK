@@ -865,6 +865,7 @@ html.wc2-page-active .wc2-bridge { display: none; }
 .wc2-c2s-services .wc2-row h3 { color: #16181e; }
 .wc2-c2s-services .wc2-row p { color: #4c5260; font-size: .82rem; line-height: 1.85; }
 .wc2-c2s-services .wc2-row { border-bottom-color: rgb(20 40 70 / .1); }
+.wc2-c2s-services .wc2-row-num { color: rgb(40 110 200 / .8); }
 .wc2-c2s-services .wc2-row-rule { background: rgb(40 110 200 / .5); transform: none; }
 .wc2-c2s-services .wc2-rows { margin-top: 0; }
 .wc2-c2s-services .wc2-row-in { padding-block: clamp(1rem, 2.2vh, 1.6rem); }
@@ -932,6 +933,12 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: rgb(120 190 255 / .38);
   transform: scaleX(0); transform-origin: left center;
   will-change: transform;
+}
+.wc2-row-num {
+  font-family: var(--mono, ui-monospace, Menlo, Consolas, monospace);
+  font-weight: 400; font-size: .74rem; letter-spacing: .14em;
+  color: rgb(120 190 255 / .7);   /* 図面の部品符号トーン */
+  padding-top: .7rem;
 }
 .wc2-row-in {
   display: grid; grid-template-columns: 5rem 1fr 1.2fr; gap: 2.5rem;
