@@ -1,3 +1,17 @@
+/* SiteMenu.css — 全ページ共通の右上MENU（2026-08-01・FB-2で共通化）
+ *
+ * 元はトップ専用で、.wc2-page 配下に置かれていたため --wc2-* 変数が効いていた。
+ * 下層ページでは .wc2-page の外に出るため未定義になる。
+ * ここで既定値を持たせ、トップでは従来どおり .wc2-page 側の値が優先されるようにする。
+ */
+:root {
+  --wc2-bg:       #05060a;
+  --wc2-ink:      #e6e7ea;
+  --wc2-ink-soft: #a7abb4;
+  --wc2-line:     rgb(230 231 234 / .13);
+  --wc2-body:     "Inter", "Noto Sans JP", sans-serif;
+}
+
 /* ============ ハンバーガーメニュー ============ */
 
 /* トグルボタン */
@@ -115,6 +129,8 @@
 .wc2-menu-pages {
   padding: 0 0 2rem 0;
 }
+/* セクション一覧が無いとき（下層ページ）は、見出しの区切り線と上余白を出さない */
+.wc2-menu-heading.is-bare { margin-top: 0; padding-top: 0; border-top: 0; }
 /* リンク型（別ページ）：日本語ラベル＋英語サブラベル */
 a.wc2-menu-page {
   display: flex;

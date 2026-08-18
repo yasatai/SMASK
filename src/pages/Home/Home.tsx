@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import Lenis from "lenis";
 import { useReveal } from "../../useReveal";
 import Scene3D from "./Scene3D";
-import WebContentV2Menu from "./WebContentV2Menu";
 import Opening from "./Opening";
 import "./Home.css";
 
@@ -938,7 +937,6 @@ export default function Home() {
       {!introDone && <Opening onDone={() => setIntroDone(true)} />}
       {!loaded && <Loader onDone={() => setLoaded(true)} />}
       <main className={`wc2-page ${loaded ? "is-ready" : ""}`}>
-        <WebContentV2Menu />
         <Scene3D />
         {/* 白のあとの暗色セクション用：設計図グリッド（製図台）の背景。
            以降の暗色セクションの世界。opacity は捲れと同時に JS が 0→1 */}

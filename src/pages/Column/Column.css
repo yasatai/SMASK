@@ -158,8 +158,6 @@
 
 /* ============ デスクトップ：左端サイドメニューぶん内容を右へ逃がす ============ */
 @media (min-width: 761px) {
-  .cl-page .cl-wrap { padding-left: 6.3rem; }
-  .cl-page .cl-hero { padding-left: 7.5rem; }
 }
 
 /* ============ レスポンシブ ============ */
