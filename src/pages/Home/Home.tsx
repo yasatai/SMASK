@@ -1186,7 +1186,13 @@ export default function Home() {
                       <span className="wc2-fb">{body}</span>
                     </span>
                   ))}
-                  <span className="wc2-face wc2-face-top"><span className="wc2-fmark">SMASK</span></span>
+                  {/* 上面は会社ロゴ（FB-7）。面が白系グラデーションなので通常版を使う
+                      （白版ロゴは白い面では見えない）。
+                      素材は logo.jpg の透明余白（縦61%・横32%）を切り落としたもの。
+                      余白込みだと同じ表示幅でもロゴが小さく描かれ、明朝の細い線が潰れる。 */}
+                  <span className="wc2-face wc2-face-top">
+                    <img className="wc2-fmark" src={`${import.meta.env.BASE_URL}assets/logo-cube.png`} alt="" />
+                  </span>
                   <span className="wc2-face wc2-face-bottom"></span>
                 </div>
               </div>
