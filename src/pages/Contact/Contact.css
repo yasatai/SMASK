@@ -211,3 +211,49 @@
   .ct-row { grid-template-columns: 1fr; gap: 1.8rem; }
   .ct-checks { gap: .8rem 1.2rem; }
 }
+
+/* ============ 公式LINE（フォーム以外の相談方法） ============
+   フォームの直後に置く副導線。主導線（送信ボタン）より控えめな面にする。 */
+.ct-line {
+  margin-top: clamp(2.6rem, 6vw, 4rem);
+  padding-top: clamp(2.2rem, 5vw, 3.2rem);
+  border-top: 1px solid var(--ct-line);
+}
+.ct-line-body { margin-top: clamp(1.1rem, 2.4vw, 1.5rem); }
+.ct-line-body > p {
+  max-width: 40rem;
+  font-size: .9rem; line-height: 2.1; letter-spacing: .05em; color: var(--color-ink-soft);
+}
+.ct-line-ways {
+  margin-top: clamp(1.4rem, 3vw, 2rem);
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: clamp(1.4rem, 3.4vw, 2.4rem);
+}
+
+/* QRは白の下地と余白（クワイエットゾーン）がないと読み取れないため、
+   暗い地でも白いパネルに載せる */
+.ct-line-qr { margin: 0; display: grid; gap: .7rem; justify-items: center; }
+.ct-line-qr img {
+  display: block; width: clamp(8.5rem, 16vw, 10.5rem); height: auto;
+  padding: .7rem; border-radius: 10px; background: #fff;
+}
+.ct-line-qr figcaption {
+  font-size: .74rem; letter-spacing: .06em; color: var(--ct-mute);
+}
+
+.ct-line-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 3rem; padding: .95rem 2rem; border-radius: 4px;
+  /* LINEブランドカラー。暗い地でも埋もれず、送信ボタン（水色）とも区別がつく */
+  background: #06C755; color: #06170d;
+  font-family: var(--font-body); font-size: .9rem; font-weight: 600; letter-spacing: .08em;
+  transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+.ct-line-btn:hover, .ct-line-btn:focus-visible { background: #23dd72; }
+.ct-line-btn:active { transform: translateY(1px); }
+
+/* スマホは自分の画面のQRを読めないため隠し、ボタンだけ出す */
+@media (max-width: 760px) {
+  .ct-line-qr { display: none; }
+  .ct-line-btn { width: 100%; }
+}

@@ -4,6 +4,13 @@ import PageAtmos from "../../components/PageAtmos";
 import { useReveal } from "../../useReveal";
 import "./Contact.css";
 
+const BASE = import.meta.env.BASE_URL;
+
+/* 公式LINEの友だち追加先。QR画像はLINE公式のもの（qr-official.line.me）を
+   自前で持つ（外部への都度リクエストを増やさないため）。
+   URLは page.line.me/207ugsom のリダイレクト先で確認済み。 */
+const LINE_URL = "https://line.me/R/ti/p/@207ugsom";
+
 /* ご相談内容（複数選択可）。
    事業をWebコンテンツ制作へ一本化したため、貴金属買取・ジュエリー製作の項目は削除した。
    あわせて「お問い合わせ種別」と「想定取引規模」（重量＝貴金属買取前提）も廃止。 */
@@ -266,6 +273,30 @@ export default function Contact() {
               </div>
             </form>
             )}
+
+            {/* フォーム以外の相談方法。フォームを主導線に残したうえで、
+                「書くほどまとまっていない」人の受け皿として直後に置く。
+                QRはスマホでは自分の画面を読めないので、狭い画面では隠してボタンだけ出す。 */}
+            <section className="ct-line" aria-labelledby="ct-line-head">
+              <span className="ct-eyebrow" data-reveal>LINE</span>
+              <h2 className="ct-h2" id="ct-line-head" data-reveal>LINEでも相談できます</h2>
+              <div className="ct-line-body" data-reveal>
+                <p>フォームに書くほどまとまっていない段階でも、公式LINEからお気軽にご相談ください。</p>
+                <div className="ct-line-ways">
+                  <figure className="ct-line-qr">
+                    {/* このブロックの主役なので遅延読み込みはしない（24KBと軽い） */}
+                    <img
+                      src={`${BASE}assets/line-qr.png`} alt="SMASK公式LINEの友だち追加用QRコード"
+                      width="360" height="360"
+                    />
+                    <figcaption>QRコードを読み取る</figcaption>
+                  </figure>
+                  <a className="ct-line-btn" href={LINE_URL} target="_blank" rel="noopener noreferrer">
+                    LINEで友だち追加
+                  </a>
+                </div>
+              </div>
+            </section>
           </div>
         </section>
 
