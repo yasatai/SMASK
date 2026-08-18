@@ -1267,16 +1267,6 @@ export default function Home() {
               <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
               <p>企業やサービスが持つ価値を整理し、次の行動へ進みやすいWebサイトを制作します。</p>
             </div>
-            {/* 表示情報（※設立日は未確定のため掲載しない。確定後に追加すること） */}
-            <dl className="wc2-company-info" data-reveal>
-              <div><dt>会社名</dt><dd>株式会社スマスク</dd></div>
-              <div><dt>代表者</dt><dd>代表取締役　若林 晃行</dd></div>
-              <div><dt>所在地</dt><dd>神奈川県相模原市</dd></div>
-              <div>
-                <dt>事業内容</dt>
-                <dd>Webコンテンツ制作<span>Webサイトの企画、情報設計、文章制作、デザイン、実装連携、運用支援</span></dd>
-              </div>
-            </dl>
             <a className="wc2-company-cta" href="/company" data-reveal>会社概要を見る <span aria-hidden="true">→</span></a>
           </div>
         </section>
