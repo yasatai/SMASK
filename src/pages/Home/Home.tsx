@@ -1096,11 +1096,6 @@ export default function Home() {
                 <span className="wc2-bp-reg tl"></span><span className="wc2-bp-reg tr"></span>
                 <span className="wc2-bp-reg bl"></span><span className="wc2-bp-reg br"></span>
                 <div className="wc2-bp-dim"><b>W 1440</b></div>
-                <div className="wc2-bp-title">
-                  <div><span>SHEET</span><span>04 / CONCERNS</span></div>
-                  <div><span>SCALE</span><span>1 : 1</span></div>
-                  <div><span>REV</span><span>A — 2026.07</span></div>
-                </div>
               </div>
               {/* 線を描き終わったあと、グリッド線の上を白い点が自由に動く（数は控えめ） */}
               <canvas className="wc2-bp-dots" aria-hidden="true"></canvas>
