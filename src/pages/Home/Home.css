@@ -807,7 +807,8 @@ html.wc2-page-active .wc2-bridge { display: none; }
   background: rgb(230 231 234 / .04);
   /* 本文と同じ大きさに（FB-6） */
   font-size: var(--wc2-body-lg); line-height: 1.7; letter-spacing: .02em;
-  color: var(--wc2-ink-soft);
+  /* 本文と同じ濃さに揃える（2026-08-01 代表指示） */
+  color: #d3d7de;
   backdrop-filter: blur(3px);
   transition: border-color .5s var(--ease-out), color .5s var(--ease-out);
 }
