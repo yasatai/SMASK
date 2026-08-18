@@ -108,7 +108,7 @@ export default function Contact() {
         {/* ============ Hero ============ */}
         <section className="ct-hero">
           <span className="ct-eyebrow" data-reveal>CONTACT</span>
-          <h1 data-reveal>話しましょう。</h1>
+          <h1 data-reveal>話しましょう</h1>
           <div className="ct-lead" data-reveal>
             <p>新しいWebサイトの制作や、既存サイトの見直しについて、現在考えていることをお聞かせください。</p>
             <p>要件が固まっていない段階でも、事業や課題を伺いながら必要な内容を整理します。</p>

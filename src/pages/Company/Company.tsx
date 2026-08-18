@@ -54,7 +54,7 @@ export default function Company() {
         <section className="cp-hero">
           <span className="cp-eyebrow" data-reveal>COMPANY</span>
           {/* ルール②（行末に「、」を残さない） */}
-          <h1 data-reveal>Webを<br />事業に使えるかたちへ。</h1>
+          <h1 data-reveal>Webを<br />事業に使えるかたちへ</h1>
           <div className="cp-lead" data-reveal>
             <p>株式会社スマスクは、事業を理解し、情報、文章、導線、デザイン、実装、運用をつなぐWebコンテンツ制作会社です。</p>
             <p>企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。</p>
@@ -65,7 +65,7 @@ export default function Company() {
         <section className="cp-sec">
           <div className="cp-wrap">
             <span className="cp-eyebrow" data-reveal>ABOUT</span>
-            <h2 className="cp-h2" data-reveal>価値を見極め<br />かたちにする。</h2>
+            <h2 className="cp-h2" data-reveal>価値を見極め<br />かたちにする</h2>
             <div className="cp-body" data-reveal>
               <p>企業やサービスの中には、まだ言葉やWebのかたちになっていない価値があります。</p>
               <p>SMASKは、対話や調査を通じてその価値を整理し、文章、導線、デザイン、実装仕様へつなげます。</p>
@@ -137,7 +137,7 @@ export default function Company() {
         {/* ============ 最終CTA ============ */}
         <section className="cp-sec cp-sec--end">
           <div className="cp-wrap">
-            <h2 className="cp-h2" data-reveal>会社のことを知ったうえで<br />次は事業について話しましょう。</h2>
+            <h2 className="cp-h2" data-reveal>会社のことを知ったうえで<br />次は事業について話しましょう</h2>
             <div className="cp-body" data-reveal>
               <p>新しいWebサイトの制作や、既存サイトの見直しについて、現在考えていることをお聞かせください。</p>
               <p>要件が固まっていない段階でも、事業や課題を伺いながら必要な内容を整理します。</p>

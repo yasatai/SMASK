@@ -11,7 +11,7 @@ import "./Business.css";
 const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = [
   {
     no: "01",
-    head: ["Webをつくる前に", "事業を理解する。"],
+    head: ["Webをつくる前に", "事業を理解する"],
     body: [
       "事業やサービス、顧客、競合、既存サイトや社内資料を確認し、制作の前提を整理します。",
       "企業の中では当たり前になっている価値や強みを見つけ、Webで何を伝えるべきかを明確にします。",
@@ -19,7 +19,7 @@ const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = 
   },
   {
     no: "02",
-    head: ["伝える内容を選び", "伝わる順番に整える。"],
+    head: ["伝える内容を選び", "伝わる順番に整える"],
     body: [
       "誰に、何を、どのページで伝えるのかを整理し、サイト全体の構成と導線を設計します。",
       "問い合わせ、採用、資料閲覧など、目的に応じて次の行動へ進みやすい流れをつくります。",
@@ -27,7 +27,7 @@ const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = 
   },
   {
     no: "03",
-    head: ["伝えたいことを", "読まれる言葉へ。"],
+    head: ["伝えたいことを", "読まれる言葉へ"],
     body: [
       "ヒアリングや既存資料をもとに、ヒーローコピー、見出し、本文、CTA、FAQなど、Webサイトに必要な文章を構築します。",
       "企業側の言葉をそのまま並べるのではなく、読み手が理解しやすい表現へ整理します。",
@@ -35,7 +35,7 @@ const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = 
   },
   {
     no: "04",
-    head: ["情報の意味を", "画面の体験へ変える。"],
+    head: ["情報の意味を", "画面の体験へ変える"],
     body: [
       "情報の優先順位と導線をもとに、企業やサービスの価値が伝わる画面を設計します。",
       "見た目の美しさだけでなく、読みやすさ、使いやすさ、スマートフォンでの見え方まで考えて制作します。",
@@ -43,7 +43,7 @@ const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = 
   },
   {
     no: "05",
-    head: ["デザインの意図を", "実装できる仕様へ。"],
+    head: ["デザインの意図を", "実装できる仕様へ"],
     body: [
       "画面構成、機能、表示状態、レスポンシブ、操作時の動きなどを実装仕様へ整理します。",
       "エンジニアと連携し、デザインと実際のWebサイトにずれが生まれにくい状態をつくります。",
@@ -51,7 +51,7 @@ const STEPS: { no: string; head: [string, string]; body: [string, string] }[] = 
   },
   {
     no: "06",
-    head: ["公開して終わらない", "使い続けられるWebへ。"],
+    head: ["公開して終わらない", "使い続けられるWebへ"],
     body: [
       "情報更新、コンテンツ追加、アクセス状況の確認、導線の見直しなど、公開後の運用も考えて設計します。",
       "案件に必要な範囲を整理し、Webサイトを事業の中で継続して活用できる状態を目指します。",
@@ -87,7 +87,7 @@ export default function Business() {
         {/* ============ Hero ============ */}
         <section className="bz-hero">
           <span className="bz-eyebrow" data-reveal>BUSINESS</span>
-          <h1 data-reveal>伝わるWebを<br />動かすまで。</h1>
+          <h1 data-reveal>伝わるWebを<br />動かすまで</h1>
           <div className="bz-lead" data-reveal>
             <p>SMASKは、事業を理解するところから、情報整理、文章、導線、デザイン、実装連携、公開後の運用までをつなぐWebコンテンツ制作会社です。</p>
             <p>見た目を整えるだけではなく、誰に何を伝え、どの行動につなげるのかを考え、事業に使えるWebサイトを制作します。</p>
@@ -133,7 +133,7 @@ export default function Business() {
         {/* ============ 最終CTA ============ */}
         <section className="bz-sec bz-sec--end">
           <div className="bz-wrap">
-            <h2 className="bz-h2 bz-h2--sec" data-reveal>何をつくるかが<br />まだ決まっていなくても大丈夫です。</h2>
+            <h2 className="bz-h2 bz-h2--sec" data-reveal>何をつくるかが<br />まだ決まっていなくても大丈夫です</h2>
             <div className="bz-body" data-reveal>
               <p>現在の事業や課題を伺いながら、必要なページ、内容、制作範囲を整理します。</p>
             </div>
