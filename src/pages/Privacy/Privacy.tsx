@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import LoadCurtain from "../../components/LoadCurtain";
+import PageAtmos from "../../components/PageAtmos";
+import { useReveal } from "../../useReveal";
 import "./Privacy.css";
 
 /* 各条項。body は段落、list は箇条書き（どちらも任意） */
@@ -72,16 +74,21 @@ const ARTICLES: Article[] = [
 
 export default function Privacy() {
   useEffect(() => { document.title = "プライバシーポリシー ｜ SMASK"; }, []);
+  /* 背景・演出はトップと同じ暗い世界に揃える（下層ページ共通の作法）。
+     ただし [data-reveal] は見出しと戻り先だけに付ける。
+     法務文書なので、本文はスクロールした瞬間に読める状態でなければならない。 */
+  useReveal();
 
   return (
     <>
       <LoadCurtain />
+      <PageAtmos />
       <main className="pv-page">
 
         {/* ============ 見出し ============ */}
         <section className="pv-head">
           <div className="pv-wrap">
-            <div className="pv-title">
+            <div className="pv-title" data-reveal>
               <span className="pv-title-ic" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <rect x="5.6" y="10.4" width="12.8" height="9" rx="1.8" fill="none" stroke="currentColor" strokeWidth="1.5" />
@@ -91,7 +98,7 @@ export default function Privacy() {
               </span>
               <h1>プライバシーポリシー</h1>
             </div>
-            <p className="pv-lead">株式会社スマスクの個人情報保護方針をご確認ください。</p>
+            <p className="pv-lead" data-reveal>株式会社スマスクの個人情報保護方針をご確認ください。</p>
           </div>
         </section>
 
@@ -145,7 +152,7 @@ export default function Privacy() {
             </article>
 
             {/* 読み終えたあとの戻り先。App側の遷移カーテンが効くよう通常のリンクで置く */}
-            <div className="pv-back">
+            <div className="pv-back" data-reveal>
               <a className="pv-back-btn" href="/">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M4.6 11.4 12 5.2l7.4 6.2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
