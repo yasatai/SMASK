@@ -19,7 +19,30 @@
   }
 </style>
 <link rel="icon" href="/assets/favicon.jpg" type="image/jpeg">
-<meta name="description" content="貴金属買取・ジュエリー制作・Webコンテンツ制作。SMASKは、それぞれ異なる領域で価値の本質を見極め、必要な形に整え、社会へ届けていきます。">
+<meta name="description" content="SMASKは、事業を理解し、情報・文章・導線・デザイン・実装・運用をつなぐWebコンテンツ制作会社です。企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。">
+
+<!-- OGP / Twitter Card（LINE・Slack・X などにURLを貼ったときのカード）
+     %VITE_SITE_URL% は Vite がビルド時に .env の値へ置換する。末尾スラッシュ無しのサイト直下URL。
+     OGPの画像・URLは絶対URLでないと拾われないため、公開先ごとに値を変える必要がある。
+       GitHub Pages … .github/workflows/deploy.yml が環境変数で上書き
+       XServer      … app/.env の既定値
+     画像は tools/make-ogp.py で生成（トップと同じ暗い世界＋会社ロゴ）。作り直しはそのスクリプトで。 -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SMASK">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:title" content="SMASK ｜ 価値を見極め、かたちにする">
+<meta property="og:description" content="SMASKは、事業を理解し、情報・文章・導線・デザイン・実装・運用をつなぐWebコンテンツ制作会社です。企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。">
+<meta property="og:url" content="%VITE_SITE_URL%/">
+<meta property="og:image" content="%VITE_SITE_URL%/assets/ogp.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SMASK ｜ 価値を見極め、かたちにする">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SMASK ｜ 価値を見極め、かたちにする">
+<meta name="twitter:description" content="SMASKは、事業を理解し、情報・文章・導線・デザイン・実装・運用をつなぐWebコンテンツ制作会社です。企業やサービスが持つ価値を整理し、相手に伝わり、次の行動へ進みやすいWebを設計します。">
+<meta name="twitter:image" content="%VITE_SITE_URL%/assets/ogp.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Shippori+Mincho:wght@400;500;600&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
