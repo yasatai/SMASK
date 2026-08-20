@@ -134,19 +134,17 @@ export default function Privacy() {
                 <p>当社は、法令の変更や事業内容の変更等に伴い、本ポリシーを変更することがあります。変更後のプライバシーポリシーは、当社ウェブサイトに掲載した時点で効力を生じるものとします。</p>
               </section>
 
-              <section className="pv-article">
-                <h2>第9条（アクセス解析ツール・Cookieの利用）</h2>
-                <p>
-                  当社は、サービス向上を目的として、Google LLC が提供するGoogle Analytics 4（GA4）を使用しています。GA4はCookieを使用して匿名のトラフィックデータを収集します。収集されるデータにはIPアドレスが含まれますが、個人を特定するものではありません。Googleのデータ収集・処理方法については
-                  <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Googleプライバシーポリシー</a>
-                  をご参照ください。Cookieの使用を希望されない場合は、ブラウザの設定によりCookieを無効にすることができます。
-                </p>
-              </section>
+              {/* 旧・第9条（アクセス解析ツール・Cookieの利用）は削除した（2026-08-21 代表指示）。
+                  GA4を使用している旨を書いていたが、実装が無い（gtag・測定ID・document.cookie の
+                  いずれもコードに存在しない）。事実と違う記載を法務ページに残さない。
+                  将来GA4等を入れるときは、この条を復活させてから計測を開始すること。
+                  なお sessionStorage の "smask-opening-seen"（オープニング再生済みの印）は
+                  Cookieではなく個人情報も含まないため、記載の対象外とした。 */}
 
               {/* 制定日・改定日 */}
               <footer className="pv-dates">
                 <p>制定日：2024年1月1日</p>
-                <p>最終改定日：2024年1月1日</p>
+                <p>最終改定日：2026年8月21日</p>
               </footer>
 
             </article>
