@@ -104,6 +104,11 @@ export default function App() {
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/works" element={<Works />} />
         <Route path="/works/:slug" element={<WorkDetail />} />
+        {/* 該当なしはトップへ。これが無いと <main> ごと何も描かれず、
+            メニューとフッターだけの空ページになる（本文が無いので原因も分からない）。
+            旧テストHPの /business-jewelry・/business-metal 等のブックマークが
+            本番(test-smask.com)に残っているため、置き換え時に必ず踏まれる。 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <Footer />
     </SiteSettingsProvider>
